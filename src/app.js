@@ -53,7 +53,7 @@ require("./database/init.database");
 app.use(handleApiRequest);
 
 // init routes
-app.use("/", require("./routes"));
+app.use("/api/v1", require("./routes"));
 
 // error handler
 app.use(checkNotFoundError);
