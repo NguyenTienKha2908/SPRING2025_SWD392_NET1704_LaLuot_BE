@@ -38,15 +38,15 @@ class AuthService {
     const userHolder = await userModel.findOne({ email }).lean();
     if (!userHolder) throw new UnauthorizedRequestError("Invalid email");
 
+    const isPasswordMatch = await bcrypt.compare(password, userHolder.password);
+    if (!isPasswordMatch)
+      throw new UnauthorizedRequestError("Invalid password");
+
     if (!userHolder.isActive || userHolder.isDeleted)
       throw new UnauthorizedRequestError("Account is not active");
 
     if (!userHolder.isVerified)
       throw new UnauthorizedRequestError("Account is not verified");
-
-    const isPasswordMatch = await bcrypt.compare(password, userHolder.password);
-    if (!isPasswordMatch)
-      throw new UnauthorizedRequestError("Invalid password");
 
     const accessToken = createAccessToken(
       { _id: userHolder._id, role: userHolder.role },
