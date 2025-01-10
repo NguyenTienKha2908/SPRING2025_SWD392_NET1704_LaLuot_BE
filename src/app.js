@@ -49,6 +49,10 @@ app.use(
 // init database
 require("./database/init.database");
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('../swagger-output.json');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // request logger
 app.use(handleApiRequest);
 
