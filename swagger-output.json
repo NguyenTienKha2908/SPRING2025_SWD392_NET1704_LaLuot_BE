@@ -81,6 +81,16 @@
           }
         }
       }
+    },
+    "/api/v1/users": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {
