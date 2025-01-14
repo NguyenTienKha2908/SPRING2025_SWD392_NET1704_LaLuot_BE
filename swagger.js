@@ -19,6 +19,10 @@ const doc = {
             name: 'Auth',             // Tag name
             description: ''       // Tag description
         },
+        {
+            name: 'User',
+            description: ''
+        },
         // { ... }
     ],
     components: {
@@ -38,6 +42,21 @@ const doc = {
                 $fullName: "John Doe",
                 $email: "abc@gmail.com",
                 $password: "***"
+            },
+            GetAllUsers: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'fullName email role'
+            },
+            CreateUser: {
+                $fullName: "John Doe",
+                $email: "abc@gmail.com",
+                $password: "***",
+                role: 2
             }
         }
     },

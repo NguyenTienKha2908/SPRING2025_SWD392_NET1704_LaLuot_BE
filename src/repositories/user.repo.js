@@ -20,5 +20,5 @@ const getAllUsers = async ({ limit, sort, page, filter, select }) => {
 }
 
 module.exports = {
-    getAllUsers
+    getAllUsers,
 }

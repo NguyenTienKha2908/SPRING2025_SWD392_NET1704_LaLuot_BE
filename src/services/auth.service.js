@@ -5,14 +5,15 @@ const {
 } = require("../core/responses/error.response");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
-const SignUpDto = require("../core/dtos/auth/signup.dto");
+const CreateUserDto = require("../core/dtos/users/create.user.dto");
 const { createAccessToken } = require("../utils/auth.util");
 const { ROLES } = require("../configs/user.config");
-
+const { sendMail } = require("../utils/mailer");
+const jwt = require("jsonwebtoken");
 class AuthService {
   static signUp = async ({ fullName, email, password }) => {
-    const signUpDto = new SignUpDto(fullName, email, password);
-    await signUpDto.validate();
+    const createUserDto = new CreateUserDto(fullName, email, password);
+    await createUserDto.validate();
 
     const userHolder = await userModel.findOne({ email }).lean();
     if (userHolder) throw new BadRequestError("Email already exists");
@@ -22,12 +23,49 @@ class AuthService {
       parseInt(process.env.PASSWORD_SALT)
     );
 
+    const verifyToken = createAccessToken({ email: email },
+      process.env.ACCESS_TOKEN_SECRET,
+      process.env.ACCESS_TOKEN_EXPIRES);
+
     const newUser = await userModel.create({
       fullName,
       email,
       password: passwordHash,
       role: ROLES.STAFF,
+      verifyToken: verifyToken,
     });
+
+    await sendMail(email,
+      "Signup Verification",
+      "Please verify your email", `
+      <div style="width: 40vw;">
+  <table>
+    <tr>
+      <td>
+        <img src="https://cdn-icons-png.flaticon.com/512/2618/2618626.png" width="120" alt="Logo" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p>
+          Thank you for signing up Medical Warehouse System. Click the link below to fully access our app & activate your account and please note that your verification link will expire in <strong>48 hours</strong>.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="${process.env.APP_BASE_URL}/auth/verify/email?token=${verifyToken}">Click here to verify your email</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p style="color: grey;">Please check your spam folder if you don't see</p>
+      </td>
+    </tr>
+  </table>
+</div>
+    `);
+
     return;
   };
 
@@ -42,11 +80,8 @@ class AuthService {
     if (!isPasswordMatch)
       throw new UnauthorizedRequestError("Invalid password");
 
-    if (!userHolder.isActive || userHolder.isDeleted)
-      throw new UnauthorizedRequestError("Account is not active");
-
-    if (!userHolder.isVerified)
-      throw new UnauthorizedRequestError("Account is not verified");
+    if (!userHolder.isActive || userHolder.isDeleted || !userHolder.isVerified)
+      throw new UnauthorizedRequestError("User is not active or deleted or not verified");
 
     const accessToken = createAccessToken(
       { _id: userHolder._id, role: userHolder.role },
@@ -56,6 +91,20 @@ class AuthService {
 
     return accessToken;
   };
+
+  static verifyEmail = async ({ token }) => {
+    console.log(token)
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedEmail = decodedToken.email;
+    if (!decodedEmail) throw new BadRequestError("Invalid token");
+
+    const userHolder = await userModel.findOne({ email: decodedEmail }).lean();
+    if (!userHolder || userHolder.verifyToken !== token) throw new BadRequestError("Invalid token");
+    if (userHolder.isVerified) throw new BadRequestError("Email already verified");
+
+    await userModel.updateOne({ email: decodedEmail }, { isVerified: true, verifyToken: null });
+    return
+  }
 }
 
 module.exports = AuthService;
