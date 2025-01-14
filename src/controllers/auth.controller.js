@@ -15,6 +15,13 @@ class AuthController {
       metadata: await AuthService.logIn(req.body),
     }).send(res);
   };
+
+  verifyEmail = async (req, res) => {
+    new OK({
+      message: "Email verified successfully",
+      metadata: await AuthService.verifyEmail(req.query),
+    }).send(res);
+  }
 }
 
 module.exports = new AuthController();

@@ -19,6 +19,10 @@ const doc = {
             name: 'Auth',             // Tag name
             description: ''       // Tag description
         },
+        {
+            name: 'User',
+            description: ''
+        },
         // { ... }
     ],
     components: {
@@ -38,6 +42,21 @@ const doc = {
                 $fullName: "John Doe",
                 $email: "abc@gmail.com",
                 $password: "***"
+            },
+            GetAllUsers: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'fullName email role'
+            },
+            CreateUser: {
+                $fullName: "John Doe",
+                $email: "abc@gmail.com",
+                $password: "***",
+                role: 2
             }
         }
     },
@@ -54,6 +73,6 @@ const routes = ['./src/app.js'];
 /* NOTE: If you are using the express Router, you must pass in the 'routes' only the 
 root file where the route starts, such as index.js, app.js, routes.js, etc ... */
 
-swaggerAutogen(outputFile, routes, doc).then(()=>{
+swaggerAutogen(outputFile, routes, doc).then(() => {
     require('./server.js')
 })

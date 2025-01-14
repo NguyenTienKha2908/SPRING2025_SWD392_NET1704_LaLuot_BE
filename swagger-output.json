@@ -15,6 +15,10 @@
     {
       "name": "Auth",
       "description": ""
+    },
+    {
+      "name": "User",
+      "description": ""
     }
   ],
   "paths": {
@@ -81,6 +85,97 @@
           }
         }
       }
+    },
+    "/api/v1/auth/verify/email": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "description": "Verify user email",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "description": "Get all users",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Query parameters for get all users",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/GetAllUsers"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "description": "Create a new user",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUser"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{id}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "description": "Get user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {
@@ -123,6 +218,62 @@
           "password": {
             "type": "string",
             "example": "***"
+          }
+        },
+        "required": [
+          "fullName",
+          "email",
+          "password"
+        ]
+      },
+      "GetAllUsers": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "fullName email role"
+          }
+        }
+      },
+      "CreateUser": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "abc@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "***"
+          },
+          "role": {
+            "type": "number",
+            "example": 2
           }
         },
         "required": [

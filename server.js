@@ -11,6 +11,7 @@ const server = app.listen(PORT, () => {
       chalk.underline("http://localhost:" + PORT)
     )}`
   );
+  logger.info(`Docs are running at ${chalk.magenta(chalk.underline("http://localhost:" + PORT + "/api-docs"))}`);
 });
 
 process.on("SIGINT", () => {

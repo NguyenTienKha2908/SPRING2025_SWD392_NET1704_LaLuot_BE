@@ -1,5 +1,5 @@
 const validator = require("validator");
-const { BadRequestError } = require("../core/responses/error.response");
+const { BadRequestError, NotFoundRequestError } = require("../core/responses/error.response");
 
 const validFullName = async (fullName) => {
   if (!fullName) throw new BadRequestError("Full name is required.");
@@ -32,4 +32,9 @@ const validPassword = async (password) => {
     throw new BadRequestError("Password is not strong enough.");
 };
 
-module.exports = { validFullName, validEmail, validPassword };
+const validMongoObjectId = async (id) => {
+  if (!id) throw new BadRequestError("Id is required.");
+  if (!validator.isMongoId(id)) throw new NotFoundRequestError("Not found.");
+}
+
+module.exports = { validFullName, validEmail, validPassword, validMongoObjectId };

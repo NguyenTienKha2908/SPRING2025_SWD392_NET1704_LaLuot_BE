@@ -49,9 +49,13 @@ app.use(
 // init database
 require("./database/init.database");
 
+// init swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('../swagger-output.json');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const basicAuth = require("express-basic-auth");
+const { AUTHENTICATION } = require("./configs/auth.config");
+const users = AUTHENTICATION.swagger.users
+app.use('/api-docs', basicAuth({ users, challenge: true }), swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // request logger
 app.use(handleApiRequest);
@@ -59,7 +63,8 @@ app.use(handleApiRequest);
 // init routes
 app.use("/api/v1", require("./routes"));
 app.get("/", (req, res) => {
-  res.send("Medical Warehouse Management System");
+  res.setHeader('Cache-Control', 'no-store');
+  res.status(200).send("Welcome to the API");
 });
 
 // error handler
