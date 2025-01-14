@@ -16,6 +16,13 @@ class AuthController {
     }).send(res);
   };
 
+  logInGoogle = async (req, res) => {
+    new OK({
+      message: "Log in with Google successfully",
+      metadata: await AuthService.logInGoogle({ data: req.user._json }),
+    }).send(res);
+  };
+
   verifyEmail = async (req, res) => {
     new OK({
       message: "Email verified successfully",

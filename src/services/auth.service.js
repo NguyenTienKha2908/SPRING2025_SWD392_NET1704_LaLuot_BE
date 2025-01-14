@@ -39,31 +39,31 @@ class AuthService {
       "Signup Verification",
       "Please verify your email", `
       <div style="width: 40vw;">
-  <table>
+    <table>
     <tr>
       <td>
-        <img src="https://cdn-icons-png.flaticon.com/512/2618/2618626.png" width="120" alt="Logo" />
+      <img src="${process.env.APP_BASE_URL}/images/logo.png" width="120" alt="Logo" />
       </td>
     </tr>
     <tr>
       <td>
-        <p>
-          Thank you for signing up Medical Warehouse System. Click the link below to fully access our app & activate your account and please note that your verification link will expire in <strong>48 hours</strong>.
-        </p>
+      <p>
+        Thank you for signing up Medical Warehouse System. Click the link below to fully access our app & activate your account and please note that your verification link will expire in <strong>48 hours</strong>.
+      </p>
       </td>
     </tr>
     <tr>
       <td>
-        <a href="${process.env.APP_BASE_URL}/auth/verify/email?token=${verifyToken}">Click here to verify your email</a>
+      <a href="${process.env.APP_BASE_URL}/auth/verify/email?token=${verifyToken}">Click here to verify your email</a>
       </td>
     </tr>
     <tr>
       <td>
-        <p style="color: grey;">Please check your spam folder if you don't see</p>
+      <p style="color: grey;">Please check your spam folder if you don't see</p>
       </td>
     </tr>
-  </table>
-</div>
+    </table>
+  </div>
     `);
 
     return;
@@ -92,8 +92,41 @@ class AuthService {
     return accessToken;
   };
 
+  static logInGoogle = async ({ data }) => {
+    const userHolder = await userModel.findOne({ email: data.email }).lean();
+    if (userHolder) {
+      if (userHolder.isDeleted || !userHolder.isActive)
+        throw new UnauthorizedRequestError("User is not active or deleted");
+      if (!userHolder.isVerified)
+        await userModel.updateOne({ email: data.email }, { isVerified: true, verifyToken: null });
+      if (userHolder.avatar === null || userHolder.avatar === "")
+        await userModel.updateOne({ email: data.email }, { avatar: data.picture || data.photo });
+
+      const accessToken = createAccessToken(
+        { _id: userHolder._id, role: userHolder.role },
+        process.env.ACCESS_TOKEN_SECRET,
+        process.env.ACCESS_TOKEN_EXPIRES
+      );
+      return accessToken;
+    }
+    const newUser = await userModel.create({
+      fullName: data.name,
+      email: data.email,
+      password: await bcrypt.hash(data.email + data.fullName + data.picture + ROLES.STAFF, parseInt(process.env.PASSWORD_SALT)),
+      role: ROLES.STAFF,
+      avatar: data.picture || data.photo,
+      isVerified: true,
+    })
+    const accessToken = createAccessToken(
+      { _id: newUser._id, role: newUser.role },
+      process.env.ACCESS_TOKEN_SECRET,
+      process.env.ACCESS_TOKEN_EXPIRES
+    );
+    return accessToken;
+  }
+
   static verifyEmail = async ({ token }) => {
-    console.log(token)
+    if (!token) throw new BadRequestError("Invalid token");
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const decodedEmail = decodedToken.email;
     if (!decodedEmail) throw new BadRequestError("Invalid token");
@@ -105,6 +138,7 @@ class AuthService {
     await userModel.updateOne({ email: decodedEmail }, { isVerified: true, verifyToken: null });
     return
   }
+
 }
 
 module.exports = AuthService;
