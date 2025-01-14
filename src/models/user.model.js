@@ -13,6 +13,10 @@ var userSchema = new mongoose.Schema(
       minLength: 6,
       maxLength: 50,
     },
+    avatar: {
+      type: String,
+      default: "",
+    },
     email: {
       type: String,
       unique: true,

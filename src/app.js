@@ -32,7 +32,7 @@ app.use(helmet()); // secure app by setting various HTTP headers
 app.use(compression()); // compress all responses
 app.use(express.json()); // parse application/json
 app.use(express.urlencoded({ extended: true })); // parse application/x-www-form-urlencoded
-app.use("/", express.static(__dirname)); // serve static files
+app.use("/", express.static("public")); // serve static files in public folder
 app.disable("x-powered-by"); // disable x-powered-by header
 app.set("trust proxy", 1); // trust first proxy
 app.use(
