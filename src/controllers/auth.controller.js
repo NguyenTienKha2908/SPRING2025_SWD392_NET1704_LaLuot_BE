@@ -29,6 +29,13 @@ class AuthController {
       metadata: await AuthService.verifyEmail(req.query),
     }).send(res);
   }
+
+  resetPassword = async (req, res) => {
+    new OK({
+      message: "Password reset successfully",
+      metadata: await AuthService.resetPassword({ token: req.query.token, password: req.body.password })
+    })
+  }
 }
 
 module.exports = new AuthController();

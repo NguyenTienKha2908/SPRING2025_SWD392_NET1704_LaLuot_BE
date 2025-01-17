@@ -2,6 +2,7 @@ const ROLES = {
   ADMIN: 0,
   MANAGER: 1,
   STAFF: 2,
+  SUPPLIER: 3,
 };
 
 const FILTER_USER = {

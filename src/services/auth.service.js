@@ -2,12 +2,13 @@ const userModel = require("../models/user.model");
 const {
   BadRequestError,
   UnauthorizedRequestError,
+  InternalServerError,
 } = require("../core/responses/error.response");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const CreateUserDto = require("../core/dtos/users/create.user.dto");
 const { createAccessToken } = require("../utils/auth.util");
-const { ROLES } = require("../configs/user.config");
+const { ROLES, FILTER_USER } = require("../configs/user.config");
 const { sendMail } = require("../utils/mailer");
 const jwt = require("jsonwebtoken");
 class AuthService {
@@ -57,16 +58,11 @@ class AuthService {
       <a href="${process.env.APP_BASE_URL}/auth/verify/email?token=${verifyToken}">Click here to verify your email</a>
       </td>
     </tr>
-    <tr>
-      <td>
-      <p style="color: grey;">Please check your spam folder if you don't see</p>
-      </td>
-    </tr>
     </table>
   </div>
     `);
 
-    return;
+    return
   };
 
   static logIn = async ({ email, password }) => {
@@ -88,6 +84,7 @@ class AuthService {
       process.env.ACCESS_TOKEN_SECRET,
       process.env.ACCESS_TOKEN_EXPIRES
     );
+    if (!accessToken) throw new InternalServerError("Server error");
 
     return accessToken;
   };
@@ -112,7 +109,8 @@ class AuthService {
     const newUser = await userModel.create({
       fullName: data.name,
       email: data.email,
-      password: await bcrypt.hash(data.email + data.fullName + data.picture + ROLES.STAFF, parseInt(process.env.PASSWORD_SALT)),
+      password: await bcrypt.hash(data.email + data.fullName + data.picture + ROLES.STAFF + process.env.ACCESS_TOKEN_SECRET,
+        parseInt(process.env.PASSWORD_SALT)),
       role: ROLES.STAFF,
       avatar: data.picture || data.photo,
       isVerified: true,
@@ -122,6 +120,7 @@ class AuthService {
       process.env.ACCESS_TOKEN_SECRET,
       process.env.ACCESS_TOKEN_EXPIRES
     );
+    if (!accessToken) throw new InternalServerError("Server error");
     return accessToken;
   }
 
@@ -139,6 +138,66 @@ class AuthService {
     return
   }
 
+  static createForgotPasswordRequest = async ({ email }) => {
+    if (!email) throw new BadRequestError("Email is required");
+
+    const userHolder = await userModel.findOne({ email }).find(FILTER_USER.NORMAL_USER).lean();
+    if (!userHolder) throw new UnauthorizedRequestError("Invalid email");
+
+    const resetToken = createAccessToken({ email: email },
+      process.env.ACCESS_TOKEN_SECRET,
+      process.env.ACCESS_TOKEN_EXPIRES);
+
+    if (!resetToken) throw new InternalServerError("Server error");
+
+    await userModel.updateOne({ email: email, }, {
+      resetPasswordToken: resetToken,
+    })
+
+    await sendMail(email,
+      "Reset Password",
+      "Please reset your password", `
+      <div style="width: 40vw;">
+    <table>
+    <tr>
+      <td>
+      <img src="${process.env.APP_BASE_URL}/images/logo.png" width="120" alt="Logo" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <p>
+        You have requested to reset your password, click the link below to reset your password. And please note that your link <strong>will be expired in 48 hour</strong> for security reasons.
+      </p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <a href="${process.env.CLIENT_BASE_URL}/reset-password/${resetToken}">Click here to navigate to reset password page</a>
+      </td>
+    </tr>
+    </table>
+  </div>
+    `);
+    return;
+  }
+
+  static resetPassword = async ({ token, newPassword }) => {
+    if (!token || !newPassword) throw new BadRequestError("Invalid request");
+
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedEmail = decodedToken.email;
+    if (!decodedEmail) throw new BadRequestError("Invalid token");
+
+    const userHolder = await userModel.findOne({ email: decodedEmail }).lean();
+    if (!userHolder || userHolder.resetPasswordToken !== token) throw new BadRequestError("Invalid token");
+
+    const passwordHash = await bcrypt.hash(newPassword, parseInt(process.env.PASSWORD_SALT));
+    await userModel.updateOne({ email: decodedEmail }, { password: passwordHash, resetPasswordToken: null });
+
+    return;
+  }
 }
+
 
 module.exports = AuthService;

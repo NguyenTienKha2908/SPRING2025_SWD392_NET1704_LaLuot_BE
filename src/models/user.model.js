@@ -26,6 +26,10 @@ var userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    resetPasswordToken: {
+      type: String,
+      default: "",
+    },
     isVerified: {
       type: mongoose.Schema.Types.Boolean,
       default: false,
