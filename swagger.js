@@ -43,6 +43,9 @@ const doc = {
                 $email: "abc@gmail.com",
                 $password: "***"
             },
+            ResetPassword: {
+                $newPassword: "***"
+            },
             GetAllUsers: {
                 limit: 10,
                 sort: 'ctime',
@@ -73,6 +76,10 @@ const routes = ['./src/app.js'];
 /* NOTE: If you are using the express Router, you must pass in the 'routes' only the 
 root file where the route starts, such as index.js, app.js, routes.js, etc ... */
 
+const chalk = require("chalk");
+const getLogger = require("./src/utils/logger");
+const logger = getLogger("SWAGGER");
 swaggerAutogen(outputFile, routes, doc).then(() => {
+    logger.info(`Docs are running at ${chalk.magenta(chalk.underline(`${process.env.APP_BASE_URL}` + "/api-docs"))}`);
     require('./server.js')
 })

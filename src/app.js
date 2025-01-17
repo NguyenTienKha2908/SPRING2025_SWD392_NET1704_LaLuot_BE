@@ -57,6 +57,22 @@ const { AUTHENTICATION } = require("./configs/auth.config");
 const users = AUTHENTICATION.swagger.users
 app.use('/api-docs', basicAuth({ users, challenge: true }), swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// init socket
+const { socket } = require("../socket");
+const server = require("http").createServer(app)
+const { instrument } = require("@socket.io/admin-ui");
+const io = require("socket.io")(server, {
+  cors: {
+    origin: ["https://admin.socket.io", process.env.CLIENT_BASE_URL],
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+})
+instrument(io, {
+  auth: false,
+})
+socket(io)
+
 // request logger
 app.use(handleApiRequest);
 
@@ -71,4 +87,4 @@ app.get("/", (req, res) => {
 app.use(checkNotFoundError);
 app.use(handleErrorResponse);
 
-module.exports = app;
+module.exports = server;

@@ -1,9 +1,6 @@
 const express = require("express");
 const authController = require("../../controllers/auth.controller");
 const { catchAsyncHandle } = require("../../middlewares/error.middleware");
-const AuthMiddleware = require("../../middlewares/auth.middleware");
-const checkRole = require("../../middlewares/role.middleware");
-const { ROLES } = require("../../configs/user.config");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 require("dotenv").config();
@@ -55,25 +52,26 @@ passport.use(new GoogleStrategy({
 }))
 passport.serializeUser((user, done) => {
     done(null, user);
-  });
-  passport.deserializeUser((user, done) => {
+});
+passport.deserializeUser((user, done) => {
     done(null, user);
-  });
-  
+});
+
 router.use(passport.initialize());
 router.use(passport.session());
 router.get("/auth/login/google",
     /**
      * #swagger.tags = ['Auth']
-     * #swagger.description='Log in with Google
-     * #swagger.security = [{
-     *     "GoogleAuth": []
-     * }]
+     * #swagger.description='Log in user with Google: http://domain/api/v1/auth/login/google'
      */
     passport.authenticate("google", { scope: ["profile", "email"] })
 )
 
 router.get("/auth/login/google/callback",
+    /**
+     * #swagger.tags = ['Auth']
+     * #swagger.description='Log in user with Google callback'
+     */
     passport.authenticate("google", { failureRedirect: "/" }),
     catchAsyncHandle(authController.logInGoogle)
 )
@@ -90,5 +88,29 @@ router.get("/auth/verify/email",
     }
     */
     catchAsyncHandle(authController.verifyEmail)
+)
+
+router.post("/auth/reset/password",
+    /**
+     * #swagger.tags = ['Auth']
+     * #swagger.description='Reset user password'
+     */
+    /*
+    #swagger.parameters['token'] = {
+        in: 'query',
+        required: true,
+        type: 'string'
+    }
+    #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/ResetPassword"
+                }
+            }
+        }
+    }
+    */
+    catchAsyncHandle(authController.resetPassword)
 )
 module.exports = router;

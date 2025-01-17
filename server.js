@@ -3,15 +3,14 @@ const app = require("./src/app");
 const getLogger = require("./src/utils/logger");
 const logger = getLogger("SERVER");
 
-const PORT = process.env.PORT || 8386;
+const PORT = process.env.NODE_ENV === "dev" ? process.env.DEV_APP_PORT : process.env.PRO_APP_PORT;
 
 const server = app.listen(PORT, () => {
   logger.info(
     `Server is running at ${chalk.magenta(
-      chalk.underline("http://localhost:" + PORT)
+      chalk.underline(`${process.env.APP_BASE_URL}`)
     )}`
   );
-  logger.info(`Docs are running at ${chalk.magenta(chalk.underline("http://localhost:" + PORT + "/api-docs"))}`);
 });
 
 process.on("SIGINT", () => {
