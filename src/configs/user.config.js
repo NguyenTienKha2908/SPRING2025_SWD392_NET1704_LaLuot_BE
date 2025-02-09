@@ -1,4 +1,4 @@
-const ROLES = {
+const USER_ROLES = {
   ADMIN: 0,
   MANAGER: 1,
   STAFF: 2,
@@ -27,4 +27,4 @@ const SELECT_USER = {
   FULL: "fullName email role isVerified isActive isDeleted"
 }
 
-module.exports = { ROLES, FILTER_USER, SELECT_USER };
+module.exports = { USER_ROLES, FILTER_USER, SELECT_USER };

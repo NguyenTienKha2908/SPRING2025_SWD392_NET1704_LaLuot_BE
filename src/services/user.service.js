@@ -41,6 +41,7 @@ class UserService {
             email,
             password: passwordHash,
             role: role || ROLES.STAFF,
+            isVerified: true
         })
         return
     }

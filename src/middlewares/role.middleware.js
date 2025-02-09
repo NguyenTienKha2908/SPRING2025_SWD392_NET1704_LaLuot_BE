@@ -1,10 +1,13 @@
 const { ForbiddenRequestError } = require("../core/responses/error.response");
 
-const checkRole = (requiredRole) => {
+const checkRoles = ({ requiredRoles }) => {
     return (req, res, next) => {
         try {
             const userRole = req.role;
-            if (userRole !== requiredRole) {
+            if (!Array.isArray(requiredRoles)) {
+                throw new Error("requiredRoles must be an array");
+            }
+            if (!requiredRoles.includes(userRole)) {
                 throw new ForbiddenRequestError("You are not allowed to access this resource");
             }
             next();
@@ -14,4 +17,4 @@ const checkRole = (requiredRole) => {
     };
 };
 
-module.exports = checkRole;
+module.exports = checkRoles;

@@ -1,6 +1,9 @@
 const express = require("express");
 const userController = require("../../controllers/user.controller");
 const { catchAsyncHandle } = require("../../middlewares/error.middleware");
+const { USER_ROLES } = require("../../configs/user.config");
+const checkRoles = require("../../middlewares/role.middleware");
+const AuthMiddleware = require("../../middlewares/auth.middleware");
 
 const router = express.Router();
 
@@ -51,6 +54,7 @@ router.post("/users",
         }
     } 
 */
+    AuthMiddleware,
+    checkRoles({ requiredRoles: [USER_ROLES.ADMIN] }),
     catchAsyncHandle(userController.createUser));
-
 module.exports = router;
