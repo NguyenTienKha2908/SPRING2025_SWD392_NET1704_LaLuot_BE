@@ -8,7 +8,7 @@ require("dotenv").config();
 const bcrypt = require("bcrypt");
 const CreateUserDto = require("../core/dtos/users/create.user.dto");
 const { createAccessToken } = require("../utils/auth.util");
-const { ROLES, FILTER_USER } = require("../configs/user.config");
+const { FILTER_USER, USER_ROLES } = require("../configs/user.config");
 const { sendMail } = require("../utils/mailer");
 const jwt = require("jsonwebtoken");
 class AuthService {
@@ -32,7 +32,7 @@ class AuthService {
       fullName,
       email,
       password: passwordHash,
-      role: ROLES.STAFF,
+      role: USER_ROLES.STAFF,
       verifyToken: verifyToken,
     });
 
@@ -55,7 +55,7 @@ class AuthService {
     </tr>
     <tr>
       <td>
-      <a href="${process.env.APP_BASE_URL}/auth/verify/email?token=${verifyToken}">Click here to verify your email</a>
+      <a href="${process.env.APP_BASE_URL}/api/v1/auth/verify/email?token=${verifyToken}">Click here to verify your email</a>
       </td>
     </tr>
     </table>
@@ -70,11 +70,11 @@ class AuthService {
       throw new BadRequestError("Email and password are required");
 
     const userHolder = await userModel.findOne({ email }).lean();
-    if (!userHolder) throw new UnauthorizedRequestError("Invalid email");
+    if (!userHolder) throw new UnauthorizedRequestError("Invalid email or password !");
 
     const isPasswordMatch = await bcrypt.compare(password, userHolder.password);
     if (!isPasswordMatch)
-      throw new UnauthorizedRequestError("Invalid password");
+      throw new UnauthorizedRequestError("Invalid email or password !");
 
     if (!userHolder.isActive || userHolder.isDeleted || !userHolder.isVerified)
       throw new UnauthorizedRequestError("User is not active or deleted or not verified");
