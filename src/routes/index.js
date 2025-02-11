@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 
 // const warehouseModel = require("../models/warehouse.model");
-// const baseItemModel = require("../models/baseItem.model");
 // const inputModel = require("../models/input.model");
 // const { default: mongoose } = require("mongoose");
 // const itemModel = require("../models/item.model");
@@ -21,7 +20,6 @@ const router = express.Router();
 // const warehouseThresholdCheckModel = require("../models/warehouseThresholdCheck.model");
 
 router.get("/", async (req, res) => {
-
   // const warehouse = await warehouseModel.create({
   //   name: "Medical Warehouse",
   //   category: "Medical",

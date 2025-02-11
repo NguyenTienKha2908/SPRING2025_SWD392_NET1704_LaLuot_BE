@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
+const stockCheckDetailModel = require("./stockCheckDetail.model");
 
 const DOCUMENT_NAME = "StockCheck";
 const COLLECTION_NAME = "StockChecks";
@@ -36,5 +37,14 @@ var stockCheckSchema = new mongoose.Schema(
         collection: COLLECTION_NAME,
     }
 );
+
+stockCheckSchema.pre("findOneAndDelete", async function (next) {
+    const stockCheckId = this.getQuery()._id;
+    const stockCheckDetails = await stockCheckDetailModel.findOne({ stockCheckId: stockCheckId });
+    if (stockCheckDetails) {
+        return next(new Error("Cannot delete stockCheck because it is used in stockCheckDetails"));
+    }
+    next();
+})
 
 module.exports = mongoose.model(DOCUMENT_NAME, stockCheckSchema);

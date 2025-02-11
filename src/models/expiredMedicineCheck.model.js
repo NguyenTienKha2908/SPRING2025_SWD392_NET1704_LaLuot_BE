@@ -3,7 +3,7 @@ const baseModelSchema = require("./base.model");
 
 const DOCUMENT_NAME = "ExpiredMedicineCheck";
 const COLLECTION_NAME = "ExpiredMedicineChecks";
-
+const expiredMedicineCheckDetailModel = require("./expiredMedicineCheckDetail.model");
 var expiredMedicineCheckSchema = new mongoose.Schema(
     {
         warehouseId: {
@@ -27,5 +27,14 @@ var expiredMedicineCheckSchema = new mongoose.Schema(
         collection: COLLECTION_NAME,
     }
 );
+
+expiredMedicineCheckSchema.pre("findOneAndDelete", async function (next) {
+    const expiredMedicineCheckId = this.getQuery()._id;
+    const expiredMedicineCheckDetails = await expiredMedicineCheckDetailModel.findOne({ expiredMedicineCheckId: expiredMedicineCheckId });
+    if (expiredMedicineCheckDetails) {
+        return next(new Error("Cannot delete expiredMedicineCheck because it is used in expiredMedicineCheckDetails"));
+    }
+    next();
+})
 
 module.exports = mongoose.model(DOCUMENT_NAME, expiredMedicineCheckSchema);

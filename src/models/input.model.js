@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
+const inputDetailModel = require("./inputDetail.model");
 
 const DOCUMENT_NAME = "Input";
 const COLLECTION_NAME = "Inputs";
@@ -55,4 +56,12 @@ var inputSchema = new mongoose.Schema(
     }
 );
 
+inputSchema.pre("findOneAndDelete", async function (next) {
+    const inputId = this.getQuery()._id;
+    const inputDetails = await inputDetailModel.findOne({ inputId: inputId });
+    if (inputDetails) {
+        return next(new Error("Cannot delete input because it is used in inputDetails"));
+    }
+    next();
+})
 module.exports = mongoose.model(DOCUMENT_NAME, inputSchema);

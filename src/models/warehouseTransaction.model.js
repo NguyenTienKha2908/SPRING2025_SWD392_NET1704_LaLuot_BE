@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
+const warehouseTransactionDetailModel = require("./warehouseTransactionDetail.model");
 
 const DOCUMENT_NAME = "WarehouseTransaction";
 const COLLECTION_NAME = "WarehouseTransactions";
@@ -43,5 +44,14 @@ var warehouseTransactionSchema = new mongoose.Schema(
         collection: COLLECTION_NAME,
     }
 );
+
+warehouseTransactionSchema.pre("findOneAndDelete", async function (next) {
+    const warehouseTransactionId = this.getQuery()._id;
+    const warehouseTransactionDetails = await warehouseTransactionDetailModel.findOne({ warehouseTransactionId: warehouseTransactionId });
+    if (warehouseTransactionDetails) {
+        return next(new Error("Cannot delete warehouseTransaction because it is used in warehouseTransactionDetails"));
+    }
+    next();
+})
 
 module.exports = mongoose.model(DOCUMENT_NAME, warehouseTransactionSchema);
