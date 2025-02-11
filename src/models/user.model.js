@@ -13,9 +13,10 @@ var userSchema = new mongoose.Schema(
       minLength: 6,
       maxLength: 50,
     },
-    avatar: {
+    role: {
       type: String,
-      default: "",
+      enum: ["Admin", "Manager", "Report Staff", "Inventory Staff", "Supplier", "Customer"],
+      default: "Customer",
     },
     email: {
       type: String,
@@ -34,17 +35,18 @@ var userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Boolean,
       default: false,
     },
+    isActive: {
+      type: mongoose.Schema.Types.Boolean,
+      default: true,
+    },
     verifyToken: {
       type: String,
       default: "",
     },
-    role: {
-      type: Number,
-      default: 2,
-    },
     ...baseModelSchema.obj,
   },
   {
+    timestamps: true,
     collection: COLLECTION_NAME,
   }
 );

@@ -14,6 +14,7 @@ const errorSchema = mongoose.Schema(
     ...baseModelSchema.obj,
   },
   {
+    timestamps: true,
     collection: COLLECTION_NAME,
   }
 );
