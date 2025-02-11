@@ -8,7 +8,7 @@ const PORT = process.env.NODE_ENV === "dev" ? process.env.DEV_APP_PORT : process
 const server = app.listen(PORT, () => {
   logger.info(
     `Server is running at ${chalk.magenta(
-      chalk.underline(`${process.env.APP_BASE_URL}`)
+      chalk.underline(`${process.env.APP_BASE_URL}/api/v1`)
     )}`
   );
 });
