@@ -71,7 +71,10 @@ const io = require("socket.io")(server, {
 instrument(io, {
   auth: false,
 })
-socket(io)
+if (!io.initialized) {
+  socket(io)
+  io.initialized = true
+}
 
 // request logger
 app.use(handleApiRequest);
@@ -79,8 +82,8 @@ app.use(handleApiRequest);
 // init routes
 app.use("/api/v1", require("./routes"));
 app.get("/", (req, res) => {
-  res.setHeader('Cache-Control', 'no-store');
   res.status(200).send("Welcome to the API");
+  res.end();
 });
 
 // error handler
