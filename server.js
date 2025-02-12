@@ -14,8 +14,20 @@ const server = app.listen(PORT, () => {
 });
 
 process.on("SIGINT", () => {
-  server.close(() => {
-    logger.info(chalk.magenta("Server closed"));
-    process.exit(0);
-  });
-});
+    logger.info(chalk.bgGreen("Closing server..."));
+
+    server.close(() => {
+      logger.info(chalk.bgWhite("Server closed"));
+      process.exit(0);
+    });
+
+    setTimeout(() => {
+      logger.warn(chalk.bgYellow("Server is taking too long to close..."));
+    }, 5000);
+
+    setTimeout(() => {
+      logger.error(chalk.bgRed("Server took too long to close. Forcefully closing..."));
+      process.exit(1);
+    }, 10000);
+  }
+);

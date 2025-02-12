@@ -9,6 +9,11 @@ const errorModel = require("./src/models/error.model");
 const eventEmitter = new EventEmitter();
 
 const socket = (io) => {
+    if (io.listeners("connection").length > 0) {
+        console.log(io.listeners("connection").length);
+        return; // Prevent duplicate listeners
+    }
+
     const socketPath = io._path
     logger.info("Socket.io is running at " + chalk.magenta(chalk.underline(`${process.env.APP_BASE_URL}${socketPath}`)));
 
