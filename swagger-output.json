@@ -19,6 +19,10 @@
     {
       "name": "User",
       "description": ""
+    },
+    {
+      "name": "Inventory",
+      "description": ""
     }
   ],
   "paths": {
@@ -195,15 +199,6 @@
           "User"
         ],
         "description": "Create a new user",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
@@ -235,6 +230,92 @@
               "type": "string"
             },
             "description": "User ID"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/inventories": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get all inventories",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllInventories"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/stock-check-requests": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get all stock check request",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllStockCheckRequest"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Create a new stock check request",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStockCheckRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/stock-check-details": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get all stock check details",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllStockCheckDetails"
+            }
           }
         ],
         "responses": {
@@ -351,14 +432,142 @@
             "example": "***"
           },
           "role": {
-            "type": "number",
-            "example": 2
+            "type": "string",
+            "example": "Customer"
           }
         },
         "required": [
           "fullName",
           "email",
           "password"
+        ]
+      },
+      "GetAllInventories": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "warehouseId itemId quantity"
+          },
+          "expand": {
+            "type": "string",
+            "example": "warehouse item"
+          }
+        }
+      },
+      "GetAllStockCheckRequest": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "description status warehouseId managerId inventoryStaffId"
+          },
+          "expand": {
+            "type": "string",
+            "example": "warehouse manager inventoryStaff"
+          }
+        }
+      },
+      "GetAllStockCheckDetails": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "stockCheckId itemId quantity"
+          },
+          "expand": {
+            "type": "string",
+            "example": "stockCheck item"
+          }
+        }
+      },
+      "CreateStockCheckRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "example": "Stock check for warehouse 1"
+          },
+          "warehouseId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "managerId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "inventoryStaffId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          }
+        },
+        "required": [
+          "warehouseId",
+          "managerId",
+          "inventoryStaffId"
         ]
       }
     }

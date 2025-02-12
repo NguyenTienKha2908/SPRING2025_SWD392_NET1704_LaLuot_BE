@@ -54,7 +54,7 @@ router.post("/users",
         }
     } 
 */
-    AuthMiddleware,
+    catchAsyncHandle(AuthMiddleware),
     checkRoles({ requiredRoles: [USER_ROLES.ADMIN] }),
     catchAsyncHandle(userController.createUser));
 module.exports = router;

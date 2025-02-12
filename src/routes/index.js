@@ -380,5 +380,6 @@ router.get("/", async (req, res) => {
 
 router.use("/", require("./auth"));
 router.use("/", require("./users"));
+router.use("/",require("./inventories"));
 
 module.exports = router;
