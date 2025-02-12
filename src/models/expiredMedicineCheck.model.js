@@ -1,9 +1,9 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
+const expiredMedicineCheckDetailModel = require("./expiredMedicineCheckDetail.model");
 
 const DOCUMENT_NAME = "ExpiredMedicineCheck";
 const COLLECTION_NAME = "ExpiredMedicineChecks";
-const expiredMedicineCheckDetailModel = require("./expiredMedicineCheckDetail.model");
 var expiredMedicineCheckSchema = new mongoose.Schema(
     {
         warehouseId: {

@@ -7,7 +7,7 @@
     "start": "node --watch swagger.js",
     "dev": "node --watch swagger.js"
   },
-  "author": "",
+  "author": "Lả Lướt",
   "license": "ISC",
   "description": "",
   "dependencies": {

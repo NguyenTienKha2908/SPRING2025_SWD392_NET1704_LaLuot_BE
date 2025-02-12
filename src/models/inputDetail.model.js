@@ -24,7 +24,7 @@ var inputDetailSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
-        expirationDate: {
+        expiredDate: {
             type: Date,
             required: true,
         },
