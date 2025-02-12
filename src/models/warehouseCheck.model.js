@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
 
-const DOCUMENT_NAME = "WarehouseThresholdCheck";
-const COLLECTION_NAME = "WarehouseThresholdChecks";
+const DOCUMENT_NAME = "WarehouseCheck";
+const COLLECTION_NAME = "WarehouseChecks";
 
-var warehouseThresholdCheckSchema = new mongoose.Schema(
+var warehouseCheckSchema = new mongoose.Schema(
     {
         warehouseId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -25,10 +25,14 @@ var warehouseThresholdCheckSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        threshold: {
+        temperature: {
+            type: Number,
+            required: true,
+        },
+        thresholdLevel: {
             type: String,
             required: true,
-            enum: ["Low", "Medium", "High", "Full"],
+            enum: ["Low", "Normal", "High", "Full"],
         },
         status: {
             type: String,
@@ -43,4 +47,4 @@ var warehouseThresholdCheckSchema = new mongoose.Schema(
     }
 );
 
-module.exports = mongoose.model(DOCUMENT_NAME, warehouseThresholdCheckSchema);
+module.exports = mongoose.model(DOCUMENT_NAME, warehouseCheckSchema);

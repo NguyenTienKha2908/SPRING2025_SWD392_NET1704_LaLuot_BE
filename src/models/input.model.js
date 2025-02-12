@@ -7,12 +7,6 @@ const COLLECTION_NAME = "Inputs";
 
 var inputSchema = new mongoose.Schema(
     {
-        uuidNumber: {
-            type: String,
-            required: true,
-            trim: true,
-            unique: true,
-        },
         description: {
             type: String,
             trim: true,
