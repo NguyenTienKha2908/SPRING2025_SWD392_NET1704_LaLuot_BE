@@ -324,6 +324,38 @@
           }
         }
       }
+    },
+    "/api/v1/item/all": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/item": {
+      "post": {
+        "tags": [
+          "Items"
+        ],
+        "description": "Create a new item",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createItem"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
