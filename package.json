@@ -1,13 +1,13 @@
 {
   "name": "medical-warehouse-be",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --watch swagger.js",
     "dev": "node --watch swagger.js"
   },
-  "author": "",
+  "author": "Lả Lướt",
   "license": "ISC",
   "description": "",
   "dependencies": {

@@ -23,6 +23,10 @@ const doc = {
             name: 'User',
             description: ''
         },
+        {
+            name: 'Inventory',
+            description: ''
+        }
         // { ... }
     ],
     components: {
@@ -59,7 +63,43 @@ const doc = {
                 $fullName: "John Doe",
                 $email: "abc@gmail.com",
                 $password: "***",
-                role: 2
+                role: "Customer"
+            },
+            GetAllInventories: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'warehouseId itemId quantity',
+                expand: 'warehouse item'
+            },
+            GetAllStockCheckRequest: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'description status warehouseId managerId inventoryStaffId',
+                expand: 'warehouse manager inventoryStaff'
+            },
+            GetAllStockCheckDetails: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'stockCheckId itemId quantity',
+                expand: 'stockCheck item'
+            },
+            CreateStockCheckRequest: {
+                description: "Stock check for warehouse 1",
+                $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                $managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                $inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0"
             }
         }
     },

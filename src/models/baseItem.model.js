@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
 const itemModel = require("./item.model");
+
 const DOCUMENT_NAME = "BaseItem";
 const COLLECTION_NAME = "BaseItems";
 

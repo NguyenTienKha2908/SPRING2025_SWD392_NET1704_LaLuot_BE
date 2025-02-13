@@ -3,16 +3,11 @@ const baseModelSchema = require("./base.model");
 const warehouseTransactionModel = require("./warehouseTransaction.model");
 const stockCheckModel = require("./stockCheck.model");
 const outputModel = require("./output.model");
-const warehouseTempeCheckModel = require("./warehouseTempeCheck.model");
-const warehouseThresholdCheckModel = require("./warehouseThresholdCheck.model");
+const warehouseCheckModel = require("./warehouseCheck.model");
 const expiredMedicineCheckModel = require("./expiredMedicineCheck.model");
 const inputModel = require("./input.model");
 const stockTransactionModel = require("./stockTransaction.model");
 const inventoryModel = require("./inventory.model");
-
-
-
-
 
 const DOCUMENT_NAME = "Warehouse";
 const COLLECTION_NAME = "Warehouses";
@@ -20,6 +15,11 @@ const COLLECTION_NAME = "Warehouses";
 var warehouseSchema = new mongoose.Schema(
     {
         name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        description: {
             type: String,
             required: true,
             trim: true,
@@ -70,13 +70,9 @@ warehouseSchema.pre("findOneAndDelete", async function (next) {
     if (outputs) {
         return next(new Error("Cannot delete warehouse because it is used in outputs"));
     }
-    const warehouseTempeChecks = await warehouseTempeCheckModel.findOne({ warehouseId: warehouseId });
-    if (warehouseTempeChecks) {
-        return next(new Error("Cannot delete warehouse because it is used in warehouseTempeChecks"));
-    }
-    const warehouseThresholdChecks = await warehouseThresholdCheckModel.findOne({ warehouseId: warehouseId });
-    if (warehouseThresholdChecks) {
-        return next(new Error("Cannot delete warehouse because it is used in warehouseThresholdChecks"));
+    const warehouseChecks = await warehouseCheckModel.findOne({ warehouseId: warehouseId });
+    if (warehouseChecks) {
+        return next(new Error("Cannot delete warehouse because it is used in warehouseChecks"));
     }
     const expiredMedicineChecks = await expiredMedicineCheckModel.findOne({ warehouseId: warehouseId });
     if (expiredMedicineChecks) {

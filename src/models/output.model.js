@@ -6,12 +6,6 @@ const COLLECTION_NAME = "Outputs";
 
 var outputSchema = new mongoose.Schema(
     {
-        uuidNumber: {
-            type: String,
-            required: true,
-            trim: true,
-            unique: true,
-        },
         description: {
             type: String,
             trim: true,

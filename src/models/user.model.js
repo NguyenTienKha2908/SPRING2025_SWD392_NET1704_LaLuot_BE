@@ -1,7 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
-const warehouseThresholdCheckModel = require("./warehouseThresholdCheck.model");
-const warehouseTempeCheckModel = require("./warehouseTempeCheck.model");
+const warehouseCheckModel = require("./warehouseCheck.model");
 const stockCheckModel = require("./stockCheck.model");
 const warehouseTransactionModel = require("./warehouseTransaction.model");
 const outputModel = require("./output.model");
@@ -33,22 +32,6 @@ var userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    resetPasswordToken: {
-      type: String,
-      default: "",
-    },
-    isVerified: {
-      type: mongoose.Schema.Types.Boolean,
-      default: false,
-    },
-    isActive: {
-      type: mongoose.Schema.Types.Boolean,
-      default: true,
-    },
-    verifyToken: {
-      type: String,
-      default: "",
-    },
     ...baseModelSchema.obj,
   },
   {
@@ -60,21 +43,13 @@ var userSchema = new mongoose.Schema(
 userSchema.pre("findOneAndDelete", async function (next) {
   const userId = this.getQuery()._id;
 
-  const managerWarehouseThresholdChecks = await warehouseThresholdCheckModel.findOne({ managerId: userId });
-  if (managerWarehouseThresholdChecks) {
-    return next(new Error("Cannot delete user because it is used in warehouseThresholdChecks"));
+  const managerWarehouseChecks = await warehouseCheckModel.findOne({ managerId: userId });
+  if (managerWarehouseChecks) {
+    return next(new Error("Cannot delete user because it is used in warehouseChecks"));
   }
-  const inventoryStaffWarehouseThresholdChecks = await warehouseThresholdCheckModel.findOne({ inventoryStaffId: userId });
-  if (inventoryStaffWarehouseThresholdChecks) {
-    return next(new Error("Cannot delete user because it is used in warehouseThresholdChecks"));
-  }
-  const managerWarehouseTempeChecks = await warehouseTempeCheckModel.findOne({ managerId: userId });
-  if (managerWarehouseTempeChecks) {
-    return next(new Error("Cannot delete user because it is used in warehouseTempeChecks"));
-  }
-  const inventoryStaffWarehouseTempeChecks = await warehouseTempeCheckModel.findOne({ inventoryStaffId: userId });
-  if (inventoryStaffWarehouseTempeChecks) {
-    return next(new Error("Cannot delete user because it is used in warehouseTempeChecks"));
+  const inventoryStaffWarehouseChecks = await warehouseCheckModel.findOne({ inventoryStaffId: userId });
+  if (inventoryStaffWarehouseChecks) {
+    return next(new Error("Cannot delete user because it is used in warehouseChecks"));
   }
   const managerStockChecks = await stockCheckModel.findOne({ managerId: userId });
   if (managerStockChecks) {
