@@ -1,6 +1,6 @@
 const baseItemModel = require("../models/baseItem.model");
 
-const getAllItem = async({ limit, sort, page, filter, select, expand}) => {
+const getAllBaseItem = async({ limit, sort, page, filter, select, expand}) => {
     const skip = (page - 1) * limit;
         const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
     
@@ -35,4 +35,4 @@ const getAllItem = async({ limit, sort, page, filter, select, expand}) => {
             totalPages: totalPages,
         };
 }
-module.exports = {getAllItem};
+module.exports = {getAllBaseItem};

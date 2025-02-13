@@ -1,9 +1,9 @@
 const express = require("express");
 const { catchAsyncHandle } = require("../../middlewares/error.middleware");
 const AuthMiddleware = require("../../middlewares/auth.middleware");
-const itemsController = require("../../controllers/items.controller");
 const checkRoles = require("../../middlewares/role.middleware");
 const { USER_ROLES } = require("../../configs/user.config");
+const baseItemsController = require("../../controllers/baseItems.controller");
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ router.use(
 )
 
 router.get("/item/all",
-    catchAsyncHandle(itemsController.getAllItem)
+    catchAsyncHandle(baseItemsController.getAllBaseItem)
 )
 
 router.post("/item",        
@@ -32,7 +32,12 @@ router.post("/item",
             }
         }
     } */
-    catchAsyncHandle(itemsController.createItem)
+    catchAsyncHandle(baseItemsController.createBaseItem)
 )
-
+router.put("/item/:id",
+    catchAsyncHandle(baseItemsController.updateBaseItem)    
+)
+router.delete('/item/:id', 
+    catchAsyncHandle(baseItemsController.deleteBaseItem)
+)
 module.exports = router;

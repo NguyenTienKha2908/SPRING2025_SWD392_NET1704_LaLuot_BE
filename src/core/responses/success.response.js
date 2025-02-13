@@ -1,3 +1,4 @@
+
 const StatusCode = {
     OK: 200,
     CREATED: 201,
@@ -6,6 +7,8 @@ const StatusCode = {
   const ReasonStatusCode = {
     OK: "Success",
     CREATED: "Created",
+    UPDATED: "Updated",
+    DELETED:"Deleted"
   };
   
   class SuccessResponse {
@@ -41,9 +44,30 @@ const StatusCode = {
       });
     }
   }
-  
+  class UPDATED extends SuccessResponse {
+    constructor({message, metadata}) {
+      super({
+        message,
+        status:StatusCode.CREATED,
+        reason: ReasonStatusCode.UPDATED,
+        metadata,
+      })
+    }
+  }
+  class DELETED extends SuccessResponse {
+    constructor({message, metadata}) {
+      super({
+        message,
+        status:StatusCode.CREATED,
+        reason: ReasonStatusCode.DELETED,
+        metadata,
+      })
+    }
+  }
   module.exports = {
     OK,
     CREATED,
+    UPDATED,
+    DELETED
   };
   
