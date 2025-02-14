@@ -23,6 +23,10 @@
     {
       "name": "Inventory",
       "description": ""
+    },
+    {
+      "name": "Item",
+      "description": ""
     }
   ],
   "paths": {
@@ -239,7 +243,7 @@
         }
       }
     },
-    "/api/v1/inventories": {
+    "/api/v1/inventories/": {
       "get": {
         "tags": [
           "Inventory"
@@ -431,6 +435,28 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Delete a stock check details",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check details id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
       }
     },
     "/api/v1/inventories/{id}": {
@@ -453,6 +479,28 @@
         "responses": {
           "default": {
             "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/items/check-expired-medicine": {
+      "put": {
+        "tags": [
+          "Item"
+        ],
+        "description": "Check expired medicine",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCheckExpiredMedicineInterval"
+              }
+            }
           }
         }
       }
@@ -764,6 +812,23 @@
         },
         "required": [
           "actualQuantity"
+        ]
+      },
+      "UpdateCheckExpiredMedicineInterval": {
+        "type": "object",
+        "properties": {
+          "job": {
+            "type": "string",
+            "example": "checkExpiredMedicine"
+          },
+          "interval": {
+            "type": "string",
+            "example": "0 0 * * *"
+          }
+        },
+        "required": [
+          "job",
+          "interval"
         ]
       }
     }

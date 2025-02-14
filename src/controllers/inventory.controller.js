@@ -98,6 +98,15 @@ class InventoryController {
         }).send(res)
     }
 
+    deleteStockCheckDetail = async (req, res) => {
+        new OK({
+            message: "Delete stock check detail successfully",
+            metadata: await InventoryService.deleteStockCheckDetail({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
 }
 
 module.exports = new InventoryController()

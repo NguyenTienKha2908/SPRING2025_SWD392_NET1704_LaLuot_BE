@@ -26,6 +26,10 @@ const doc = {
         {
             name: 'Inventory',
             description: ''
+        },
+        {
+            name: 'Item',
+            description: ''
         }
         // { ... }
     ],
@@ -118,6 +122,10 @@ const doc = {
             },
             UpdateStockCheckDetail: {
                 $actualQuantity: 100
+            },
+            UpdateCheckExpiredMedicineInterval: {
+                $job: "checkExpiredMedicine",
+                $interval: "0 0 * * *"
             }
 
         }

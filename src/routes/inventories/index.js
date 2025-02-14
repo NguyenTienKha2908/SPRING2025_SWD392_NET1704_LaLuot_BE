@@ -11,7 +11,7 @@ router.use(
     catchAsyncHandle(AuthMiddleware),
 );
 
-router.get("/inventories",
+router.get("/",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Get all inventories'
@@ -26,7 +26,7 @@ router.get("/inventories",
     catchAsyncHandle(inventoryController.getAllInventories)
 )
 
-router.get("/inventories/stock-check-requests",
+router.get("/stock-check-requests",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Get all stock check request'
@@ -41,7 +41,7 @@ router.get("/inventories/stock-check-requests",
     catchAsyncHandle(inventoryController.getAllStockCheckRequest)
 )
 
-router.get("/inventories/stock-check-details",
+router.get("/stock-check-details",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Get all stock check details'
@@ -56,7 +56,7 @@ router.get("/inventories/stock-check-details",
     catchAsyncHandle(inventoryController.getAllStockCheckDetails)
 )
 
-router.post("/inventories/stock-check-requests",
+router.post("/stock-check-requests",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Create a new stock check request'
@@ -75,7 +75,7 @@ router.post("/inventories/stock-check-requests",
     catchAsyncHandle(inventoryController.createStockCheckRequest)
 )
 
-router.post("/inventories/stock-check-details",
+router.post("/stock-check-details",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Create a new stock check details'
@@ -94,7 +94,7 @@ router.post("/inventories/stock-check-details",
     catchAsyncHandle(inventoryController.createStockCheckDetails)
 )
 
-router.put("/inventories/stock-check-requests/:id",
+router.put("/stock-check-requests/:id",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Update a stock check request'
@@ -119,7 +119,7 @@ router.put("/inventories/stock-check-requests/:id",
     catchAsyncHandle(inventoryController.updateStockCheckRequest)
 )
 
-router.put("/inventories/stock-check-details/:id",
+router.put("/stock-check-details/:id",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Update a stock check details'
@@ -144,7 +144,7 @@ router.put("/inventories/stock-check-details/:id",
     catchAsyncHandle(inventoryController.updateStockCheckDetail)
 )
 
-router.delete("/inventories/:id",
+router.delete("/:id",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Delete an inventory'
@@ -160,7 +160,7 @@ router.delete("/inventories/:id",
     catchAsyncHandle(inventoryController.deleteInventory)
 )
 
-router.delete("/inventories/stock-check-requests/:id",
+router.delete("/stock-check-requests/:id",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Delete a stock check request'
@@ -174,6 +174,22 @@ router.delete("/inventories/stock-check-requests/:id",
 */
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
     catchAsyncHandle(inventoryController.deleteStockCheckRequest)
+)
+
+router.delete("/stock-check-details/:id",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Delete a stock check details'
+      */
+    /*  #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Stock check details id',
+        type: 'string'
+    }
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.deleteStockCheckDetail)
 )
 
 module.exports = router;
