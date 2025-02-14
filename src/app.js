@@ -55,7 +55,14 @@ const swaggerDocument = require('../swagger-output.json');
 const basicAuth = require("express-basic-auth");
 const { AUTHENTICATION } = require("./configs/auth.config");
 const users = AUTHENTICATION.swagger.users
-app.use('/api-docs', basicAuth({ users, challenge: true }), swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const swaggerOptions = {
+  swaggerOptions: {
+    persistAuthorization: true,
+    docExpansion: 'none',
+    filter: true,
+  }
+}
+app.use('/api-docs', basicAuth({ users, challenge: true }), swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 // init socket
 const { socket } = require("../socket");

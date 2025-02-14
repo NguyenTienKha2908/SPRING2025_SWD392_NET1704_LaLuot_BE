@@ -18,7 +18,7 @@ var stockCheckSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["Pending", "Approved", "Rejected", "Done"],
+            enum: ["Pending", "Done", "Cancelled"],
             default: "Pending",
         },
         managerId: {
