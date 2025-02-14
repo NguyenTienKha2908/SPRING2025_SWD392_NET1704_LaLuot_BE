@@ -39,13 +39,11 @@ const handleApiRequest = (req, res, next) => {
 
     const duration = new Date() - startTime;
     const logMessage = `${req.ip} ${coloredMethod} ${
-      req.originalUrl
+      req.path
     } ${req.protocol.toUpperCase()}/${req.httpVersion} ${coloredStatusCode} ${
       res.get("Content-Length") || 0
     } ${req.get("User-Agent")} ${chalk.yellow(duration + "ms")}`;
     logger.info(logMessage);
-
-    logger.info(`${chalk.yellow("Params")}: ${JSON.stringify(req.params)}`);
     logger.info(`${chalk.yellow("Query")}: ${JSON.stringify(req.query)}`);
     logger.info(`${chalk.yellow("Body")}: ${JSON.stringify(req.body)}`);
   });

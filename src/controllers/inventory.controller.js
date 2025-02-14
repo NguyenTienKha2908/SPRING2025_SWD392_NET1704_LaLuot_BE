@@ -50,6 +50,54 @@ class InventoryController {
             metadata: await InventoryService.createStockCheckRequest(req.body)
         }).send(res)
     }
+
+    createStockCheckDetails = async (req, res) => {
+        new CREATED({
+            message: "Create stock check details successfully",
+            metadata: await InventoryService.createStockCheckDetails(req.body)
+        }).send(res)
+    }
+
+    updateStockCheckRequest = async (req, res) => {
+        new OK({
+            message: "Update stock check request successfully",
+            metadata: await InventoryService.updateStockCheckRequest({
+                id: req.params.id,
+                newInventoryStaffId: req.body.newInventoryStaffId,
+                description: req.body.description,
+                status: req.body.status
+            })
+        }).send(res)
+    }
+
+    updateStockCheckDetail = async (req, res) => {
+        new OK({
+            message: "Update stock check detail successfully",
+            metadata: await InventoryService.updateStockCheckDetail({
+                id: req.params.id,
+                actualQuantity: req.body.actualQuantity,
+            })
+        }).send(res)
+    }
+
+    deleteInventory = async (req, res) => {
+        new OK({
+            message: "Delete inventory successfully",
+            metadata: await InventoryService.deleteInventory({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
+    deleteStockCheckRequest = async (req, res) => {
+        new OK({
+            message: "Delete stock check request successfully",
+            metadata: await InventoryService.deleteStockCheckRequest({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
 }
 
 module.exports = new InventoryController()

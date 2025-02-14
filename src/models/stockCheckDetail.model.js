@@ -26,6 +26,15 @@ var stockCheckDetailSchema = new mongoose.Schema(
         difference: {
             type: Number,
         },
+        description: {
+            type: String,
+            trim: true,
+        },
+        status: {
+            type: String,
+            enum: ["Normal", "Lost", "Excess"],
+            default: "Normal",
+        },
         ...baseModelSchema.obj,
     },
     {
