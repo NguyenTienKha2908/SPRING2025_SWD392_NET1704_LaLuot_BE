@@ -22,6 +22,21 @@ var itemSchema = new mongoose.Schema({
         enum: ["Expired", "Available", "Out of Stock", "Damaged", "Lost"],
         default: "Available",
     },
+    expiredDate: {
+        type: Date,
+        required: true,
+    },
+    unit: {
+        type: String,
+        required: true,
+        trim: true,
+        enum: ["Box", "Bottle", "Tablet", "Capsule", "Syrup", "Injection", "Pcs", "Set", "Other"],
+        default: "Pcs",
+    },
+    isFrozenStored: {
+        type: Boolean,
+        default: false,
+    },
     ...baseModelSchema.obj,
 }, {
     timestamps: true,
