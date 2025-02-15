@@ -382,5 +382,6 @@ router.use("/", require("./auth"));
 router.use("/", require("./users"));
 router.use("/inventories",require("./inventories"));
 router.use("/items",require("./items"));
+router.use("/baseitems",require("./baseItems"));
 
 module.exports = router;
