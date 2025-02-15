@@ -1,43 +1,31 @@
 const express = require("express");
-const { catchAsyncHandle } = require("../../middlewares/error.middleware");
-const AuthMiddleware = require("../../middlewares/auth.middleware");
 const checkRoles = require("../../middlewares/role.middleware");
+const AuthMiddleware = require("../../middlewares/auth.middleware");
+const { catchAsyncHandle } = require("../../middlewares/error.middleware");
 const { USER_ROLES } = require("../../configs/user.config");
-const baseItemsController = require("../../controllers/baseItems.controller");
+const itemController = require("../../controllers/item.controller");
 
 const router = express.Router();
 
-router.use(
-    catchAsyncHandle(AuthMiddleware),
-    checkRoles({
-        requiredRoles: [USER_ROLES.MANAGER]
-    })
-)
+router.use(catchAsyncHandle(AuthMiddleware));
 
-router.get("/item/all",
-    catchAsyncHandle(baseItemsController.getAllBaseItem)
-)
-
-router.post("/item",        
+router.put("/check-expired-medicine",
     /**
-     * #swagger.tags = ['Items']
-     * #swagger.description='Create a new item'
-     */
+      * #swagger.tags = ['Item']
+      * #swagger.description='Check expired medicine'
+      */
     /*  #swagger.requestBody = {
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/createItem"
+                    $ref: "#/components/schemas/UpdateCheckExpiredMedicineInterval"
                 }  
             }
         }
-    } */
-    catchAsyncHandle(baseItemsController.createBaseItem)
+    } 
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    catchAsyncHandle(itemController.updateCheckExpiredMedicineInterval)
 )
-router.put("/item/:id",
-    catchAsyncHandle(baseItemsController.updateBaseItem)    
-)
-router.delete('/item/:id', 
-    catchAsyncHandle(baseItemsController.deleteBaseItem)
-)
+
 module.exports = router;

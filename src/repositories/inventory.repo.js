@@ -1,10 +1,7 @@
 const { SELECT_USER } = require("../configs/user.config");
 const inventoryModel = require("../models/inventory.model");
 const stockCheckModel = require("../models/stockCheck.model");
-const itemModel = require("../models/item.model");
-const baseItemModel = require("../models/baseItem.model");
 const stockCheckDetailModel = require("../models/stockCheckDetail.model");
-const { path } = require("../models/base.model");
 
 const getAllInventories = async ({ limit, sort, page, filter, select, expand }) => {
     const skip = (page - 1) * limit;

@@ -6,6 +6,8 @@ const getInfoData = ({ fields = [], object = {} }) => {
 const path = require("path");
 const errorModel = require("../models/error.model");
 
+require("dotenv").config();
+
 const handleErrorResponse = async (error, req, res, next) => {
   const logger = getLogger("ERROR");
   const statusCode = error.status || 500;
@@ -30,19 +32,21 @@ const handleErrorResponse = async (error, req, res, next) => {
    `;
   logger.error(logMessage);
 
-  try {
-    const errorData = {
-      code: error.status?.toString() || "500",
-      message: error.message,
-      file: fileName,
-      function: functionName,
-      stackTrace: stack,
-    };
+  if (process.env.NODE_ENV !== "dev") {
+    try {
+      const errorData = {
+        code: error.status?.toString() || "500",
+        message: error.message,
+        file: fileName,
+        function: functionName,
+        stackTrace: stack,
+      };
 
-    await errorModel.create(errorData);
-    logger.info("Error data saved to database");
-  } catch (error) {
-    logger.error("Error saving error data to database", error);
+      await errorModel.create(errorData);
+      logger.info("Error data saved to database");
+    } catch (error) {
+      logger.error("Error saving error data to database", error);
+    }
   }
 
   return res.status(statusCode).json({

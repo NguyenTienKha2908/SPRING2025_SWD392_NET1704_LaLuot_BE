@@ -26,6 +26,10 @@ const doc = {
         {
             name: 'Inventory',
             description: ''
+        },
+        {
+            name: 'Item',
+            description: ''
         }
         // { ... }
     ],
@@ -92,7 +96,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'stockCheckId itemId quantity',
+                select: 'stockCheckId itemId systemQuantity actualQuantity difference description',
                 expand: 'stockCheck item'
             },
             CreateStockCheckRequest: {
@@ -100,7 +104,30 @@ const doc = {
                 $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0"
+            },
+            CreateStockCheckDetails: {
+                stockCheckDetails: [
+                    {
+                        $stockCheckId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                        $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                        $systemQuantity: 100,
+                        $actualQuantity: 100
+                    }
+                ]
+            },
+            UpdateStockCheckRequest: {
+                newInventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                description: "",
+                status: ""
+            },
+            UpdateStockCheckDetail: {
+                $actualQuantity: 100
+            },
+            UpdateCheckExpiredMedicineInterval: {
+                $job: "checkExpiredMedicine",
+                $interval: "0 0 * * *"
             }
+
         }
     },
     security: [

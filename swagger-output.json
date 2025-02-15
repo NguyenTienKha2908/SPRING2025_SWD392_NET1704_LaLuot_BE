@@ -23,6 +23,10 @@
     {
       "name": "Inventory",
       "description": ""
+    },
+    {
+      "name": "Item",
+      "description": ""
     }
   ],
   "paths": {
@@ -239,7 +243,7 @@
         }
       }
     },
-    "/api/v1/inventories": {
+    "/api/v1/inventories/": {
       "get": {
         "tags": [
           "Inventory"
@@ -321,6 +325,182 @@
         "responses": {
           "default": {
             "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Create a new stock check details",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStockCheckDetails"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/stock-check-requests/{id}": {
+      "put": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Update a stock check request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check request id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStockCheckRequest"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Delete a stock check request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check request id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/stock-check-details/{id}": {
+      "put": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Update a stock check details",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check details id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStockCheckDetail"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Delete a stock check details",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check details id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/{id}": {
+      "delete": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Delete an inventory",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Inventory id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/items/check-expired-medicine": {
+      "put": {
+        "tags": [
+          "Item"
+        ],
+        "description": "Check expired medicine",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCheckExpiredMedicineInterval"
+              }
+            }
           }
         }
       }
@@ -606,7 +786,7 @@
           },
           "select": {
             "type": "string",
-            "example": "stockCheckId itemId quantity"
+            "example": "stockCheckId itemId systemQuantity actualQuantity difference description"
           },
           "expand": {
             "type": "string",
@@ -638,6 +818,87 @@
           "warehouseId",
           "managerId",
           "inventoryStaffId"
+        ]
+      },
+      "CreateStockCheckDetails": {
+        "type": "object",
+        "properties": {
+          "stockCheckDetails": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stockCheckId": {
+                  "type": "string",
+                  "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+                },
+                "itemId": {
+                  "type": "string",
+                  "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+                },
+                "systemQuantity": {
+                  "type": "number",
+                  "example": 100
+                },
+                "actualQuantity": {
+                  "type": "number",
+                  "example": 100
+                }
+              },
+              "required": [
+                "stockCheckId",
+                "itemId",
+                "systemQuantity",
+                "actualQuantity"
+              ]
+            }
+          }
+        }
+      },
+      "UpdateStockCheckRequest": {
+        "type": "object",
+        "properties": {
+          "newInventoryStaffId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "description": {
+            "type": "string",
+            "example": ""
+          },
+          "status": {
+            "type": "string",
+            "example": ""
+          }
+        }
+      },
+      "UpdateStockCheckDetail": {
+        "type": "object",
+        "properties": {
+          "actualQuantity": {
+            "type": "number",
+            "example": 100
+          }
+        },
+        "required": [
+          "actualQuantity"
+        ]
+      },
+      "UpdateCheckExpiredMedicineInterval": {
+        "type": "object",
+        "properties": {
+          "job": {
+            "type": "string",
+            "example": "checkExpiredMedicine"
+          },
+          "interval": {
+            "type": "string",
+            "example": "0 0 * * *"
+          }
+        },
+        "required": [
+          "job",
+          "interval"
         ]
       }
     }

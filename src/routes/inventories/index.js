@@ -7,7 +7,11 @@ const { USER_ROLES } = require("../../configs/user.config");
 
 const router = express.Router();
 
-router.get("/inventories",
+router.use(
+    catchAsyncHandle(AuthMiddleware),
+);
+
+router.get("/",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Get all inventories'
@@ -18,12 +22,11 @@ router.get("/inventories",
             $ref: "#/components/schemas/GetAllInventories"
         }
     } */
-    catchAsyncHandle(AuthMiddleware),
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(inventoryController.getAllInventories)
 )
 
-router.get("/inventories/stock-check-requests",
+router.get("/stock-check-requests",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Get all stock check request'
@@ -34,12 +37,11 @@ router.get("/inventories/stock-check-requests",
             $ref: "#/components/schemas/GetAllStockCheckRequest"
         }
     } */
-    catchAsyncHandle(AuthMiddleware),
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(inventoryController.getAllStockCheckRequest)
 )
 
-router.get("/inventories/stock-check-details",
+router.get("/stock-check-details",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Get all stock check details'
@@ -50,12 +52,11 @@ router.get("/inventories/stock-check-details",
             $ref: "#/components/schemas/GetAllStockCheckDetails"
         }
     } */
-    catchAsyncHandle(AuthMiddleware),
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(inventoryController.getAllStockCheckDetails)
 )
 
-router.post("/inventories/stock-check-requests",
+router.post("/stock-check-requests",
     /**
       * #swagger.tags = ['Inventory']
       * #swagger.description='Create a new stock check request'
@@ -70,9 +71,125 @@ router.post("/inventories/stock-check-requests",
         }
     } 
 */
-    catchAsyncHandle(AuthMiddleware),
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(inventoryController.createStockCheckRequest)
+)
+
+router.post("/stock-check-details",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Create a new stock check details'
+      */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/CreateStockCheckDetails"
+                }  
+            }
+        }
+    }
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.createStockCheckDetails)
+)
+
+router.put("/stock-check-requests/:id",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Update a stock check request'
+      */
+    /*  #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Stock check request id',
+        type: 'string'
+    }
+    #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateStockCheckRequest"
+                }  
+            }
+        }
+    }
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    catchAsyncHandle(inventoryController.updateStockCheckRequest)
+)
+
+router.put("/stock-check-details/:id",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Update a stock check details'
+      */
+    /*  #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Stock check details id',
+        type: 'string'
+    }
+    #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateStockCheckDetail"
+                }  
+            }
+        }
+    }
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.updateStockCheckDetail)
+)
+
+router.delete("/:id",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Delete an inventory'
+      */
+    /*  #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Inventory id',
+        type: 'string'
+    }
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    catchAsyncHandle(inventoryController.deleteInventory)
+)
+
+router.delete("/stock-check-requests/:id",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Delete a stock check request'
+      */
+    /*  #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Stock check request id',
+        type: 'string'
+    }
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    catchAsyncHandle(inventoryController.deleteStockCheckRequest)
+)
+
+router.delete("/stock-check-details/:id",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Delete a stock check details'
+      */
+    /*  #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Stock check details id',
+        type: 'string'
+    }
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.deleteStockCheckDetail)
 )
 
 module.exports = router;
