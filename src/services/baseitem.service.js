@@ -15,6 +15,15 @@ class BaseItemService {
         return await getAllBaseItem({ limit, sort, page, filter, select, expand });
     }
 
+    static getDetailBaseItem = async ({id}) => {
+        const detailBaseItem = await baseItemModel.findOne({_id:id})
+        return {
+            name: detailBaseItem.name,
+            description: detailBaseItem.description,
+            category: detailBaseItem.category,
+        };
+    }
+
     static updateBaseItem = async ({id, name, description, category}) => {
         const baseItemDTO = new UpdateBaseItemDTO(id, name, description, category);
         const updatedBaseItem =await baseItemModel.findOneAndUpdate({id: baseItemDTO.id},{

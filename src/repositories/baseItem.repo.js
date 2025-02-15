@@ -5,7 +5,7 @@ const getAllBaseItem = async({ limit, sort, page, filter, select, expand}) => {
         const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
     
         const populateOptions = {
-            baseItem: {                
+            BaseItems: {                
                 select: 'name description category',
                 populate: {
                     path:'baseItemId',
@@ -33,6 +33,7 @@ const getAllBaseItem = async({ limit, sort, page, filter, select, expand}) => {
             baseItems,
             page: Number(page),
             totalPages: totalPages,
+            limit:limit
         };
 }
 module.exports = {getAllBaseItem};

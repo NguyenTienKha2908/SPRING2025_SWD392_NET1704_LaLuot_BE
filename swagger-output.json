@@ -505,7 +505,7 @@
         }
       }
     },
-    "/api/v1/item/all": {
+    "/api/v1/baseitems/all": {
       "get": {
         "description": "",
         "responses": {
@@ -515,29 +515,25 @@
         }
       }
     },
-    "/api/v1/item": {
-      "post": {
-        "tags": [
-          "Items"
+    "/api/v1/baseitems/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "description": "Create a new item",
         "responses": {
           "default": {
             "description": ""
           }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/createItem"
-              }
-            }
-          }
         }
-      }
-    },
-    "/api/v1/item/{id}": {
+      },
       "put": {
         "description": "",
         "parameters": [
@@ -571,6 +567,28 @@
         "responses": {
           "default": {
             "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/baseitems/create": {
+      "post": {
+        "tags": [
+          "BaseItems"
+        ],
+        "description": "Create a new item",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createItem"
+              }
+            }
           }
         }
       }

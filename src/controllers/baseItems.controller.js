@@ -21,6 +21,12 @@ class BaseItemController {
             })
         }).send(res)
     }
+    getDetailBaseItem = async (req,res) => {        
+        new OK({
+            message:"Get item successfully",
+            metadata: await BaseItemService.getDetailBaseItem(req.params)
+        }).send(res)
+    }
     updateBaseItem = async (req,res) => {
         new UPDATED({
             message: "Update baseItem successfully",
