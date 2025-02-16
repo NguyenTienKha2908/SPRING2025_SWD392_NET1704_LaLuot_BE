@@ -15,16 +15,16 @@ const socket = (io) => {
     }
 
     const socketPath = io._path
-    logger.info("Socket.io is running at " + chalk.magenta(chalk.underline(`${process.env.APP_BASE_URL}${socketPath}`)));
+    logger.info("⚡ Socket.io is running at " + chalk.magenta(chalk.underline(`${process.env.APP_BASE_URL}${socketPath}`)));
 
     io.on("connection", (socket) => {
-        logger.info("A user connected");
+        logger.info("⚡ A user connected");
 
         socket.on("disconnecting", () => {
-            logger.info("A user is disconnecting");
+            logger.info("⚡ A user is disconnecting");
         });
         socket.on("disconnect", () => {
-            logger.info("A user disconnected");
+            logger.info("⚡ A user disconnected");
         });
         socket.on("error", async (error) => {
             logger.error(error);
@@ -36,6 +36,10 @@ const socket = (io) => {
                 stackTrace: "Error in socket.io",
             })
         });
+
+        eventEmitter.on("checkExpiredMedicine", async (expiredMedicines) => {
+            socket.emit("expiredMedicines", expiredMedicines);
+        })
     });
 
 }

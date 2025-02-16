@@ -22,7 +22,7 @@ const handleErrorResponse = async (error, req, res, next) => {
   const fileName = path.basename(filePath);
 
   const logMessage = `
-   An error occurred in the application
+   ❌ An error occurred in the application
    Code: ${statusCode}
    Message: ${error.message}
    File: ${fileName}
@@ -43,9 +43,9 @@ const handleErrorResponse = async (error, req, res, next) => {
       };
 
       await errorModel.create(errorData);
-      logger.info("Error data saved to database");
+      logger.info("❌ Error data saved to database");
     } catch (error) {
-      logger.error("Error saving error data to database", error);
+      logger.error("❌ Error saving error data to database", error);
     }
   }
 
