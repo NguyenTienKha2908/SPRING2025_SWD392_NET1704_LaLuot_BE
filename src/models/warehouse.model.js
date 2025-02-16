@@ -4,7 +4,6 @@ const warehouseTransactionModel = require("./warehouseTransaction.model");
 const stockCheckModel = require("./stockCheck.model");
 const outputModel = require("./output.model");
 const warehouseCheckModel = require("./warehouseCheck.model");
-const expiredMedicineCheckModel = require("./expiredMedicineCheck.model");
 const inputModel = require("./input.model");
 const stockTransactionModel = require("./stockTransaction.model");
 const inventoryModel = require("./inventory.model");
@@ -73,10 +72,6 @@ warehouseSchema.pre("findOneAndDelete", async function (next) {
     const warehouseChecks = await warehouseCheckModel.findOne({ warehouseId: warehouseId });
     if (warehouseChecks) {
         return next(new Error("Cannot delete warehouse because it is used in warehouseChecks"));
-    }
-    const expiredMedicineChecks = await expiredMedicineCheckModel.findOne({ warehouseId: warehouseId });
-    if (expiredMedicineChecks) {
-        return next(new Error("Cannot delete warehouse because it is used in expiredMedicineChecks"));
     }
     const inputs = await inputModel.findOne({ warehouseId: warehouseId });
     if (inputs) {

@@ -2,6 +2,27 @@ const { OK } = require("../core/responses/success.response")
 const ItemService = require("../services/item.service")
 
 class ItemController {
+    getAllItems = async (req, res) => {
+        new OK({
+            message: "Get all items successfully",
+            metadata: await ItemService.getAllItems({
+                limit: req.query.limit || 10,
+                sort: req.query.sort || 'ctime',
+                page: req.query.page || 1,
+                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false }, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}
+                select: req.query.select || '',
+                expand: req.query.expand || ''
+            })
+        }).send(res)
+    }
+
+    updateItems = async (req, res) => {
+        new OK({
+            message: "Update item successfully",
+            metadata: await ItemService.updateItem(req.body)
+        }).send(res)
+    }
+
     updateCheckExpiredMedicineInterval = async (req, res) => {
         new OK({
             message: "Update check expired medicine interval successfully",

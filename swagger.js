@@ -123,6 +123,23 @@ const doc = {
             UpdateStockCheckDetail: {
                 $actualQuantity: 100
             },
+            GetAllItems:
+            {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'status expiredDate isFrozenStored baseItemId',
+                expand: 'baseItem'
+            },
+            UpdateItem: {
+                $id: "60e0b3f0b3f0b3f0b3f0b3f0",
+                status: "Available",
+                expiredDate: "2022-07-01",
+                isFrozenStored: true
+            },
             UpdateCheckExpiredMedicineInterval: {
                 $job: "checkExpiredMedicine",
                 $interval: "0 0 * * *"
@@ -147,6 +164,6 @@ const chalk = require("chalk");
 const getLogger = require("./src/utils/logger");
 const logger = getLogger("SWAGGER");
 swaggerAutogen(outputFile, routes, doc).then(() => {
-    logger.info(`Docs are running at ${chalk.magenta(chalk.underline(`${process.env.APP_BASE_URL}` + "/api-docs"))}`);
+    logger.info(`📄 Docs are running at ${chalk.magenta(chalk.underline(`${process.env.APP_BASE_URL}` + "/api-docs"))}`);
     require('./server.js')
 })

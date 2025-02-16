@@ -1,6 +1,5 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
-const expiredMedicineCheckDetailModel = require("./expiredMedicineCheckDetail.model");
 const inputDetailModel = require("./inputDetail.model");
 const stockCheckDetailModel = require("./stockCheckDetail.model");
 const outputDetailModel = require("./outputDetail.model");
@@ -46,10 +45,6 @@ var itemSchema = new mongoose.Schema({
 itemSchema.pre("findOneAndDelete", async function (next) {
     const itemId = this.getQuery()._id;
 
-    const expiredMedicineCheckDetails = await expiredMedicineCheckDetailModel.findOne({ itemId: itemId });
-    if (expiredMedicineCheckDetails) {
-        return next(new Error("Cannot delete itemId because it is used in expiredMedicineCheckDetails"));
-    }
     const inputDetails = await inputDetailModel.findOne({ itemId: itemId });
     if (inputDetails) {
         return next(new Error("Cannot delete itemId because it is used in inputDetails"));

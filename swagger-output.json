@@ -483,6 +483,48 @@
         }
       }
     },
+    "/api/v1/items/": {
+      "get": {
+        "tags": [
+          "Item"
+        ],
+        "description": "Get all items",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllItems"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Item"
+        ],
+        "description": "Update item",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateItem"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/items/check-expired-medicine": {
       "put": {
         "tags": [
@@ -900,6 +942,64 @@
         },
         "required": [
           "actualQuantity"
+        ]
+      },
+      "GetAllItems": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "status expiredDate isFrozenStored baseItemId"
+          },
+          "expand": {
+            "type": "string",
+            "example": "baseItem"
+          }
+        }
+      },
+      "UpdateItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "status": {
+            "type": "string",
+            "example": "Available"
+          },
+          "expiredDate": {
+            "type": "string",
+            "example": "2022-07-01"
+          },
+          "isFrozenStored": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id"
         ]
       },
       "UpdateCheckExpiredMedicineInterval": {
