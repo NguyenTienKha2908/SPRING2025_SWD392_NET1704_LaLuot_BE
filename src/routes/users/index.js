@@ -7,54 +7,60 @@ const AuthMiddleware = require("../../middlewares/auth.middleware");
 
 const router = express.Router();
 
-router.get("/users",
+// Lấy danh sách tất cả users
+router.get(
+    "/users",
     /**
      * #swagger.tags = ['User']
      * #swagger.description='Get all users'
      */
-    /*  #swagger.parameters['query'] = {
-        in: 'query',
-        description: 'Query parameters for get all users',
-        required: false,
-        schema: {
-            $ref: "#/components/schemas/GetAllUsers"
-        }
-    } 
-*/
-    catchAsyncHandle(userController.getAllUsers));
+    catchAsyncHandle(userController.getAllUsers)
+);
 
-router.get("/users/:id",
+// Lấy thông tin user theo ID
+router.get(
+    "/users/:id",
     /**
      * #swagger.tags = ['User']
      * #swagger.description='Get user by ID'
      */
-    /*  #swagger.parameters['id'] = {
-        in: 'path',
-        description: 'User ID',
-        required: true,
-        schema: {
-            type: 'string'
-        }
-    } 
-    */
-    catchAsyncHandle(userController.getUserById));
+    catchAsyncHandle(userController.getUserById)
+);
 
-router.post("/users",
+// Tạo user mới (Chỉ Admin mới có quyền)
+router.post(
+    "/users",
     /**
      * #swagger.tags = ['User']
      * #swagger.description='Create a new user'
      */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/CreateUser"
-                }  
-            }
-        }
-    } 
-*/
     AuthMiddleware,
     checkRoles({ requiredRoles: [USER_ROLES.ADMIN] }),
-    catchAsyncHandle(userController.createUser));
+    catchAsyncHandle(userController.createUser)
+);
+
+// Cập nhật user theo ID (Chỉ Admin hoặc chính chủ user mới có quyền)
+router.put(
+    "/users/:id",
+    /**
+     * #swagger.tags = ['User']
+     * #swagger.description='Update user by ID'
+     */
+    AuthMiddleware,
+    checkRoles({ requiredRoles: [USER_ROLES.ADMIN, USER_ROLES.USER] }),
+    catchAsyncHandle(userController.updateUser)
+);
+
+// Xóa user theo ID (Chỉ Admin mới có quyền)
+router.delete(
+    "/users/:id",
+    /**
+     * #swagger.tags = ['User']
+     * #swagger.description='Delete user by ID'
+     */
+    AuthMiddleware,
+    checkRoles({ requiredRoles: [USER_ROLES.ADMIN] }),
+    catchAsyncHandle(userController.deleteUser)
+);
+
 module.exports = router;
