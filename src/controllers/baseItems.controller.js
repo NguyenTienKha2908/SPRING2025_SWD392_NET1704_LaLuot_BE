@@ -40,4 +40,4 @@ class BaseItemController {
         }).send(res)
     }
 }
-module.exports = new BaseItemController();
+module.exports = new BaseItemController()
