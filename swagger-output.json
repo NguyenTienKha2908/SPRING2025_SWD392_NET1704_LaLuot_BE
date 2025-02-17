@@ -181,17 +181,6 @@
           "User"
         ],
         "description": "Get all users",
-        "parameters": [
-          {
-            "name": "query",
-            "in": "query",
-            "description": "Query parameters for get all users",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/GetAllUsers"
-            }
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
@@ -206,15 +195,6 @@
         "responses": {
           "default": {
             "description": ""
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUser"
-              }
-            }
           }
         }
       }
@@ -232,8 +212,63 @@
             "required": true,
             "schema": {
               "type": "string"
-            },
-            "description": "User ID"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "description": "Update user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "description": "Delete user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
