@@ -31,7 +31,7 @@ const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
 }
 
 const checkExpiredMedicines = async () => {
-    const expiredMedicines = await itemModel.aggregate([
+    let expiredMedicines = await itemModel.aggregate([
         {
             $match: {
                 expiredDate: { $lt: new Date() },
@@ -55,6 +55,14 @@ const checkExpiredMedicines = async () => {
         }
     ])
 
+    await itemModel.updateMany({ _id: { $in: expiredMedicines.map(medicine => medicine._id) } },
+        { status: "Expired" })
+
+
+    for (let medicine of expiredMedicines) {
+        medicine.status = "Expired"
+        delete medicine.baseItemId
+    }
     return expiredMedicines
 }
 
