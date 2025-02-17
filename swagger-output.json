@@ -19,6 +19,14 @@
     {
       "name": "User",
       "description": ""
+    },
+    {
+      "name": "Inventory",
+      "description": ""
+    },
+    {
+      "name": "Item",
+      "description": ""
     }
   ],
   "paths": {
@@ -184,15 +192,6 @@
           "User"
         ],
         "description": "Create a new user",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
@@ -275,6 +274,398 @@
         "responses": {
           "default": {
             "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get all inventories",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllInventories"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/stock-check-requests": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get all stock check request",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllStockCheckRequest"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Create a new stock check request",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStockCheckRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/stock-check-details": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get all stock check details",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllStockCheckDetails"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Create a new stock check details",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStockCheckDetails"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/stock-check-requests/{id}": {
+      "put": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Update a stock check request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check request id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStockCheckRequest"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Delete a stock check request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check request id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/stock-check-details/{id}": {
+      "put": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Update a stock check details",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check details id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStockCheckDetail"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Delete a stock check details",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check details id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/{id}": {
+      "delete": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Delete an inventory",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Inventory id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/items/": {
+      "get": {
+        "tags": [
+          "Item"
+        ],
+        "description": "Get all items",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllItems"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Item"
+        ],
+        "description": "Update item",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateItem"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/items/check-expired-medicine": {
+      "put": {
+        "tags": [
+          "Item"
+        ],
+        "description": "Check expired medicine",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCheckExpiredMedicineInterval"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/baseitems/all": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/baseitems/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/baseitems/create": {
+      "post": {
+        "tags": [
+          "BaseItems"
+        ],
+        "description": "Create a new item",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createItem"
+              }
+            }
           }
         }
       }
@@ -386,14 +777,281 @@
             "example": "***"
           },
           "role": {
-            "type": "number",
-            "example": 2
+            "type": "string",
+            "example": "Customer"
           }
         },
         "required": [
           "fullName",
           "email",
           "password"
+        ]
+      },
+      "GetAllInventories": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "warehouseId itemId quantity"
+          },
+          "expand": {
+            "type": "string",
+            "example": "warehouse item"
+          }
+        }
+      },
+      "GetAllStockCheckRequest": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "description status warehouseId managerId inventoryStaffId"
+          },
+          "expand": {
+            "type": "string",
+            "example": "warehouse manager inventoryStaff"
+          }
+        }
+      },
+      "GetAllStockCheckDetails": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "stockCheckId itemId systemQuantity actualQuantity difference description"
+          },
+          "expand": {
+            "type": "string",
+            "example": "stockCheck item"
+          }
+        }
+      },
+      "CreateStockCheckRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "example": "Stock check for warehouse 1"
+          },
+          "warehouseId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "managerId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "inventoryStaffId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          }
+        },
+        "required": [
+          "warehouseId",
+          "managerId",
+          "inventoryStaffId"
+        ]
+      },
+      "CreateStockCheckDetails": {
+        "type": "object",
+        "properties": {
+          "stockCheckDetails": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stockCheckId": {
+                  "type": "string",
+                  "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+                },
+                "itemId": {
+                  "type": "string",
+                  "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+                },
+                "systemQuantity": {
+                  "type": "number",
+                  "example": 100
+                },
+                "actualQuantity": {
+                  "type": "number",
+                  "example": 100
+                }
+              },
+              "required": [
+                "stockCheckId",
+                "itemId",
+                "systemQuantity",
+                "actualQuantity"
+              ]
+            }
+          }
+        }
+      },
+      "UpdateStockCheckRequest": {
+        "type": "object",
+        "properties": {
+          "newInventoryStaffId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "description": {
+            "type": "string",
+            "example": ""
+          },
+          "status": {
+            "type": "string",
+            "example": ""
+          }
+        }
+      },
+      "UpdateStockCheckDetail": {
+        "type": "object",
+        "properties": {
+          "actualQuantity": {
+            "type": "number",
+            "example": 100
+          }
+        },
+        "required": [
+          "actualQuantity"
+        ]
+      },
+      "GetAllItems": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "status expiredDate isFrozenStored baseItemId"
+          },
+          "expand": {
+            "type": "string",
+            "example": "baseItem"
+          }
+        }
+      },
+      "UpdateItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "status": {
+            "type": "string",
+            "example": "Available"
+          },
+          "expiredDate": {
+            "type": "string",
+            "example": "2022-07-01"
+          },
+          "isFrozenStored": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "UpdateCheckExpiredMedicineInterval": {
+        "type": "object",
+        "properties": {
+          "job": {
+            "type": "string",
+            "example": "checkExpiredMedicine"
+          },
+          "interval": {
+            "type": "string",
+            "example": "0 0 * * *"
+          }
+        },
+        "required": [
+          "job",
+          "interval"
         ]
       }
     }

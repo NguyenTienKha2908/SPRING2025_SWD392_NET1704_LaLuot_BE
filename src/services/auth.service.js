@@ -33,7 +33,7 @@ class AuthService {
       email,
       password: passwordHash,
       role: USER_ROLES.STAFF,
-      verifyToken: verifyToken,
+      // verifyToken: verifyToken,
     });
 
     await sendMail(email,
@@ -69,15 +69,12 @@ class AuthService {
     if (!email || !password)
       throw new BadRequestError("Email and password are required");
 
-    const userHolder = await userModel.findOne({ email }).lean();
-    if (!userHolder) throw new UnauthorizedRequestError("Invalid email or password !");
+    const userHolder = await userModel.findOne({ email, isDeleted: false }).lean();
+    if (!userHolder) throw new UnauthorizedRequestError("Invalid email or password");
 
     const isPasswordMatch = await bcrypt.compare(password, userHolder.password);
     if (!isPasswordMatch)
-      throw new UnauthorizedRequestError("Invalid email or password !");
-
-    if (!userHolder.isActive || userHolder.isDeleted || !userHolder.isVerified)
-      throw new UnauthorizedRequestError("User is not active or deleted or not verified");
+      throw new UnauthorizedRequestError("Invalid email or password");
 
     const accessToken = createAccessToken(
       { _id: userHolder._id, role: userHolder.role },

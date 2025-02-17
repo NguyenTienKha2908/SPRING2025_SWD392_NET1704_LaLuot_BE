@@ -1,7 +1,7 @@
 {
   "name": "medical-warehouse-be",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --watch swagger.js",
@@ -29,6 +29,7 @@
     "mongoose": "^8.9.5",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.16",
+    "nodemon": "^3.1.9",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "socket.io": "^4.8.0",

@@ -34,7 +34,17 @@ router.post(
      * #swagger.tags = ['User']
      * #swagger.description='Create a new user'
      */
-    AuthMiddleware,
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/CreateUser"
+                }  
+            }
+        }
+    } 
+*/
+    catchAsyncHandle(AuthMiddleware),
     checkRoles({ requiredRoles: [USER_ROLES.ADMIN] }),
     catchAsyncHandle(userController.createUser)
 );
@@ -46,7 +56,7 @@ router.put(
      * #swagger.tags = ['User']
      * #swagger.description='Update user by ID'
      */
-    AuthMiddleware,
+    catchAsyncHandle(AuthMiddleware),
     checkRoles({ requiredRoles: [USER_ROLES.ADMIN, USER_ROLES.USER] }),
     catchAsyncHandle(userController.updateUser)
 );
@@ -58,7 +68,7 @@ router.delete(
      * #swagger.tags = ['User']
      * #swagger.description='Delete user by ID'
      */
-    AuthMiddleware,
+    catchAsyncHandle(AuthMiddleware),
     checkRoles({ requiredRoles: [USER_ROLES.ADMIN] }),
     catchAsyncHandle(userController.deleteUser)
 );

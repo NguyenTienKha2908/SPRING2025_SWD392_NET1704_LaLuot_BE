@@ -24,21 +24,6 @@ var inputDetailSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
-        expiredDate: {
-            type: Date,
-            required: true,
-        },
-        unit: {
-            type: String,
-            required: true,
-            trim: true,
-            enum: ["Box", "Bottle", "Tablet", "Capsule", "Syrup", "Injection", "Pcs", "Set", "Other"],
-            default: "Pcs",
-        },
-        isFrozenStored: {
-            type: Boolean,
-            default: false,
-        },
         ...baseModelSchema.obj,
     },
     {

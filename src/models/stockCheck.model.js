@@ -18,7 +18,7 @@ var stockCheckSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["Pending", "Approved", "Rejected", "Done"],
+            enum: ["Pending", "Done", "Cancelled"],
             default: "Pending",
         },
         managerId: {
@@ -29,6 +29,7 @@ var stockCheckSchema = new mongoose.Schema(
         inventoryStaffId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
+            required: true,
         },
         ...baseModelSchema.obj,
     },

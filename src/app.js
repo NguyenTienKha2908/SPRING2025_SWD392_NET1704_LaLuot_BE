@@ -55,7 +55,14 @@ const swaggerDocument = require('../swagger-output.json');
 const basicAuth = require("express-basic-auth");
 const { AUTHENTICATION } = require("./configs/auth.config");
 const users = AUTHENTICATION.swagger.users
-app.use('/api-docs', basicAuth({ users, challenge: true }), swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const swaggerOptions = {
+  swaggerOptions: {
+    persistAuthorization: true,
+    docExpansion: 'none',
+    filter: true,
+  }
+}
+app.use('/api-docs', basicAuth({ users, challenge: true }), swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 // init socket
 const { socket } = require("../socket");
@@ -71,7 +78,14 @@ const io = require("socket.io")(server, {
 instrument(io, {
   auth: false,
 })
-socket(io)
+if (!io.initialized) {
+  socket(io)
+  io.initialized = true
+}
+
+// init cron jobs
+const { startCronJobs } = require("./utils/cronJob");
+startCronJobs();
 
 // request logger
 app.use(handleApiRequest);
@@ -79,8 +93,8 @@ app.use(handleApiRequest);
 // init routes
 app.use("/api/v1", require("./routes"));
 app.get("/", (req, res) => {
-  res.setHeader('Cache-Control', 'no-store');
   res.status(200).send("Welcome to the API");
+  res.end();
 });
 
 // error handler

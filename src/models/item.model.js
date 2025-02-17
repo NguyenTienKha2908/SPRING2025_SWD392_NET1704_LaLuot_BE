@@ -1,6 +1,5 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
-const expiredMedicineCheckDetailModel = require("./expiredMedicineCheckDetail.model");
 const inputDetailModel = require("./inputDetail.model");
 const stockCheckDetailModel = require("./stockCheckDetail.model");
 const outputDetailModel = require("./outputDetail.model");
@@ -22,6 +21,21 @@ var itemSchema = new mongoose.Schema({
         enum: ["Expired", "Available", "Out of Stock", "Damaged", "Lost"],
         default: "Available",
     },
+    expiredDate: {
+        type: Date,
+        required: true,
+    },
+    unit: {
+        type: String,
+        required: true,
+        trim: true,
+        enum: ["Box", "Bottle", "Tablet", "Capsule", "Syrup", "Injection", "Pcs", "Set", "Other"],
+        default: "Pcs",
+    },
+    isFrozenStored: {
+        type: Boolean,
+        default: false,
+    },
     ...baseModelSchema.obj,
 }, {
     timestamps: true,
@@ -31,10 +45,6 @@ var itemSchema = new mongoose.Schema({
 itemSchema.pre("findOneAndDelete", async function (next) {
     const itemId = this.getQuery()._id;
 
-    const expiredMedicineCheckDetails = await expiredMedicineCheckDetailModel.findOne({ itemId: itemId });
-    if (expiredMedicineCheckDetails) {
-        return next(new Error("Cannot delete itemId because it is used in expiredMedicineCheckDetails"));
-    }
     const inputDetails = await inputDetailModel.findOne({ itemId: itemId });
     if (inputDetails) {
         return next(new Error("Cannot delete itemId because it is used in inputDetails"));
