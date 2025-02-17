@@ -1,7 +1,10 @@
 const { ROLES } = require("../configs/user.config");
 const CreateUserDto = require("../core/dtos/users/create.user.dto");
 const UpdateUserDto = require("../core/dtos/users/update.user.dto");
-const { NotFoundRequestError, BadRequestError } = require("../core/responses/error.response");
+const {
+  NotFoundRequestError,
+  BadRequestError,
+} = require("../core/responses/error.response");
 const userModel = require("../models/user.model");
 const { getAllUsers } = require("../repositories/user.repo");
 const { validMongoObjectId } = require("../utils/validator");
@@ -9,68 +12,83 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 class UserService {
-    static getAllUsers = async ({ limit, sort, page, filter, select }) => {
-        return await getAllUsers({ limit, sort, page, filter, select });
+  static getAllUsers = async ({ limit, sort, page, filter, select }) => {
+    return await getAllUsers({ limit, sort, page, filter, select });
+  };
+
+  static getUserById = async ({ id }) => {
+    await validMongoObjectId(id);
+    const userHolder = await userModel.findById(id).lean();
+    if (!userHolder) {
+      throw new NotFoundRequestError("User not found");
+    }
+    return userHolder;
+  };
+
+  static createUser = async ({ fullName, email, password, role }) => {
+    const createUserDto = new CreateUserDto(fullName, email, password);
+    await createUserDto.validate();
+
+    const userHolder = await userModel.findOne({ email }).lean();
+    if (userHolder) {
+      throw new BadRequestError("Email already exists");
     }
 
-    static getUserById = async ({ id }) => {
-        await validMongoObjectId(id);
-        const userHolder = await userModel.findById(id).lean();
-        if (!userHolder) {
-            throw new NotFoundRequestError("User not found");
-        }
-        return userHolder;
+    const passwordHash = await bcrypt.hash(
+      password,
+      parseInt(process.env.PASSWORD_SALT)
+    );
+
+    const newUser = await userModel.create({
+      fullName,
+      email,
+      password: passwordHash,
+      role: role || ROLES.STAFF,
+      isVerified: true,
+    });
+    return;
+  };
+
+  static updateUser = async ({ id, fullName, email, password, role }) => {
+    const updateUserDto = new UpdateUserDto(
+      id,
+      fullName,
+      email,
+      password,
+      role
+    );
+    await updateUserDto.validate();
+
+    const userHolder = await userModel.findById(id).lean();
+    if (!userHolder) {
+      throw new NotFoundRequestError("User not found");
     }
 
-    static createUser = async ({ fullName, email, password, role }) => {
-        const createUserDto = new CreateUserDto(fullName, email, password);
-        await createUserDto.validate();
-
-        const userHolder = await userModel.findOne({ email }).lean();
-        if (userHolder) {
-            throw new BadRequestError("Email already exists");
-        }
-
-        const passwordHash = await bcrypt.hash(
-            password,
-            parseInt(process.env.PASSWORD_SALT)
-        );
-
-        const newUser = await userModel.create({
-            fullName,
-            email,
-            password: passwordHash,
-            role: role || ROLES.STAFF,
-            isVerified: true
-        })
-        return
+    const updateUser = {};
+    if (fullName) updateUser.fullName = fullName;
+    if (email) updateUser.email = email;
+    if (password) {
+      const passwordHash = await bcrypt.hash(
+        password,
+        parseInt(process.env.PASSWORD_SALT)
+      );
+      updateUser.password = passwordHash;
+      updateUser.isVerified = false;
     }
+    if (role) updateUser.role = role;
 
-    // static updateUser = async ({ id, fullName, email, password, role }) => {
-    //     const updateUserDto = new UpdateUserDto(id, fullName, email, password, role)
-    //     await updateUserDto.validate()
+    await userModel.findByIdAndUpdate(id, updateUser);
+    return;
+  };
 
-    //     const userHolder = await userModel.findById(id).lean();
-    //     if (!userHolder) {
-    //         throw new NotFoundRequestError("User not found");
-    //     }
-
-    //     const updateUser = {};
-    //     if (fullName) updateUser.fullName = fullName;
-    //     if (email) updateUser.email = email;
-    //     if (password) {
-    //         const passwordHash = await bcrypt.hash(
-    //             password,
-    //             parseInt(process.env.PASSWORD_SALT)
-    //         );
-    //         updateUser.password = passwordHash;
-    //         updateUser.isVerified = false;
-    //     }
-    //     if (role) updateUser.role = role;
-
-    //     await userModel.findByIdAndUpdate(id, updateUser);
-    //     return;
-    // }
+  static deleteUser = async ({ id }) => {
+    await validMongoObjectId(id);
+    const user = await userModel.findByIdAndDelete(id);
+    if (!user) {
+      throw new NotFoundRequestError("User not found");
+    }
+    return user;
+  };
 }
 
 module.exports = UserService;
