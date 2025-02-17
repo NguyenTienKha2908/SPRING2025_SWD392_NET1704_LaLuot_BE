@@ -1,3 +1,5 @@
 class createRequestDTO {
-    constructor()
+    constructor(name,description) {
+        
+    }
 }
