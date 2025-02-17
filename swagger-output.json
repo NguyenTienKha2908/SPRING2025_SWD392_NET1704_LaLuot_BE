@@ -27,6 +27,10 @@
     {
       "name": "Item",
       "description": ""
+    },
+    {
+      "name": "System",
+      "description": ""
     }
   ],
   "paths": {
@@ -631,6 +635,19 @@
                 "$ref": "#/components/schemas/createItem"
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/system/": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "description": "Get system config",
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
       }

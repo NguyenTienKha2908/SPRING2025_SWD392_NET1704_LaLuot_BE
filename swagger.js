@@ -30,6 +30,10 @@ const doc = {
         {
             name: 'Item',
             description: ''
+        },
+        {
+            name: 'System',
+            description: ''
         }
         // { ... }
     ],
