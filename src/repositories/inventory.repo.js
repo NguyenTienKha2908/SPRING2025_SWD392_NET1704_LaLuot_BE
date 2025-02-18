@@ -1,18 +1,21 @@
+const { SELECT_BASEITEM } = require("../configs/baseitem.config");
 const { SELECT_USER } = require("../configs/user.config");
+const { SELECT_WAREHOUSE } = require("../configs/warehouse.config");
 const inventoryModel = require("../models/inventory.model");
 const stockCheckModel = require("../models/stockCheck.model");
 const stockCheckDetailModel = require("../models/stockCheckDetail.model");
+const stockTransactionModel = require("../models/stockTransaction.model");
 
 const getAllInventories = async ({ limit, sort, page, filter, select, expand }) => {
     const skip = (page - 1) * limit;
     const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
 
     const populateOptions = {
-        warehouse: { path: 'warehouseId', select: 'name category status' },
+        warehouse: { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
         item: {
             path: 'itemId',
             select: 'baseItemId status',
-            populate: { path: 'baseItemId', select: 'name description category' }
+            populate: { path: 'baseItemId', select: SELECT_BASEITEM.DEFAULT }
         },
     }
 
@@ -38,12 +41,48 @@ const getAllInventories = async ({ limit, sort, page, filter, select, expand }) 
     };
 }
 
-const getAllStockCheckRequest = async ({ limit, sort, page, filter, select, expand }) => {
+const getAllStockTransactions = async ({ limit, sort, page, filter, select, expand }) => {
     const skip = (page - 1) * limit;
     const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
 
     const populateOptions = {
-        warehouse: { path: 'warehouseId', select: 'name category status' },
+        warehouse: { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
+        item: {
+            path: 'itemId',
+            select: 'baseItemId status',
+            populate: { path: 'baseItemId', select: SELECT_BASEITEM.DEFAULT }
+        }
+    }
+
+    const populateFields = expand
+        ? expand.split(" ").map(field => populateOptions[field]).filter(Boolean)
+        : [];
+
+    const stockTransactions = await stockTransactionModel
+        .find(filter)
+        .sort(sortBy)
+        .skip(skip)
+        .limit(limit)
+        .select(select)
+        .populate(populateFields)
+
+    const totalStockTransactions = await stockTransactionModel
+        .countDocuments(filter);
+    const totalPages = Math.ceil(totalStockTransactions / limit);
+
+    return {
+        stockTransactions,
+        page: Number(page),
+        totalPages: totalPages,
+    };
+}
+
+const getAllStockCheckRequests = async ({ limit, sort, page, filter, select, expand }) => {
+    const skip = (page - 1) * limit;
+    const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
+
+    const populateOptions = {
+        warehouse: { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
         manager: { path: 'managerId', select: SELECT_USER.DEFAULT },
         inventoryStaff: { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
     }
@@ -78,7 +117,7 @@ const getAllStockCheckDetails = async ({ limit, sort, page, filter, select, expa
         stockCheck: {
             path: 'stockCheckId', select: 'description status warehouseId managerId inventoryStaffId',
             populate: [
-                { path: 'warehouseId', select: 'name category status' },
+                { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
                 { path: 'managerId', select: SELECT_USER.DEFAULT },
                 { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
             ]
@@ -86,7 +125,7 @@ const getAllStockCheckDetails = async ({ limit, sort, page, filter, select, expa
         item: {
             path: 'itemId',
             select: 'baseItemId status',
-            populate: { path: 'baseItemId', select: 'name description category' }
+            populate: { path: 'baseItemId', select: SELECT_BASEITEM.DEFAULT }
         },
     }
 
@@ -112,4 +151,4 @@ const getAllStockCheckDetails = async ({ limit, sort, page, filter, select, expa
     };
 }
 
-module.exports = { getAllInventories, getAllStockCheckRequest, getAllStockCheckDetails }
+module.exports = { getAllInventories, getAllStockCheckRequests, getAllStockCheckDetails, getAllStockTransactions };

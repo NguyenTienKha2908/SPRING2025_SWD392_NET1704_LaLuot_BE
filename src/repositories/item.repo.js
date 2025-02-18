@@ -1,3 +1,4 @@
+const { SELECT_BASEITEM } = require("../configs/baseitem.config");
 const itemModel = require("../models/item.model")
 
 const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
@@ -5,7 +6,7 @@ const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
     const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
 
     const populateOptions = {
-        baseItem: { path: 'baseItemId', select: 'name description category' }
+        baseItem: { path: 'baseItemId', select: SELECT_BASEITEM.DEFAULT }
     }
 
     const populateFields = expand
@@ -31,7 +32,7 @@ const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
 }
 
 const checkExpiredMedicines = async () => {
-    const expiredMedicines = await itemModel.aggregate([
+    let expiredMedicines = await itemModel.aggregate([
         {
             $match: {
                 expiredDate: { $lt: new Date() },
@@ -55,6 +56,14 @@ const checkExpiredMedicines = async () => {
         }
     ])
 
+    await itemModel.updateMany({ _id: { $in: expiredMedicines.map(medicine => medicine._id) } },
+        { status: "Expired" })
+
+
+    for (let medicine of expiredMedicines) {
+        medicine.status = "Expired"
+        delete medicine.baseItemId
+    }
     return expiredMedicines
 }
 

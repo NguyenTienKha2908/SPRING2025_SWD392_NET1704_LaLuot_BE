@@ -28,12 +28,6 @@ class ItemService {
     static checkExpiredMedicine = async () => {
         const expiredMedicines = await checkExpiredMedicines()
 
-        await itemModel.updateMany({
-            _id: { $in: expiredMedicines.map(medicine => medicine._id) }
-        }, {
-            status: "Expired"
-        });
-
         eventEmitter.emit("checkExpiredMedicine", expiredMedicines);
 
         return expiredMedicines;

@@ -22,7 +22,11 @@ var outputDetailSchema = new mongoose.Schema(
         },
         outputPrice: {
             type: Number,
-            required: true,
+        },
+        status: {
+            type: String,
+            enum: ["Pending", "Done"],
+            default: "Pending",
         },
         ...baseModelSchema.obj,
     },

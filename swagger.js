@@ -30,6 +30,14 @@ const doc = {
         {
             name: 'Item',
             description: ''
+        },
+        {
+            name: 'System',
+            description: ''
+        },
+        {
+            name: 'Output',
+            description: ''
         }
         // { ... }
     ],
@@ -77,6 +85,24 @@ const doc = {
                     isDeleted: false
                 },
                 select: 'warehouseId itemId quantity',
+                expand: 'warehouse item'
+            },
+            CreateInventory: {
+                outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                $quantity: 100,
+                $transactionType: "Input",
+                description: "Create new inventory"
+            },
+            GetAllStockTransactions: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'warehouseId itemId description quantity transactionType',
                 expand: 'warehouse item'
             },
             GetAllStockCheckRequest: {
@@ -143,8 +169,51 @@ const doc = {
             UpdateCheckExpiredMedicineInterval: {
                 $job: "checkExpiredMedicine",
                 $interval: "0 0 * * *"
-            }
-
+            },
+            GetAllOutputRequests: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'description status customerId warehouseId reportStaffId managerId inventoryStaffId',
+                expand: 'customer warehouse reportStaff manager inventoryStaff outputDetails'
+            },
+            GetAllOutputDetails: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'outputId itemId quantity outputPrice status',
+                expand: 'output item'
+            },
+            CreateOutputRequest: {
+                $customerId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                description: "Output request for warehouse 1",
+                outputDetails: [
+                    {
+                        $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                        $quantity: 10,
+                        $outputPrice: 1000,
+                    }
+                ]
+            },
+            ReceiveOutputRequest: {
+                reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0"
+            },
+            ApproveOutputRequest: {
+                managerId: "60e0b3f0b3f0b3f0b3f0b3f0"
+            },
+            RejectOutputRequest: {
+                managerId: "60e0b3f0b3f0b3f0b3f0b3f0"
+            },
+            DeliverOutputRequest: {
+                inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0"
+            },
         }
     },
     security: [

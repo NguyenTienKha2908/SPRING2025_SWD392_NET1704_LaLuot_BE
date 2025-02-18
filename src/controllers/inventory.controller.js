@@ -16,16 +16,64 @@ class InventoryController {
         }).send(res)
     }
 
-    getAllStockCheckRequest = async (req, res) => {
+    getInventory = async (req, res) => {
         new OK({
-            message: "Get all stock check request successfully",
-            metadata: await InventoryService.getAllStockCheckRequest({
+            message: "Get inventory successfully",
+            metadata: await InventoryService.getInventory({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
+    getAllStockTransactions = async (req, res) => {
+        new OK({
+            message: "Get all stock transactions successfully",
+            metadata: await InventoryService.getAllStockTransactions({
                 limit: req.query.limit || 10,
                 sort: req.query.sort || 'ctime',
                 page: req.query.page || 1,
                 filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false }, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}
                 select: req.query.select || '',
                 expand: req.query.expand || '',
+            })
+        }).send(res)
+    }
+
+    getStockTransaction = async (req, res) => {
+        new OK({
+            message: "Get stock transaction successfully",
+            metadata: await InventoryService.getStockTransaction({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
+    createInventory = async (req, res) => {
+        new CREATED({
+            message: "Create inventory successfully",
+            metadata: await InventoryService.createInventory(req.body)
+        }).send(res)
+    }
+
+    getAllStockCheckRequests = async (req, res) => {
+        new OK({
+            message: "Get all stock check request successfully",
+            metadata: await InventoryService.getAllStockCheckRequests({
+                limit: req.query.limit || 10,
+                sort: req.query.sort || 'ctime',
+                page: req.query.page || 1,
+                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false }, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}
+                select: req.query.select || '',
+                expand: req.query.expand || '',
+            })
+        }).send(res)
+    }
+
+    getStockCheckRequest = async (req, res) => {
+        new OK({
+            message: "Get stock check request successfully",
+            metadata: await InventoryService.getStockCheckRequest({
+                id: req.params.id
             })
         }).send(res)
     }
@@ -40,6 +88,15 @@ class InventoryController {
                 filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false }, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}
                 select: req.query.select || '',
                 expand: req.query.expand || '',
+            })
+        }).send(res)
+    }
+
+    getStockCheckDetail = async (req, res) => {
+        new OK({
+            message: "Get stock check detail successfully",
+            metadata: await InventoryService.getStockCheckDetail({
+                id: req.params.id
             })
         }).send(res)
     }
