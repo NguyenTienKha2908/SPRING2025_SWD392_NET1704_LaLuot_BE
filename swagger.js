@@ -95,6 +95,16 @@ const doc = {
                 $transactionType: "Input",
                 description: "Create new inventory"
             },
+            GetAllStockTransactions: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'warehouseId itemId description quantity transactionType',
+                expand: 'warehouse item'
+            },
             GetAllStockCheckRequest: {
                 limit: 10,
                 sort: 'ctime',

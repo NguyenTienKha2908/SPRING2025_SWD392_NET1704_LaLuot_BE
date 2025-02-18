@@ -2,16 +2,16 @@ const { NotFoundRequestError, BadRequestError } = require("../core/responses/err
 const userModel = require("../models/user.model");
 const warehouseModel = require("../models/warehouse.model");
 const stockCheckModel = require("../models/stockCheck.model");
-const { getAllStockCheckRequests, getAllInventories, getAllStockCheckDetails } = require("../repositories/inventory.repo");
+const { getAllStockCheckRequests, getAllInventories, getAllStockCheckDetails, getAllStockTransactions } = require("../repositories/inventory.repo");
 const itemModel = require("../models/item.model");
 const inventoryModel = require("../models/inventory.model");
 const stockCheckDetailModel = require("../models/stockCheckDetail.model");
 const baseItemModel = require("../models/baseItem.model");
 const { default: mongoose } = require("mongoose");
-const { SELECT_USER } = require("../configs/user.config");
 const stockTransactionModel = require("../models/stockTransaction.model");
 const outputModel = require("../models/output.model");
 const outputDetailModel = require("../models/outputDetail.model");
+const { POPULATE_STOCK_DETAILS, POPULATE_STOCK_TRANSACTIONS } = require("../configs/inventory.config");
 class InventoryService {
     static getAllInventories = async ({ limit, sort, page, filter, select, expand }) => {
         return await getAllInventories({ limit, sort, page, filter, select, expand });
@@ -30,6 +30,18 @@ class InventoryService {
             .populate(populateOptions)
             .lean();
     }
+
+    static getAllStockTransactions = async ({ limit, sort, page, filter, select, expand }) => {
+        return await getAllStockTransactions({ limit, sort, page, filter, select, expand });
+    }
+
+    static getStockTransaction = async ({ id }) => {
+        return await stockTransactionModel.findOne({ _id: id, isDeleted: false })
+            .populate(POPULATE_STOCK_TRANSACTIONS)
+            .lean();
+
+    }
+
 
     static createInventory = async ({ inputId, outputId, warehouseId, itemId, quantity, transactionType, description }) => {
         const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean();
@@ -102,22 +114,6 @@ class InventoryService {
     }
 
     static getStockCheckRequest = async ({ id }) => {
-        const populateOptions = [
-            {
-                path: 'stockCheckId', select: 'description status warehouseId managerId inventoryStaffId',
-                populate: [
-                    { path: 'warehouseId', select: 'name category status' },
-                    { path: 'managerId', select: SELECT_USER.DEFAULT },
-                    { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
-                ]
-            },
-            {
-                path: 'itemId',
-                select: 'baseItemId status',
-                populate: { path: 'baseItemId', select: 'name description category' }
-            },
-        ]
-
         const stockCheckHolder = await stockCheckModel.findOne({ _id: id, isDeleted: false })
             .lean();
 
@@ -126,7 +122,7 @@ class InventoryService {
         }
 
         const stockCheckDetailHolders = await stockCheckDetailModel.find({ stockCheckId: id })
-            .populate(populateOptions)
+            .populate(POPULATE_STOCK_DETAILS)
             .lean();
 
         return {
@@ -140,24 +136,8 @@ class InventoryService {
     }
 
     static getStockCheckDetail = async ({ id }) => {
-        const populateOptions = [
-            {
-                path: 'stockCheckId', select: 'description status warehouseId managerId inventoryStaffId',
-                populate: [
-                    { path: 'warehouseId', select: 'name category status' },
-                    { path: 'managerId', select: SELECT_USER.DEFAULT },
-                    { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
-                ]
-            },
-            {
-                path: 'itemId',
-                select: 'baseItemId status',
-                populate: { path: 'baseItemId', select: 'name description category' }
-            },
-        ]
-
         return await stockCheckDetailModel.findOne({ _id: id, isDeleted: false })
-            .populate(populateOptions)
+            .populate(POPULATE_STOCK_DETAILS)
             .lean();
     }
 

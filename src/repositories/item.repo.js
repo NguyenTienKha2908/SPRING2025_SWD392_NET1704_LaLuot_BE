@@ -1,3 +1,4 @@
+const { SELECT_BASEITEM } = require("../configs/baseitem.config");
 const itemModel = require("../models/item.model")
 
 const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
@@ -5,7 +6,7 @@ const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
     const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
 
     const populateOptions = {
-        baseItem: { path: 'baseItemId', select: 'name description category' }
+        baseItem: { path: 'baseItemId', select: SELECT_BASEITEM.DEFAULT }
     }
 
     const populateFields = expand
