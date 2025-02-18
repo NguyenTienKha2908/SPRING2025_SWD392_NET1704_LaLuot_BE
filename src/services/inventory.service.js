@@ -129,7 +129,10 @@ class InventoryService {
             .populate(populateOptions)
             .lean();
 
-        return stockCheckDetailHolders;
+        return {
+            stockCheck: stockCheckHolder,
+            stockCheckDetails: stockCheckDetailHolders
+        };
     }
 
     static getAllStockCheckDetails = async ({ limit, sort, page, filter, select, expand }) => {
