@@ -31,6 +31,10 @@
     {
       "name": "System",
       "description": ""
+    },
+    {
+      "name": "Output",
+      "description": ""
     }
   ],
   "paths": {
@@ -179,7 +183,7 @@
         }
       }
     },
-    "/api/v1/users": {
+    "/api/v1/users/": {
       "get": {
         "tags": [
           "User"
@@ -299,6 +303,52 @@
         }
       }
     },
+    "/api/v1/inventories/{id}": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get an inventory",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Inventory id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Delete an inventory",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Inventory id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/inventories/stock-check-requests": {
       "get": {
         "tags": [
@@ -341,19 +391,21 @@
         }
       }
     },
-    "/api/v1/inventories/stock-check-details": {
+    "/api/v1/inventories/stock-check-requests/{id}": {
       "get": {
         "tags": [
           "Inventory"
         ],
-        "description": "Get all stock check details",
+        "description": "Get a stock check request",
         "parameters": [
           {
-            "name": "query",
-            "in": "query",
+            "name": "id",
+            "in": "path",
+            "required": true,
             "schema": {
-              "$ref": "#/components/schemas/GetAllStockCheckDetails"
-            }
+              "type": "string"
+            },
+            "description": "Stock check request id"
           }
         ],
         "responses": {
@@ -362,28 +414,6 @@
           }
         }
       },
-      "post": {
-        "tags": [
-          "Inventory"
-        ],
-        "description": "Create a new stock check details",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateStockCheckDetails"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/inventories/stock-check-requests/{id}": {
       "put": {
         "tags": [
           "Inventory"
@@ -438,7 +468,71 @@
         }
       }
     },
+    "/api/v1/inventories/stock-check-details": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get all stock check details",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllStockCheckDetails"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Create a new stock check details",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStockCheckDetails"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/inventories/stock-check-details/{id}": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get a stock check detail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check detail id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
       "put": {
         "tags": [
           "Inventory"
@@ -484,30 +578,6 @@
               "type": "string"
             },
             "description": "Stock check details id"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/inventories/{id}": {
-      "delete": {
-        "tags": [
-          "Inventory"
-        ],
-        "description": "Delete an inventory",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Inventory id"
           }
         ],
         "responses": {
@@ -678,6 +748,180 @@
         "responses": {
           "default": {
             "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/outputs/": {
+      "get": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Get all output requests",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllOutputRequests"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Create a new output request",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOutputRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/outputs/receive": {
+      "patch": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Receive output request",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiveOutputRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/outputs/approve": {
+      "patch": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Approve output request",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveOutputRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/outputs/reject": {
+      "patch": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Reject output request",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectOutputRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/outputs/deliver": {
+      "patch": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Deliver output request",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliverOutputRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/outputs/complete": {
+      "patch": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Complete output request",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteOutputRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/outputs/cancel": {
+      "patch": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Cancel output request",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelOutputRequest"
+              }
+            }
           }
         }
       }
@@ -1064,6 +1308,169 @@
         "required": [
           "job",
           "interval"
+        ]
+      },
+      "GetAllOutputRequests": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "description status customerId warehouseId reportStaffId managerId inventoryStaffId"
+          },
+          "expand": {
+            "type": "string",
+            "example": "customer warehouse reportStaff manager inventoryStaff outputDetails"
+          }
+        }
+      },
+      "CreateOutputRequest": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "warehouseId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "description": {
+            "type": "string",
+            "example": "Output request for warehouse 1"
+          },
+          "outputDetails": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemId": {
+                  "type": "string",
+                  "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+                },
+                "quantity": {
+                  "type": "number",
+                  "example": 10
+                }
+              },
+              "required": [
+                "itemId",
+                "quantity"
+              ]
+            }
+          }
+        },
+        "required": [
+          "customerId",
+          "warehouseId"
+        ]
+      },
+      "ReceiveOutputRequest": {
+        "type": "object",
+        "properties": {
+          "outputId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "reportStaffId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          }
+        },
+        "required": [
+          "outputId"
+        ]
+      },
+      "ApproveOutputRequest": {
+        "type": "object",
+        "properties": {
+          "outputId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "managerId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          }
+        },
+        "required": [
+          "outputId"
+        ]
+      },
+      "RejectOutputRequest": {
+        "type": "object",
+        "properties": {
+          "outputId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "managerId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          }
+        },
+        "required": [
+          "outputId"
+        ]
+      },
+      "DeliverOutputRequest": {
+        "type": "object",
+        "properties": {
+          "outputId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "inventoryStaffId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          }
+        },
+        "required": [
+          "outputId"
+        ]
+      },
+      "CompleteOutputRequest": {
+        "type": "object",
+        "properties": {
+          "outputId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          }
+        },
+        "required": [
+          "outputId"
+        ]
+      },
+      "CancelOutputRequest": {
+        "type": "object",
+        "properties": {
+          "outputId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          }
+        },
+        "required": [
+          "outputId"
         ]
       }
     }

@@ -9,7 +9,7 @@ const router = express.Router();
 
 // Lấy danh sách tất cả users
 router.get(
-    "/users",
+    "/",
     /**
      * #swagger.tags = ['User']
      * #swagger.description='Get all users'
@@ -19,7 +19,7 @@ router.get(
 
 // Lấy thông tin user theo ID
 router.get(
-    "/users/:id",
+    "/:id",
     /**
      * #swagger.tags = ['User']
      * #swagger.description='Get user by ID'
@@ -29,7 +29,7 @@ router.get(
 
 // Tạo user mới (Chỉ Admin mới có quyền)
 router.post(
-    "/users",
+    "/",
     /**
      * #swagger.tags = ['User']
      * #swagger.description='Create a new user'
@@ -51,19 +51,19 @@ router.post(
 
 // Cập nhật user theo ID (Chỉ Admin hoặc chính chủ user mới có quyền)
 router.put(
-    "/users/:id",
+    "/:id",
     /**
      * #swagger.tags = ['User']
      * #swagger.description='Update user by ID'
      */
     catchAsyncHandle(AuthMiddleware),
-    checkRoles({ requiredRoles: [USER_ROLES.ADMIN, USER_ROLES.USER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.ADMIN] }),
     catchAsyncHandle(userController.updateUser)
 );
 
 // Xóa user theo ID (Chỉ Admin mới có quyền)
 router.delete(
-    "/users/:id",
+    "/:id",
     /**
      * #swagger.tags = ['User']
      * #swagger.description='Delete user by ID'

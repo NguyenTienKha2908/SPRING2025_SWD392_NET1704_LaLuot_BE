@@ -38,7 +38,7 @@ const getAllInventories = async ({ limit, sort, page, filter, select, expand }) 
     };
 }
 
-const getAllStockCheckRequest = async ({ limit, sort, page, filter, select, expand }) => {
+const getAllStockCheckRequests = async ({ limit, sort, page, filter, select, expand }) => {
     const skip = (page - 1) * limit;
     const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
 
@@ -112,4 +112,4 @@ const getAllStockCheckDetails = async ({ limit, sort, page, filter, select, expa
     };
 }
 
-module.exports = { getAllInventories, getAllStockCheckRequest, getAllStockCheckDetails }
+module.exports = { getAllInventories, getAllStockCheckRequests, getAllStockCheckDetails }

@@ -34,6 +34,10 @@ const doc = {
         {
             name: 'System',
             description: ''
+        },
+        {
+            name: 'Output',
+            description: ''
         }
         // { ... }
     ],
@@ -147,6 +151,49 @@ const doc = {
             UpdateCheckExpiredMedicineInterval: {
                 $job: "checkExpiredMedicine",
                 $interval: "0 0 * * *"
+            },
+            GetAllOutputRequests: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'description status customerId warehouseId reportStaffId managerId inventoryStaffId',
+                expand: 'customer warehouse reportStaff manager inventoryStaff outputDetails'
+            },
+            CreateOutputRequest: {
+                $customerId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                description: "Output request for warehouse 1",
+                outputDetails: [
+                    {
+                        $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                        $quantity: 10
+                    }
+                ]
+            },
+            ReceiveOutputRequest: {
+                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0"
+            },
+            ApproveOutputRequest: {
+                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                managerId: "60e0b3f0b3f0b3f0b3f0b3f0"
+            },
+            RejectOutputRequest: {
+                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                managerId: "60e0b3f0b3f0b3f0b3f0b3f0"
+            },
+            DeliverOutputRequest: {
+                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0"
+            },
+            CompleteOutputRequest: {
+                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
+            },
+            CancelOutputRequest: {
+                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
             }
 
         }

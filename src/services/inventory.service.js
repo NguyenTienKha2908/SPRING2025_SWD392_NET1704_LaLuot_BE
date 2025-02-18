@@ -2,23 +2,72 @@ const { NotFoundRequestError, BadRequestError } = require("../core/responses/err
 const userModel = require("../models/user.model");
 const warehouseModel = require("../models/warehouse.model");
 const stockCheckModel = require("../models/stockCheck.model");
-const { getAllStockCheckRequest, getAllInventories, getAllStockCheckDetails } = require("../repositories/inventory.repo");
+const { getAllStockCheckRequests, getAllInventories, getAllStockCheckDetails } = require("../repositories/inventory.repo");
 const itemModel = require("../models/item.model");
 const inventoryModel = require("../models/inventory.model");
 const stockCheckDetailModel = require("../models/stockCheckDetail.model");
 const baseItemModel = require("../models/baseItem.model");
 const { default: mongoose } = require("mongoose");
+const { SELECT_USER } = require("../configs/user.config");
 class InventoryService {
     static getAllInventories = async ({ limit, sort, page, filter, select, expand }) => {
         return await getAllInventories({ limit, sort, page, filter, select, expand });
     }
 
-    static getAllStockCheckRequest = async ({ limit, sort, page, filter, select, expand }) => {
-        return await getAllStockCheckRequest({ limit, sort, page, filter, select, expand });
+    static getInventory = async ({ id }) => {
+        const populateOptions = [
+            { path: 'warehouseId', select: 'name category status' },
+            {
+                path: 'itemId',
+                select: 'baseItemId status',
+                populate: { path: 'baseItemId', select: 'name description category' }
+            }
+        ];
+        return await inventoryModel.findOne({ _id: id, isDeleted: false })
+            .populate(populateOptions)
+            .lean();
+    }
+
+    static getAllStockCheckRequests = async ({ limit, sort, page, filter, select, expand }) => {
+        return await getAllStockCheckRequests({ limit, sort, page, filter, select, expand });
+    }
+
+    static getStockCheckRequest = async ({ id }) => {
+        const populateOptions = [
+            { path: 'warehouseId', select: 'name category status' },
+            { path: 'managerId', select: SELECT_USER.DEFAULT },
+            { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+        ]
+
+        return await stockCheckModel.findOne({ _id: id, isDeleted: false })
+            .populate(populateOptions)
+            .lean();
     }
 
     static getAllStockCheckDetails = async ({ limit, sort, page, filter, select, expand }) => {
         return await getAllStockCheckDetails({ limit, sort, page, filter, select, expand })
+    }
+
+    static getStockCheckDetail = async ({ id }) => {
+        const populateOptions = [
+            {
+                path: 'stockCheckId', select: 'description status warehouseId managerId inventoryStaffId',
+                populate: [
+                    { path: 'warehouseId', select: 'name category status' },
+                    { path: 'managerId', select: SELECT_USER.DEFAULT },
+                    { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+                ]
+            },
+            {
+                path: 'itemId',
+                select: 'baseItemId status',
+                populate: { path: 'baseItemId', select: 'name description category' }
+            },
+        ]
+
+        return await stockCheckDetailModel.findOne({ _id: id, isDeleted: false })
+            .populate(populateOptions)
+            .lean();
     }
 
     static createStockCheckRequest = async ({ description, warehouseId, managerId, inventoryStaffId }) => {
@@ -48,7 +97,7 @@ class InventoryService {
             inventoryStaffId
         })
 
-        return
+        return newStockCheck
     }
 
     static createStockCheckDetails = async ({ stockCheckDetails }) => {
