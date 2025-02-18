@@ -301,6 +301,26 @@
             "description": ""
           }
         }
+      },
+      "post": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Create a new inventory",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInventory"
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/inventories/{id}": {
@@ -794,12 +814,23 @@
         }
       }
     },
-    "/api/v1/outputs/receive": {
+    "/api/v1/outputs/{id}/receive": {
       "patch": {
         "tags": [
           "Output"
         ],
         "description": "Receive output request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Output request id"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -816,12 +847,23 @@
         }
       }
     },
-    "/api/v1/outputs/approve": {
+    "/api/v1/outputs/{id}/approve": {
       "patch": {
         "tags": [
           "Output"
         ],
         "description": "Approve output request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Output request id"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -838,12 +880,23 @@
         }
       }
     },
-    "/api/v1/outputs/reject": {
+    "/api/v1/outputs/{id}/reject": {
       "patch": {
         "tags": [
           "Output"
         ],
         "description": "Reject output request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Output request id"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -860,12 +913,23 @@
         }
       }
     },
-    "/api/v1/outputs/deliver": {
+    "/api/v1/outputs/{id}/deliver": {
       "patch": {
         "tags": [
           "Output"
         ],
         "description": "Deliver output request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Output request id"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -882,46 +946,50 @@
         }
       }
     },
-    "/api/v1/outputs/complete": {
+    "/api/v1/outputs/{id}/complete": {
       "patch": {
         "tags": [
           "Output"
         ],
         "description": "Complete output request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Output request id"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
           }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompleteOutputRequest"
-              }
-            }
-          }
         }
       }
     },
-    "/api/v1/outputs/cancel": {
+    "/api/v1/outputs/{id}/cancel": {
       "patch": {
         "tags": [
           "Output"
         ],
         "description": "Cancel output request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Output request id"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CancelOutputRequest"
-              }
-            }
           }
         }
       }
@@ -1076,6 +1144,41 @@
             "example": "warehouse item"
           }
         }
+      },
+      "CreateInventory": {
+        "type": "object",
+        "properties": {
+          "outputId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "warehouseId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "itemId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 100
+          },
+          "transactionType": {
+            "type": "string",
+            "example": "Input"
+          },
+          "description": {
+            "type": "string",
+            "example": "Create new inventory"
+          }
+        },
+        "required": [
+          "warehouseId",
+          "itemId",
+          "quantity",
+          "transactionType"
+        ]
       },
       "GetAllStockCheckRequest": {
         "type": "object",
@@ -1371,11 +1474,16 @@
                 "quantity": {
                   "type": "number",
                   "example": 10
+                },
+                "outputPrice": {
+                  "type": "number",
+                  "example": 1000
                 }
               },
               "required": [
                 "itemId",
-                "quantity"
+                "quantity",
+                "outputPrice"
               ]
             }
           }
@@ -1388,90 +1496,38 @@
       "ReceiveOutputRequest": {
         "type": "object",
         "properties": {
-          "outputId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
           "reportStaffId": {
             "type": "string",
             "example": "60e0b3f0b3f0b3f0b3f0b3f0"
           }
-        },
-        "required": [
-          "outputId"
-        ]
+        }
       },
       "ApproveOutputRequest": {
         "type": "object",
         "properties": {
-          "outputId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
           "managerId": {
             "type": "string",
             "example": "60e0b3f0b3f0b3f0b3f0b3f0"
           }
-        },
-        "required": [
-          "outputId"
-        ]
+        }
       },
       "RejectOutputRequest": {
         "type": "object",
         "properties": {
-          "outputId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
           "managerId": {
             "type": "string",
             "example": "60e0b3f0b3f0b3f0b3f0b3f0"
           }
-        },
-        "required": [
-          "outputId"
-        ]
+        }
       },
       "DeliverOutputRequest": {
         "type": "object",
         "properties": {
-          "outputId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
           "inventoryStaffId": {
             "type": "string",
             "example": "60e0b3f0b3f0b3f0b3f0b3f0"
           }
-        },
-        "required": [
-          "outputId"
-        ]
-      },
-      "CompleteOutputRequest": {
-        "type": "object",
-        "properties": {
-          "outputId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          }
-        },
-        "required": [
-          "outputId"
-        ]
-      },
-      "CancelOutputRequest": {
-        "type": "object",
-        "properties": {
-          "outputId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          }
-        },
-        "required": [
-          "outputId"
-        ]
+        }
       }
     }
   },

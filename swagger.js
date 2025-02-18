@@ -87,6 +87,14 @@ const doc = {
                 select: 'warehouseId itemId quantity',
                 expand: 'warehouse item'
             },
+            CreateInventory: {
+                outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                $quantity: 100,
+                $transactionType: "Input",
+                description: "Create new inventory"
+            },
             GetAllStockCheckRequest: {
                 limit: 10,
                 sort: 'ctime',
@@ -169,33 +177,23 @@ const doc = {
                 outputDetails: [
                     {
                         $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
-                        $quantity: 10
+                        $quantity: 10,
+                        $outputPrice: 1000,
                     }
                 ]
             },
             ReceiveOutputRequest: {
-                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0"
             },
             ApproveOutputRequest: {
-                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 managerId: "60e0b3f0b3f0b3f0b3f0b3f0"
             },
             RejectOutputRequest: {
-                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 managerId: "60e0b3f0b3f0b3f0b3f0b3f0"
             },
             DeliverOutputRequest: {
-                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0"
             },
-            CompleteOutputRequest: {
-                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
-            },
-            CancelOutputRequest: {
-                $outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
-            }
-
         }
     },
     security: [

@@ -26,42 +26,58 @@ class OutputController {
     receiveOutputRequest = async (req, res) => {
         new OK({
             message: "Receive output request successfully",
-            metadata: await OutputService.receiveOutputRequest(req.body)
+            metadata: await OutputService.receiveOutputRequest({
+                id: req.params.id,
+                reportStaffId: req.body.reportStaffId
+            })
         }).send(res)
     }
 
     approveOutputRequest = async (req, res) => {
         new OK({
             message: "Approve output request successfully",
-            metadata: await OutputService.approveOutputRequest(req.body)
+            metadata: await OutputService.approveOutputRequest({
+                id: req.params.id,
+                managerId: req.body.managerId
+            })
         }).send(res)
     }
 
     rejectOutputRequest = async (req, res) => {
         new OK({
             message: "Reject output request successfully",
-            metadata: await OutputService.rejectOutputRequest(req.body)
+            metadata: await OutputService.rejectOutputRequest({
+                id: req.params.id,
+                managerId: req.body.managerId
+            })
         }).send(res)
     }
 
     deliverOutputRequest = async (req, res) => {
         new OK({
             message: "Deliver output request successfully",
-            metadata: await OutputService.deliverOutputRequest(req.body)
+            metadata: await OutputService.deliverOutputRequest({
+                id: req.params.id,
+                inventoryStaffId: req.body.inventoryStaffId
+            })
         }).send(res)
     }
 
     completeOutputRequest = async (req, res) => {
         new OK({
             message: "Complete output request successfully",
-            metadata: await OutputService.completeOutputRequest(req.body)
+            metadata: await OutputService.completeOutputRequest({
+                id: req.params.id,
+            })
         }).send(res)
     }
 
     cancelOutputRequest = async (req, res) => {
         new OK({
             message: "Cancel output request successfully",
-            metadata: await OutputService.cancelOutputRequest(req.body)
+            metadata: await OutputService.cancelOutputRequest({
+                id: req.params.id,
+            })
         }).send(res)
     }
 }

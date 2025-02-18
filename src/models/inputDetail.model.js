@@ -24,6 +24,12 @@ var inputDetailSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
+        status: {
+            type: String,
+            required: true,
+            enum: ['Pending', 'Done'],
+            default: 'PENDING',
+        },
         ...baseModelSchema.obj,
     },
     {

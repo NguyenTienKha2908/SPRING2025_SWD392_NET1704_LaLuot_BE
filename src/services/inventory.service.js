@@ -9,6 +9,9 @@ const stockCheckDetailModel = require("../models/stockCheckDetail.model");
 const baseItemModel = require("../models/baseItem.model");
 const { default: mongoose } = require("mongoose");
 const { SELECT_USER } = require("../configs/user.config");
+const stockTransactionModel = require("../models/stockTransaction.model");
+const outputModel = require("../models/output.model");
+const outputDetailModel = require("../models/outputDetail.model");
 class InventoryService {
     static getAllInventories = async ({ limit, sort, page, filter, select, expand }) => {
         return await getAllInventories({ limit, sort, page, filter, select, expand });
@@ -28,20 +31,105 @@ class InventoryService {
             .lean();
     }
 
+    static createInventory = async ({ inputId, outputId, warehouseId, itemId, quantity, transactionType, description }) => {
+        const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean();
+        if (!warehouseHolder) {
+            throw new NotFoundRequestError("Warehouse not found");
+        }
+
+        const itemHolder = await itemModel.findOne({ _id: itemId, isDeleted: false }).lean();
+        if (!itemHolder) {
+            throw new NotFoundRequestError("Item not found");
+        }
+
+        if (quantity < 0) {
+            throw new BadRequestError("Quantity must be greater than 0");
+        }
+
+        switch (transactionType) {
+            case "Output":
+                if (!outputId) {
+                    throw new BadRequestError("Output id is required");
+                }
+                const outputHolder = await outputModel.findOne({ _id: outputId, isDeleted: false }).lean();
+                if (!outputHolder) {
+                    throw new BadRequestError("Output not found");
+                }
+
+                const outputDetailHolders = await outputDetailModel.find({ outputId: outputHolder._id, isDeleted: false }).lean();
+                const outputItemIds = outputDetailHolders.map(outputDetail => outputDetail.itemId.toString());
+
+                if (!outputItemIds.includes(itemId.toString())) {
+                    throw new BadRequestError("Item not found in output");
+                }
+
+                const outputDetailHolder = outputDetailHolders.find(outputDetail => outputDetail.itemId.toString() === itemId.toString());
+                if (outputDetailHolder.status === "Done") {
+                    throw new BadRequestError("Output detail already done");
+                }
+
+                if (outputDetailHolder.quantity !== quantity) {
+                    console.log(outputDetailHolder.quantity, quantity)
+                    throw new BadRequestError("Quantity not match output quantity");
+                }
+
+                await outputDetailModel.updateOne({ _id: outputDetailHolder._id }, { status: "Done" })
+
+                const inventoryHolder = await inventoryModel.findOne({ warehouseId: warehouseId, itemId: itemId, isDeleted: false }).lean();
+
+                await inventoryModel.updateOne({ warehouseId: warehouseId, itemId: itemId },
+                    { quantity: inventoryHolder.quantity - quantity })
+
+                break;
+            default:
+                throw new BadRequestError("Invalid transaction type");
+        }
+
+
+        const newStockTransaction = await stockTransactionModel.create({
+            warehouseId,
+            itemId,
+            quantity,
+            transactionType,
+            description: description || `Inventory ${transactionType} for ${warehouseHolder.name}`
+        })
+
+        return
+    }
+
     static getAllStockCheckRequests = async ({ limit, sort, page, filter, select, expand }) => {
         return await getAllStockCheckRequests({ limit, sort, page, filter, select, expand });
     }
 
     static getStockCheckRequest = async ({ id }) => {
         const populateOptions = [
-            { path: 'warehouseId', select: 'name category status' },
-            { path: 'managerId', select: SELECT_USER.DEFAULT },
-            { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+            {
+                path: 'stockCheckId', select: 'description status warehouseId managerId inventoryStaffId',
+                populate: [
+                    { path: 'warehouseId', select: 'name category status' },
+                    { path: 'managerId', select: SELECT_USER.DEFAULT },
+                    { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+                ]
+            },
+            {
+                path: 'itemId',
+                select: 'baseItemId status',
+                populate: { path: 'baseItemId', select: 'name description category' }
+            },
         ]
 
-        return await stockCheckModel.findOne({ _id: id, isDeleted: false })
+        const stockCheckHolder = await stockCheckModel.findOne({ _id: id, isDeleted: false })
+            .lean();
+
+        if (!stockCheckHolder) {
+            throw new NotFoundRequestError("Stock check request not found");
+        }
+
+        const stockCheckDetailHolders = await stockCheckDetailModel.find({ stockCheckId: id })
             .populate(populateOptions)
             .lean();
+
+        return stockCheckDetailHolders;
     }
 
     static getAllStockCheckDetails = async ({ limit, sort, page, filter, select, expand }) => {
