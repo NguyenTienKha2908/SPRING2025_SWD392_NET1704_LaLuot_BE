@@ -1,3 +1,4 @@
+const { SELECT_BASEITEM } = require("../configs/baseitem.config");
 const baseItemModel = require("../models/baseItem.model");
 
 const getAllBaseItem = async({ limit, sort, page, filter, select, expand}) => {
@@ -6,7 +7,7 @@ const getAllBaseItem = async({ limit, sort, page, filter, select, expand}) => {
     
         const populateOptions = {
             BaseItems: {                
-                select: 'name description category',
+                select: SELECT_BASEITEM.DEFAULT,
                 populate: {
                     path:'baseItemId',
                     select:'status',

@@ -1,3 +1,6 @@
+const { SELECT_BASEITEM } = require("../configs/baseitem.config");
+const { SELECT_USER } = require("../configs/user.config");
+const { SELECT_WAREHOUSE } = require("../configs/warehouse.config");
 const outputModel = require("../models/output.model");
 const outputDetailModel = require("../models/outputDetail.model");
 
@@ -6,11 +9,11 @@ const getAllOutputRequests = async ({ limit, sort, page, filter, select, expand 
     const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
 
     const populateOptions = {
-        warehouse: { path: 'warehouseId', select: 'name category status' },
-        customer: { path: 'customerId', select: 'fullName email' },
-        reportStaff: { path: 'reportStaffId', select: 'fullName email' },
-        manager: { path: 'managerId', select: 'fullName email' },
-        inventoryStaff: { path: 'inventoryStaffId', select: 'fullName email' },
+        warehouse: { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
+        customer: { path: 'customerId', select: SELECT_USER.DEFAULT },
+        reportStaff: { path: 'reportStaffId', select: SELECT_USER.DEFAULT },
+        manager: { path: 'managerId', select: SELECT_USER.DEFAULT },
+        inventoryStaff: { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT },
     }
 
     const populateFields = expand
@@ -46,30 +49,30 @@ const getAllOutputDetails = async ({ limit, sort, page, filter, select, expand }
             populate: [
                 {
                     path: 'warehouseId',
-                    select: 'name description category status'
+                    select: SELECT_WAREHOUSE.DEFAULT
                 },
                 {
                     path: 'customerId',
-                    select: 'fullName email'
+                    select: SELECT_USER.DEFAULT
                 },
                 {
                     path: 'reportStaffId',
-                    select: 'fullName email'
+                    select: SELECT_USER.DEFAULT
                 },
                 {
                     path: 'managerId',
-                    select: 'fullName email'
+                    select: SELECT_USER.DEFAULT
                 },
                 {
                     path: 'inventoryStaffId',
-                    select: 'fullName email'
+                    select: SELECT_USER.DEFAULT
                 }
             ]
         },
         item: {
             path: 'itemId',
             select: 'baseItemId status',
-            populate: { path: 'baseItemId', select: 'name description category' }
+            populate: { path: 'baseItemId', select: SELECT_BASEITEM.DEFAULT }
         },
     }
 

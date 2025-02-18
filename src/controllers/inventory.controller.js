@@ -25,6 +25,29 @@ class InventoryController {
         }).send(res)
     }
 
+    getAllStockTransactions = async (req, res) => {
+        new OK({
+            message: "Get all stock transactions successfully",
+            metadata: await InventoryService.getAllStockTransactions({
+                limit: req.query.limit || 10,
+                sort: req.query.sort || 'ctime',
+                page: req.query.page || 1,
+                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false }, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}
+                select: req.query.select || '',
+                expand: req.query.expand || '',
+            })
+        }).send(res)
+    }
+
+    getStockTransaction = async (req, res) => {
+        new OK({
+            message: "Get stock transaction successfully",
+            metadata: await InventoryService.getStockTransaction({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
     createInventory = async (req, res) => {
         new CREATED({
             message: "Create inventory successfully",

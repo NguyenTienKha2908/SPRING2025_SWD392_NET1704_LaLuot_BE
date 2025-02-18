@@ -281,6 +281,52 @@
         }
       }
     },
+    "/api/v1/inventories/stock-transactions": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get all stock transactions",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllStockTransactions"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/stock-transactions/{id}": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get a stock transaction",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock transaction id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/inventories/": {
       "get": {
         "tags": [
@@ -1249,6 +1295,40 @@
           "quantity",
           "transactionType"
         ]
+      },
+      "GetAllStockTransactions": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "warehouseId itemId description quantity transactionType"
+          },
+          "expand": {
+            "type": "string",
+            "example": "warehouse item"
+          }
+        }
       },
       "GetAllStockCheckRequest": {
         "type": "object",

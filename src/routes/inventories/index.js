@@ -11,6 +11,36 @@ router.use(
     catchAsyncHandle(AuthMiddleware),
 );
 
+router.get("/stock-transactions",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Get all stock transactions'
+      */
+    /* #swagger.parameters['query'] = {
+        in: 'query',
+        schema: {
+            $ref: "#/components/schemas/GetAllStockTransactions"
+        }
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.getAllStockTransactions)
+)
+
+router.get("/stock-transactions/:id",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Get a stock transaction'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Stock transaction id',
+        type: 'string'
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.getStockTransaction)
+)
+
 router.get("/",
     /**
       * #swagger.tags = ['Inventory']

@@ -1,3 +1,4 @@
+const { POPULATE_OUTPUT_DETAILS } = require("../configs/output.config");
 const { USER_ROLES } = require("../configs/user.config");
 const { NotFoundRequestError, BadRequestError } = require("../core/responses/error.response");
 const inventoryModel = require("../models/inventory.model");
@@ -22,42 +23,8 @@ class OutputService {
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
-        const populateOptions = [
-            {
-                path: 'outputId',
-                select: 'warehouseId, customerId, reportStaffId, managerId, inventoryStaffId',
-                populate: [
-                    {
-                        path: 'warehouseId',
-                        select: 'name description category status'
-                    },
-                    {
-                        path: 'customerId',
-                        select: 'fullName email'
-                    },
-                    {
-                        path: 'reportStaffId',
-                        select: 'fullName email'
-                    },
-                    {
-                        path: 'managerId',
-                        select: 'fullName email'
-                    },
-                    {
-                        path: 'inventoryStaffId',
-                        select: 'fullName email'
-                    }
-                ]
-            },
-            {
-                path: 'itemId',
-                select: 'baseItemId status',
-                populate: { path: 'baseItemId', select: 'name description category' }
-            },
-        ]
-
         const outputDetailHolders = await outputDetailModel.find({ outputId: id })
-            .populate(populateOptions)
+            .populate(POPULATE_OUTPUT_DETAILS)
             .lean();
         if (!outputDetailHolders || outputDetailHolders.length === 0)
             throw new NotFoundRequestError("Output details not found");
@@ -73,44 +40,11 @@ class OutputService {
     }
 
     static getOutputDetail = async ({ id }) => {
-        const populateOptions = [
-            {
-                path: 'outputId',
-                select: 'warehouseId, customerId, reportStaffId, managerId, inventoryStaffId',
-                populate: [
-                    {
-                        path: 'warehouseId',
-                        select: 'name description category status'
-                    },
-                    {
-                        path: 'customerId',
-                        select: 'fullName email'
-                    },
-                    {
-                        path: 'reportStaffId',
-                        select: 'fullName email'
-                    },
-                    {
-                        path: 'managerId',
-                        select: 'fullName email'
-                    },
-                    {
-                        path: 'inventoryStaffId',
-                        select: 'fullName email'
-                    }
-                ]
-            },
-            {
-                path: 'itemId',
-                select: 'baseItemId status',
-                populate: { path: 'baseItemId', select: 'name description category' }
-            },
-        ]
         const outputDetailHolder = await outputDetailModel.findOne({
             _id: id,
             isDeleted: false
         }).
-            populate(populateOptions)
+            populate(POPULATE_OUTPUT_DETAILS)
             .lean();
 
         if (!outputDetailHolder)
