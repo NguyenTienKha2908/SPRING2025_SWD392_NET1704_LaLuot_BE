@@ -64,20 +64,16 @@ class UserService {
             throw new NotFoundRequestError("User not found");
         }
 
-        const updateUser = {};
-        if (fullName) updateUser.fullName = fullName;
-        if (email) updateUser.email = email;
-        if (password) {
-            const passwordHash = await bcrypt.hash(
-                password,
-                parseInt(process.env.PASSWORD_SALT)
-            );
-            updateUser.password = passwordHash;
-            updateUser.isVerified = false;
-        }
-        if (role) updateUser.role = role;
-
-        await userModel.findByIdAndUpdate(id, updateUser);
+        await userModel.updateOne({ _id: id }, {
+            fullName: fullName || userHolder.fullName,
+            email: email || userHolder.email,
+            password: password ?
+                await bcrypt.hash(
+                    password,
+                    parseInt(process.env.PASSWORD_SALT)
+                ) : userHolder.password,
+            role: role || userHolder.role,
+        });
         return;
     };
 

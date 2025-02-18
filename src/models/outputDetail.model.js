@@ -22,7 +22,6 @@ var outputDetailSchema = new mongoose.Schema(
         },
         outputPrice: {
             type: Number,
-            required: true,
         },
         ...baseModelSchema.obj,
     },

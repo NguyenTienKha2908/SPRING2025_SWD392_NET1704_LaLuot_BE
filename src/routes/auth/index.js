@@ -7,7 +7,7 @@ require("dotenv").config();
 
 const router = express.Router();
 
-router.post("/auth/signup",
+router.post("/signup",
     /**
      * #swagger.tags = ['Auth']
      * #swagger.description='Sign up new user'
@@ -25,7 +25,7 @@ router.post("/auth/signup",
     catchAsyncHandle(authController.signUp));
 
 router.post(
-    "/auth/login",
+    "/login",
     /**
      * #swagger.tags = ['Auth']
      * #swagger.description='Log in user'
@@ -59,7 +59,7 @@ passport.deserializeUser((user, done) => {
 
 router.use(passport.initialize());
 router.use(passport.session());
-router.get("/auth/login/google",
+router.get("/login/google",
     /**
      * #swagger.tags = ['Auth']
      * #swagger.description='Log in user with Google: http://domain/api/v1/auth/login/google'
@@ -67,7 +67,7 @@ router.get("/auth/login/google",
     passport.authenticate("google", { scope: ["profile", "email"] })
 )
 
-router.get("/auth/login/google/callback",
+router.get("/login/google/callback",
     /**
      * #swagger.tags = ['Auth']
      * #swagger.description='Log in user with Google callback'
@@ -76,7 +76,7 @@ router.get("/auth/login/google/callback",
     catchAsyncHandle(authController.logInGoogle)
 )
 
-router.get("/auth/verify/email",
+router.get("/verify/email",
     /**
      * #swagger.tags = ['Auth']
      * #swagger.description='Verify user email'
@@ -90,7 +90,7 @@ router.get("/auth/verify/email",
     catchAsyncHandle(authController.verifyEmail)
 )
 
-router.post("/auth/reset/password",
+router.post("/reset/password",
     /**
      * #swagger.tags = ['Auth']
      * #swagger.description='Reset user password'

@@ -26,6 +26,21 @@ router.get("/",
     catchAsyncHandle(inventoryController.getAllInventories)
 )
 
+router.get("/:id",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Get an inventory'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Inventory id',
+        type: 'string'
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.getInventory)
+)
+
 router.get("/stock-check-requests",
     /**
       * #swagger.tags = ['Inventory']
@@ -38,7 +53,22 @@ router.get("/stock-check-requests",
         }
     } */
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
-    catchAsyncHandle(inventoryController.getAllStockCheckRequest)
+    catchAsyncHandle(inventoryController.getAllStockCheckRequests)
+)
+
+router.get("/stock-check-requests/:id",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Get a stock check request'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Stock check request id',
+        type: 'string'
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.getStockCheckRequest)
 )
 
 router.get("/stock-check-details",
@@ -92,6 +122,22 @@ router.post("/stock-check-details",
 */
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(inventoryController.createStockCheckDetails)
+)
+
+router.get("/stock-check-details/:id",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Get a stock check detail'
+      */
+    /*  #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Stock check detail id',
+        type: 'string'
+    }
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.getStockCheckDetail)
 )
 
 router.put("/stock-check-requests/:id",
