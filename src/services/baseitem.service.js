@@ -17,11 +17,7 @@ class BaseItemService {
 
     static getDetailBaseItem = async ({id}) => {
         const detailBaseItem = await baseItemModel.findOne({_id:id})
-        return {
-            name: detailBaseItem.name,
-            description: detailBaseItem.description,
-            category: detailBaseItem.category,
-        };
+        return detailBaseItem;
     }
 
     static updateBaseItem = async ({id, name, description, category}) => {
