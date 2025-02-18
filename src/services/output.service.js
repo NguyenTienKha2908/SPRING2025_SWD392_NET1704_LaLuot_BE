@@ -13,6 +13,23 @@ class OutputService {
         return await getAllOutputRequests({ limit, sort, page, filter, select, expand });
     }
 
+    static getOutputRequest = async ({ id }) => {
+
+        const outputHolder = await outputModel.findOne({
+            _id: id,
+            isDeleted: false
+        }).lean();
+
+        if (!outputHolder)
+            throw new NotFoundRequestError("Output request not found");
+
+        const outputDetailHolders = await outputDetailModel.find({ outputId: id }).lean();
+        if (!outputDetailHolders || outputDetailHolders.length === 0)
+            throw new NotFoundRequestError("Output details not found");
+
+        return outputHolder;
+    }
+
     static createOuputRequest = async ({ customerId, warehouseId, description, outputDetails }) => {
         if (!customerId || !warehouseId || !Array.isArray(outputDetails) || outputDetails.length === 0)
             throw new BadRequestError("Invalid input");
@@ -52,7 +69,7 @@ class OutputService {
         const inventoryMap = new Map(inventoryHolders.map(inventory => [inventory.itemId.toString(), inventory]));
 
         const outputDetailsToCreate = outputDetails.map(outputDetail => {
-            const { itemId, quantity } = outputDetail;
+            const { itemId, quantity, outputPrice } = outputDetail;
             if (!itemMap.has(itemId))
                 throw new NotFoundRequestError(`Item with id ${itemId} not found`);
 
@@ -67,6 +84,7 @@ class OutputService {
                 outputId: newOutput._id,
                 itemId: itemId,
                 quantity: quantity,
+                outputPrice: outputPrice,
             }
         })
 
@@ -75,12 +93,12 @@ class OutputService {
         return newOutput;
     }
 
-    static receiveOutputRequest = async ({ outputId, reportStaffId }) => {
-        if (!outputId || !reportStaffId)
+    static receiveOutputRequest = async ({ id, reportStaffId }) => {
+        if (!id || !reportStaffId)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
-            _id: outputId,
+            _id: id,
             status: "Pending",
             isDeleted: false
         }).lean();
@@ -98,7 +116,7 @@ class OutputService {
             throw new NotFoundRequestError("Report staff not found");
 
         const updatedOutput = await outputModel.updateOne({
-            _id: outputId,
+            _id: id,
             status: "Pending",
             isDeleted: false
         }, {
@@ -109,12 +127,12 @@ class OutputService {
         return updatedOutput;
     }
 
-    static approveOutputRequest = async ({ outputId, managerId }) => {
-        if (!outputId || !managerId)
+    static approveOutputRequest = async ({ id, managerId }) => {
+        if (!id || !managerId)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
-            _id: outputId,
+            _id: id,
             status: "Received",
             isDeleted: false
         }).lean();
@@ -132,7 +150,7 @@ class OutputService {
             throw new NotFoundRequestError("Manager not found");
 
         const updatedOutput = await outputModel.updateOne({
-            _id: outputId,
+            _id: id,
             status: "Received",
             isDeleted: false
         }, {
@@ -143,12 +161,12 @@ class OutputService {
         return updatedOutput;
     }
 
-    static rejectOutputRequest = async ({ outputId, managerId }) => {
-        if (!outputId || !managerId)
+    static rejectOutputRequest = async ({ id, managerId }) => {
+        if (!id || !managerId)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
-            _id: outputId,
+            _id: id,
             status: "Received",
             isDeleted: false
         }).lean();
@@ -166,7 +184,7 @@ class OutputService {
             throw new NotFoundRequestError("Manager not found");
 
         const updatedOutput = await outputModel.updateOne({
-            _id: outputId,
+            _id: id,
             status: "Received",
             isDeleted: false
         }, {
@@ -177,12 +195,12 @@ class OutputService {
         return updatedOutput;
     }
 
-    static deliverOutputRequest = async ({ outputId, inventoryStaffId }) => {
-        if (!outputId || !inventoryStaffId)
+    static deliverOutputRequest = async ({ id, inventoryStaffId }) => {
+        if (!id || !inventoryStaffId)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
-            _id: outputId,
+            _id: id,
             status: "Approved",
             isDeleted: false
         }).lean();
@@ -198,7 +216,7 @@ class OutputService {
             throw new NotFoundRequestError("Inventory staff not found");
 
         const updatedOutput = await outputModel.updateOne({
-            _id: outputId,
+            _id: id,
             status: "Approved",
             isDeleted: false
         }, {
@@ -209,35 +227,44 @@ class OutputService {
         return updatedOutput;
     }
 
-    static completeOutputRequest = async ({ outputId }) => {
-        if (!outputId)
+    static completeOutputRequest = async ({ id }) => {
+        if (!id)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
-            _id: outputId,
+            _id: id,
             status: "Delivering",
             isDeleted: false
         }).lean();
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
+        const outputDetailHolders = await outputDetailModel.find({ outputId: id }).lean();
+        if (!outputDetailHolders || outputDetailHolders.length === 0)
+            throw new NotFoundRequestError("Output details not found");
+        for (let outputDetail of outputDetailHolders) {
+            if (outputDetail.status !== "Done") {
+                throw new BadRequestError("Output detail not done yet");
+            }
+        }
+
         const updatedOutput = await outputModel.updateOne({
-            _id: outputId,
+            _id: id,
             status: "Delivering",
             isDeleted: false
         }, {
             status: "Completed"
         })
 
-        return updatedOutput;
+        return;
     }
 
-    static cancelOutputRequest = async ({ outputId }) => {
-        if (!outputId)
+    static cancelOutputRequest = async ({ id }) => {
+        if (!id)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
-            _id: outputId,
+            _id: id,
             status: { $in: ["Pending", "Received", "Approved"] },
             isDeleted: false
         }).lean();
@@ -245,7 +272,7 @@ class OutputService {
             throw new NotFoundRequestError("Output request not found");
 
         const updatedOutput = await outputModel.updateOne({
-            _id: outputId,
+            _id: id,
             status: { $in: ["Pending", "Received", "Approved"] },
             isDeleted: false
         }, {

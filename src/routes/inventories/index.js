@@ -41,6 +41,25 @@ router.get("/:id",
     catchAsyncHandle(inventoryController.getInventory)
 )
 
+router.post("/",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Create a new inventory'
+      */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/CreateInventory"
+                }  
+            }
+        }
+    }
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.createInventory)
+)
+
 router.get("/stock-check-requests",
     /**
       * #swagger.tags = ['Inventory']

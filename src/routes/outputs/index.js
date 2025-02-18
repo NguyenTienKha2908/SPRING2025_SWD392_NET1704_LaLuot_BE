@@ -42,11 +42,17 @@ router.post("/",
     catchAsyncHandle(outputController.createOuputRequest)
 )
 
-router.patch("/receive",
+router.patch("/:id/receive",
     /**
       * #swagger.tags = ['Output']
       * #swagger.description='Receive output request'
       */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output request id',
+        type: 'string'
+    } */
     /*  #swagger.requestBody = {
         content: {
             "application/json": {
@@ -57,15 +63,21 @@ router.patch("/receive",
         }
     } 
 */
-    checkRoles({ requiredRoles: [USER_ROLES.WAREHOUSE_MANAGER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
     catchAsyncHandle(outputController.receiveOutputRequest)
 )
 
-router.patch("/approve",
+router.patch("/:id/approve",
     /**
       * #swagger.tags = ['Output']
       * #swagger.description='Approve output request'
       */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output request id',
+        type: 'string'
+    } */
     /*  #swagger.requestBody = {
         content: {
             "application/json": {
@@ -76,15 +88,21 @@ router.patch("/approve",
         }
     } 
 */
-    checkRoles({ requiredRoles: [USER_ROLES.WAREHOUSE_MANAGER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
     catchAsyncHandle(outputController.approveOutputRequest)
 )
 
-router.patch("/reject",
+router.patch("/:id/reject",
     /**
       * #swagger.tags = ['Output']
       * #swagger.description='Reject output request'
       */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output request id',
+        type: 'string'
+    } */
     /*  #swagger.requestBody = {
         content: {
             "application/json": {
@@ -95,15 +113,21 @@ router.patch("/reject",
         }
     } 
 */
-    checkRoles({ requiredRoles: [USER_ROLES.WAREHOUSE_MANAGER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
     catchAsyncHandle(outputController.rejectOutputRequest)
 )
 
-router.patch("/deliver",
+router.patch("/:id/deliver",
     /**
       * #swagger.tags = ['Output']
       * #swagger.description='Deliver output request'
       */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output request id',
+        type: 'string'
+    } */
     /*  #swagger.requestBody = {
         content: {
             "application/json": {
@@ -114,44 +138,36 @@ router.patch("/deliver",
         }
     } 
 */
-    checkRoles({ requiredRoles: [USER_ROLES.WAREHOUSE_MANAGER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
     catchAsyncHandle(outputController.deliverOutputRequest)
 )
 
-router.patch("/complete",
+router.patch("/:id/complete",
     /**
       * #swagger.tags = ['Output']
       * #swagger.description='Complete output request'
       */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/CompleteOutputRequest"
-                }  
-            }
-        }
-    } 
-*/
-    checkRoles({ requiredRoles: [USER_ROLES.WAREHOUSE_MANAGER] }),
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output request id',
+        type: 'string'
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(outputController.completeOutputRequest)
 )
 
-router.patch("/cancel",
+router.patch("/:id/cancel",
     /**
       * #swagger.tags = ['Output']
       * #swagger.description='Cancel output request'
       */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/CancelOutputRequest"
-                }  
-            }
-        }
-    } 
-*/
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output request id',
+        type: 'string'
+    } */
     checkRoles({ requiredRoles: [USER_ROLES.CUSTOMER] }),
     catchAsyncHandle(outputController.cancelOutputRequest)
 )
