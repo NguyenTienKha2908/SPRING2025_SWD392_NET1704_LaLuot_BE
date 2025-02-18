@@ -814,6 +814,76 @@
         }
       }
     },
+    "/api/v1/outputs/{id}": {
+      "get": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Get output request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Output request id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/outputs/details": {
+      "get": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Get all output details",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllOutputDetails"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/outputs/details/{id}": {
+      "get": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Get output detail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Output detail id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/outputs/{id}/receive": {
       "patch": {
         "tags": [
@@ -1444,6 +1514,40 @@
           "expand": {
             "type": "string",
             "example": "customer warehouse reportStaff manager inventoryStaff outputDetails"
+          }
+        }
+      },
+      "GetAllOutputDetails": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "outputId itemId quantity outputPrice status"
+          },
+          "expand": {
+            "type": "string",
+            "example": "output item"
           }
         }
       },

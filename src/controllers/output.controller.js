@@ -16,10 +16,42 @@ class OutputController {
         }).send(res)
     }
 
+    getOutputRequest = async (req, res) => {
+        new OK({
+            message: "Get output request successfully",
+            metadata: await OutputService.getOutputRequest({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
     createOuputRequest = async (req, res) => {
         new CREATED({
             message: "Create output request successfully",
             metadata: await OutputService.createOuputRequest(req.body)
+        }).send(res)
+    }
+
+    getAllOuputDetails = async (req, res) => {
+        new OK({
+            message: "Get all output details successfully",
+            metadata: await OutputService.getAllOutputDetails({
+                limit: req.query.limit || 10,
+                sort: req.query.sort || 'ctime',
+                page: req.query.page || 1,
+                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false },
+                select: req.query.select || '',
+                expand: req.query.expand || ''
+            })
+        }).send(res)
+    }
+
+    getOutputDetail = async (req, res) => {
+        new OK({
+            message: "Get output detail successfully",
+            metadata: await OutputService.getOutputDetail({
+                id: req.params.id
+            })
         }).send(res)
     }
 

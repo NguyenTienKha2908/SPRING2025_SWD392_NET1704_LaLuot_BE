@@ -6,7 +6,7 @@ const outputModel = require("../models/output.model");
 const outputDetailModel = require("../models/outputDetail.model");
 const userModel = require("../models/user.model");
 const warehouseModel = require("../models/warehouse.model");
-const { getAllOutputRequests } = require("../repositories/output.repo");
+const { getAllOutputRequests, getAllOutputDetails } = require("../repositories/output.repo");
 
 class OutputService {
     static getAllOutputRequests = async ({ limit, sort, page, filter, select, expand }) => {
@@ -14,7 +14,6 @@ class OutputService {
     }
 
     static getOutputRequest = async ({ id }) => {
-
         const outputHolder = await outputModel.findOne({
             _id: id,
             isDeleted: false
@@ -23,11 +22,101 @@ class OutputService {
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
-        const outputDetailHolders = await outputDetailModel.find({ outputId: id }).lean();
+        const populateOptions = [
+            {
+                path: 'outputId',
+                select: 'warehouseId, customerId, reportStaffId, managerId, inventoryStaffId',
+                populate: [
+                    {
+                        path: 'warehouseId',
+                        select: 'name description category status'
+                    },
+                    {
+                        path: 'customerId',
+                        select: 'fullName email'
+                    },
+                    {
+                        path: 'reportStaffId',
+                        select: 'fullName email'
+                    },
+                    {
+                        path: 'managerId',
+                        select: 'fullName email'
+                    },
+                    {
+                        path: 'inventoryStaffId',
+                        select: 'fullName email'
+                    }
+                ]
+            },
+            {
+                path: 'itemId',
+                select: 'baseItemId status',
+                populate: { path: 'baseItemId', select: 'name description category' }
+            },
+        ]
+
+        const outputDetailHolders = await outputDetailModel.find({ outputId: id })
+            .populate(populateOptions)
+            .lean();
         if (!outputDetailHolders || outputDetailHolders.length === 0)
             throw new NotFoundRequestError("Output details not found");
 
-        return outputHolder;
+        return {
+            output: outputHolder,
+            outputDetails: outputDetailHolders
+        };
+    }
+
+    static getAllOutputDetails = async ({ limit, sort, page, filter, select, expand }) => {
+        return await getAllOutputDetails({ limit, sort, page, filter, select, expand });
+    }
+
+    static getOutputDetail = async ({ id }) => {
+        const populateOptions = [
+            {
+                path: 'outputId',
+                select: 'warehouseId, customerId, reportStaffId, managerId, inventoryStaffId',
+                populate: [
+                    {
+                        path: 'warehouseId',
+                        select: 'name description category status'
+                    },
+                    {
+                        path: 'customerId',
+                        select: 'fullName email'
+                    },
+                    {
+                        path: 'reportStaffId',
+                        select: 'fullName email'
+                    },
+                    {
+                        path: 'managerId',
+                        select: 'fullName email'
+                    },
+                    {
+                        path: 'inventoryStaffId',
+                        select: 'fullName email'
+                    }
+                ]
+            },
+            {
+                path: 'itemId',
+                select: 'baseItemId status',
+                populate: { path: 'baseItemId', select: 'name description category' }
+            },
+        ]
+        const outputDetailHolder = await outputDetailModel.findOne({
+            _id: id,
+            isDeleted: false
+        }).
+            populate(populateOptions)
+            .lean();
+
+        if (!outputDetailHolder)
+            throw new NotFoundRequestError("Output detail not found");
+
+        return outputDetailHolder;
     }
 
     static createOuputRequest = async ({ customerId, warehouseId, description, outputDetails }) => {

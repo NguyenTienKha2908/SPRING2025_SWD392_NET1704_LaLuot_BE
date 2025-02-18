@@ -23,6 +23,21 @@ router.get("/",
     catchAsyncHandle(outputController.getAllOutputRequests)
 )
 
+router.get("/:id",
+    /**
+      * #swagger.tags = ['Output']
+      * #swagger.description='Get output request'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output request id',
+        type: 'string'
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF, USER_ROLES.CUSTOMER] }),
+    catchAsyncHandle(outputController.getOutputRequest)
+)
+
 router.post("/",
     /**
       * #swagger.tags = ['Output']
@@ -40,6 +55,36 @@ router.post("/",
 */
     checkRoles({ requiredRoles: [USER_ROLES.CUSTOMER] }),
     catchAsyncHandle(outputController.createOuputRequest)
+)
+
+router.get("/details",
+    /**
+      * #swagger.tags = ['Output']
+      * #swagger.description='Get all output details'
+      */
+    /* #swagger.parameters['query'] = {
+        in: 'query',
+        schema: {
+            $ref: "#/components/schemas/GetAllOutputDetails"
+        }
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF, USER_ROLES.CUSTOMER] }),
+    catchAsyncHandle(outputController.getAllOuputDetails)
+)
+
+router.get("/details/:id",
+    /**
+      * #swagger.tags = ['Output']
+      * #swagger.description='Get output detail'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output detail id',
+        type: 'string'
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF, USER_ROLES.CUSTOMER] }),
+    catchAsyncHandle(outputController.getOutputDetail)
 )
 
 router.patch("/:id/receive",

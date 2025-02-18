@@ -170,6 +170,16 @@ const doc = {
                 select: 'description status customerId warehouseId reportStaffId managerId inventoryStaffId',
                 expand: 'customer warehouse reportStaff manager inventoryStaff outputDetails'
             },
+            GetAllOutputDetails: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: 'outputId itemId quantity outputPrice status',
+                expand: 'output item'
+            },
             CreateOutputRequest: {
                 $customerId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
