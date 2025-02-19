@@ -11,14 +11,46 @@ var baseItemSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    genericName: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     description: {
         type: String,
         trim: true,
     },
     category: {
         type: String,
-        enum: ["Medicine", "Frozen Stored Medicine", "Equipment", "Other"],
+        enum: ["Medicine", "Equipment", "Other"],
         default: "Medicine",
+    },
+    brand: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    countryOfOrigin: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    indication: {
+        type: String,
+        trim: true,
+    },
+    contraindication: {
+        type: String,
+        trim: true,
+    },
+    sideEffect: {
+        type: String,
+        trim: true,
+    },
+    storageType: {
+        type: String,
+        enum: ["Normal", "Cold", "Other"],
+        default: "Normal",
     },
     ...baseModelSchema.obj,
 }, {

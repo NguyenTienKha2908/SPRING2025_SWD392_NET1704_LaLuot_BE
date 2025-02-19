@@ -85,7 +85,7 @@ if (!io.initialized) {
 
 // init cron jobs
 const { startCronJobs } = require("./utils/cronJob");
-startCronJobs();
+// startCronJobs();
 
 // request logger
 app.use(handleApiRequest);

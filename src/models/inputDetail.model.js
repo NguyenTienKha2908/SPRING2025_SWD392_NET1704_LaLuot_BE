@@ -28,7 +28,7 @@ var inputDetailSchema = new mongoose.Schema(
             type: String,
             required: true,
             enum: ['Pending', 'Done'],
-            default: 'PENDING',
+            default: 'Pending',
         },
         ...baseModelSchema.obj,
     },

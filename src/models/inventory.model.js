@@ -16,6 +16,11 @@ var inventorySchema = new mongoose.Schema(
             ref: 'Item',
             required: true,
         },
+        batchNumber: {
+            type: String,
+            trim: true,
+            unique: true,
+        },
         quantity: {
             type: Number,
             required: true,
