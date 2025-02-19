@@ -14,6 +14,12 @@ var outputSchema = new mongoose.Schema(
             type: String,
             trim: true,
         },
+        batchNumber: {
+            type: String,
+            trim: true,
+            unique: true,
+            required: true,
+        },
         status: {
             type: String,
             enum: ["Pending", "Received", "Approved", "Rejected", "Delivering", "Cancelled", "Done"],

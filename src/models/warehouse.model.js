@@ -27,7 +27,8 @@ var warehouseSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true,
-            enum: ["Medical", "Equipment", "Frozen", "Disposal", "Other"],
+            enum: ["Cold", "Normal", "Disposal", "Other"],
+            default: "Normal",
         },
         minTemperature: {
             type: Number,

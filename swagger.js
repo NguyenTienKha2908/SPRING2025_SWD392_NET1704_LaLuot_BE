@@ -1,5 +1,10 @@
 const swaggerAutogen = require('swagger-autogen')({ openapi: '3.0.0' });
 require('dotenv').config();
+
+const { SELECT_OUTPUT, SELECT_OUTPUT_DETAILS } = require('./src/configs/output.config.js');
+const { SELECT_STOCK_DETAIL, SELECT_STOCK_REQUEST, SELECT_STOCK_TRANSACTION, SELECT_INVENTORY } = require('./src/configs/inventory.config.js');
+const { SELECT_ITEM } = require('./src/configs/item.config.js');
+
 const doc = {
     host: `localhost:${process.env.DEV_APP_PORT}`,            // by default: 'localhost:3000'
     info: {
@@ -84,7 +89,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'warehouseId itemId quantity',
+                select: SELECT_INVENTORY,
                 expand: 'warehouse item'
             },
             CreateInventory: {
@@ -102,7 +107,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'warehouseId itemId description quantity transactionType',
+                select: SELECT_STOCK_TRANSACTION,
                 expand: 'warehouse item'
             },
             GetAllStockCheckRequest: {
@@ -112,7 +117,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'description status warehouseId managerId inventoryStaffId',
+                select: SELECT_STOCK_REQUEST,
                 expand: 'warehouse manager inventoryStaff'
             },
             GetAllStockCheckDetails: {
@@ -122,7 +127,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'stockCheckId itemId systemQuantity actualQuantity difference description',
+                select: SELECT_STOCK_DETAIL,
                 expand: 'stockCheck item'
             },
             CreateStockCheckRequest: {
@@ -157,7 +162,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'status expiredDate isFrozenStored baseItemId',
+                select: SELECT_ITEM,
                 expand: 'baseItem'
             },
             UpdateItem: {
@@ -177,7 +182,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'description status customerId warehouseId reportStaffId managerId inventoryStaffId',
+                select: SELECT_OUTPUT,
                 expand: 'customer warehouse reportStaff manager inventoryStaff outputDetails'
             },
             GetAllOutputDetails: {
@@ -187,7 +192,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'outputId itemId quantity outputPrice status',
+                select: SELECT_OUTPUT_DETAILS,
                 expand: 'output item'
             },
             CreateOutputRequest: {
@@ -214,6 +219,9 @@ const doc = {
             DeliverOutputRequest: {
                 inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0"
             },
+            CancelOutputRequest: {
+                $cancelReason: "Out of stock"
+            },
         }
     },
     security: [
@@ -231,6 +239,7 @@ root file where the route starts, such as index.js, app.js, routes.js, etc ... *
 
 const chalk = require("chalk");
 const getLogger = require("./src/utils/logger");
+
 const logger = getLogger("SWAGGER");
 swaggerAutogen(outputFile, routes, doc).then(() => {
     logger.info(`📄 Docs are running at ${chalk.magenta(chalk.underline(`${process.env.APP_BASE_URL}` + "/api-docs"))}`);
