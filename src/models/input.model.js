@@ -20,6 +20,12 @@ var inputSchema = new mongoose.Schema(
             enum: ["Pending", "Received", "Approved", "Rejected", "Delivering", "Cancelled", "Done"],
             default: "Pending",
         },
+        batchNumber: {
+            type: String,
+            trim: true,
+            unique: true,
+            required: true,
+        },
         warehouseId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Warehouse',

@@ -109,6 +109,7 @@ class OutputController {
             message: "Cancel output request successfully",
             metadata: await OutputService.cancelOutputRequest({
                 id: req.params.id,
+                cancelReason: req.body.cancelReason
             })
         }).send(res)
     }

@@ -1253,7 +1253,7 @@
           },
           "select": {
             "type": "string",
-            "example": "warehouseId itemId quantity"
+            "example": "warehouseId itemId batchNumber quantity"
           },
           "expand": {
             "type": "string",
@@ -1514,7 +1514,7 @@
           },
           "select": {
             "type": "string",
-            "example": "status expiredDate isFrozenStored baseItemId"
+            "example": "code status manufactureDate expiredDate unit baseItemId"
           },
           "expand": {
             "type": "string",
@@ -1589,7 +1589,7 @@
           },
           "select": {
             "type": "string",
-            "example": "description status customerId warehouseId reportStaffId managerId inventoryStaffId"
+            "example": "description cancelReason batchNumber status customerId warehouseId reportStaffId managerId inventoryStaffId"
           },
           "expand": {
             "type": "string",
@@ -1712,6 +1712,18 @@
             "example": "60e0b3f0b3f0b3f0b3f0b3f0"
           }
         }
+      },
+      "CancelOutputRequest": {
+        "type": "object",
+        "properties": {
+          "cancelReason": {
+            "type": "string",
+            "example": "Out of stock"
+          }
+        },
+        "required": [
+          "cancelReason"
+        ]
       }
     }
   },

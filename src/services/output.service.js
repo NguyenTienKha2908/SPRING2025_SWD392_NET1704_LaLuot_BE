@@ -282,8 +282,8 @@ class OutputService {
         return;
     }
 
-    static cancelOutputRequest = async ({ id }) => {
-        if (!id)
+    static cancelOutputRequest = async ({ id, cancelReason }) => {
+        if (!id|| !cancelReason)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
@@ -299,7 +299,8 @@ class OutputService {
             status: { $in: ["Pending", "Received", "Approved"] },
             isDeleted: false
         }, {
-            status: "Cancelled"
+            status: "Cancelled",
+            cancelReason: cancelReason
         })
 
         return updatedOutput;
