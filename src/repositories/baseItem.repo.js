@@ -15,6 +15,7 @@ const getAllBaseItem = async ({ limit, sort, page, filter, select, expand }) => 
         ? expand.split(" ").map(field => populateOptions[field]).filter(Boolean)
         : [];
     const excludeFields = "-isDeleted -createdAt -updatedAt -__v";
+    
     const baseItems = await baseItemModel
         .find(filter)
         .sort(sortBy)

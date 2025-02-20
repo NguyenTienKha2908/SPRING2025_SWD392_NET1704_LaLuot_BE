@@ -4,7 +4,6 @@ const UpdateBaseItemDTO = require("../core/dtos/baseItems/update.baseItem.dto");
 const { NotUpdateError } = require("../core/responses/error.response");
 const baseItemModel = require("../models/baseItem.model");
 const { getAllBaseItem } = require("../repositories/baseItem.repo");
-const {  convertToObjectId } = require("../utils/mongoose");
 class BaseItemService {
     static createItem = async ({name, genericName, description, category, brand, countryOfOrigin, indication, contraindication, sideEffect, storageType}) => {
         const createBaseItemDTO = new CreateBaseItemDTO(name,genericName,description,category, brand, countryOfOrigin, indication, contraindication, sideEffect, storageType);
@@ -12,7 +11,7 @@ class BaseItemService {
         return newItem;
     }
 
-    static getAllBaseItem = async ({ limit, sort, page, filter, select, expand }) => {
+    static getAllBaseItem = async ({ limit, sort, page, filter, select, expand }) => {        
         return await getAllBaseItem({ limit, sort, page, filter, select, expand });
     }
 
@@ -27,9 +26,15 @@ class BaseItemService {
             throw new NotUpdateError();
         }
         const updatedBaseItem =await baseItemModel.findOneAndUpdate({id: baseItemDTO.id},{
-            name:baseItemDTO.name,
-            description:baseItemDTO.description,
-            category:baseItemDTO.category
+            name: baseItemDTO.name,
+            genericName: baseItemDTO.genericName,
+            description: baseItemDTO.description,            
+            brand: baseItemDTO.brand,
+            countryOfOrigin: baseItemDTO.countryOfOrigin,
+            indication: baseItemDTO.indication,
+            contraindication: baseItemDTO.contraindication,
+            sideEffect: baseItemDTO.sideEffect,
+            storageType: baseItemDTO.storageType
         },
         {new:true}
     )
