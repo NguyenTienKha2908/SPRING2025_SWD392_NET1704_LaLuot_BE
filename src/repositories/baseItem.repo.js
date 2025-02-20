@@ -7,24 +7,20 @@ const getAllBaseItem = async ({ limit, sort, page, filter, select, expand }) => 
 
     const populateOptions = {
         BaseItems: {
-            select: SELECT_BASEITEM.DEFAULT,
-            populate: {
-                path: 'baseItemId',
-                select: 'status',
-            }
+            select: SELECT_BASEITEM.DEFAULT,            
         }
     }
 
     const populateFields = expand
         ? expand.split(" ").map(field => populateOptions[field]).filter(Boolean)
         : [];
-
+    const excludeFields = "-isDeleted -createdAt -updatedAt -__v";
     const baseItems = await baseItemModel
         .find(filter)
         .sort(sortBy)
         .skip(skip)
         .limit(limit)
-        .select(select)
+        .select(`${select} ${excludeFields}`)
         .populate(populateFields)
 
     const totalBaseItems = await baseItemModel.countDocuments(filter);
