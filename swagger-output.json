@@ -1589,7 +1589,7 @@
           },
           "select": {
             "type": "string",
-            "example": "description cancelReason batchNumber status customerId warehouseId reportStaffId managerId inventoryStaffId"
+            "example": "description cancelReason batchNumber status customerId warehouseId managerId inventoryStaffId"
           },
           "expand": {
             "type": "string",
@@ -1676,15 +1676,6 @@
           "customerId",
           "warehouseId"
         ]
-      },
-      "ReceiveOutputRequest": {
-        "type": "object",
-        "properties": {
-          "reportStaffId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          }
-        }
       },
       "ApproveOutputRequest": {
         "type": "object",

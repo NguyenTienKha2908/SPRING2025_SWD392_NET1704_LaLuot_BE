@@ -2,7 +2,7 @@ const { SELECT_BASEITEM } = require("./baseitem.config");
 const { SELECT_USER } = require("./user.config");
 const { SELECT_WAREHOUSE } = require("./warehouse.config");
 
-const SELECT_OUTPUT = 'description cancelReason batchNumber status customerId warehouseId reportStaffId managerId inventoryStaffId'
+const SELECT_OUTPUT = 'description cancelReason batchNumber status customerId warehouseId managerId inventoryStaffId'
 
 const SELECT_OUTPUT_DETAILS = 'outputId itemId quantity outputPrice status'
 
@@ -18,10 +18,6 @@ const POPULATE_OUTPUT_DETAILS =
                 },
                 {
                     path: 'customerId',
-                    select: SELECT_USER.DEFAULT
-                },
-                {
-                    path: 'reportStaffId',
                     select: SELECT_USER.DEFAULT
                 },
                 {
