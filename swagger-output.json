@@ -695,6 +695,46 @@
         }
       }
     },
+    "/api/v1/items/create": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/items/delete/{id}": {
+      "delete": {
+        "tags": [
+          "Item"
+        ],
+        "description": "Update item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/components/schemas/UpdateItem"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/items/check-expired-medicine": {
       "put": {
         "tags": [
