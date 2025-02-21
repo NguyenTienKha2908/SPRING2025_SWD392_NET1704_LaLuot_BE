@@ -74,6 +74,9 @@ itemSchema.pre("findOneAndDelete", async function (next) {
     if (warehouseTransactionDetails) {
         return next(new Error("Cannot delete itemId because it is used in warehouseTransactionDetails"));
     }
+    if (this.expiredDate <= this.manufactureDate) {
+        return next(new Error("Expired date must be larger than manufracture date"))
+    }
     next();
 })
 
