@@ -116,47 +116,13 @@ class OutputService {
         return newOutput;
     }
 
-    static receiveOutputRequest = async ({ id, reportStaffId }) => {
-        if (!id || !reportStaffId)
-            throw new BadRequestError("Invalid input");
-
-        const outputHolder = await outputModel.findOne({
-            _id: id,
-            status: "Pending",
-            isDeleted: false
-        }).lean();
-
-        if (!outputHolder)
-            throw new NotFoundRequestError("Output request not found");
-
-        const reportStaffHolder = await userModel.findOne({
-            _id: reportStaffId,
-            role: USER_ROLES.REPORT_STAFF,
-            isDeleted: false
-        }).lean();
-
-        if (!reportStaffHolder)
-            throw new NotFoundRequestError("Report staff not found");
-
-        const updatedOutput = await outputModel.updateOne({
-            _id: id,
-            status: "Pending",
-            isDeleted: false
-        }, {
-            status: "Received",
-            reportStaffId: reportStaffId
-        })
-
-        return updatedOutput;
-    }
-
     static approveOutputRequest = async ({ id, managerId }) => {
         if (!id || !managerId)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
             _id: id,
-            status: "Received",
+            status: "Pending",
             isDeleted: false
         }).lean();
 
@@ -174,7 +140,7 @@ class OutputService {
 
         const updatedOutput = await outputModel.updateOne({
             _id: id,
-            status: "Received",
+            status: "Pending",
             isDeleted: false
         }, {
             status: "Approved",
@@ -190,7 +156,7 @@ class OutputService {
 
         const outputHolder = await outputModel.findOne({
             _id: id,
-            status: "Received",
+            status: "Pending",
             isDeleted: false
         }).lean();
 
@@ -208,7 +174,7 @@ class OutputService {
 
         const updatedOutput = await outputModel.updateOne({
             _id: id,
-            status: "Received",
+            status: "Pending",
             isDeleted: false
         }, {
             status: "Rejected",
@@ -283,7 +249,7 @@ class OutputService {
     }
 
     static cancelOutputRequest = async ({ id, cancelReason }) => {
-        if (!id|| !cancelReason)
+        if (!id || !cancelReason)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({

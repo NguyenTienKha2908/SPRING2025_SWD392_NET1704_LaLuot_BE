@@ -79,11 +79,6 @@ userSchema.pre("findOneAndDelete", async function (next) {
     return next(new Error("Cannot delete user because it is used in outputs"));
   }
 
-  const reportStaffOutputs = await outputModel.findOne({ reportStaffId: userId });
-  if (reportStaffOutputs) {
-    return next(new Error("Cannot delete user because it is used in outputs"));
-  }
-
   const managerOutputs = await outputModel.findOne({ managerId: userId });
   if (managerOutputs) {
     return next(new Error("Cannot delete user because it is used in outputs"));
@@ -96,11 +91,6 @@ userSchema.pre("findOneAndDelete", async function (next) {
 
   const supplierInputs = await inputModel.findOne({ supplierId: userId });
   if (supplierInputs) {
-    return next(new Error("Cannot delete user because it is used in inputs"));
-  }
-
-  const reportStaffInputs = await inputModel.findOne({ reportStaffId: userId });
-  if (reportStaffInputs) {
     return next(new Error("Cannot delete user because it is used in inputs"));
   }
 

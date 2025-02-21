@@ -13,7 +13,6 @@ const getAllOutputRequests = async ({ limit, sort, page, filter, select, expand 
     const populateOptions = {
         warehouse: { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
         customer: { path: 'customerId', select: SELECT_USER.DEFAULT },
-        reportStaff: { path: 'reportStaffId', select: SELECT_USER.DEFAULT },
         manager: { path: 'managerId', select: SELECT_USER.DEFAULT },
         inventoryStaff: { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT },
     }
@@ -55,10 +54,6 @@ const getAllOutputDetails = async ({ limit, sort, page, filter, select, expand }
                 },
                 {
                     path: 'customerId',
-                    select: SELECT_USER.DEFAULT
-                },
-                {
-                    path: 'reportStaffId',
                     select: SELECT_USER.DEFAULT
                 },
                 {

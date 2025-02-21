@@ -55,16 +55,6 @@ class OutputController {
         }).send(res)
     }
 
-    receiveOutputRequest = async (req, res) => {
-        new OK({
-            message: "Receive output request successfully",
-            metadata: await OutputService.receiveOutputRequest({
-                id: req.params.id,
-                reportStaffId: req.body.reportStaffId
-            })
-        }).send(res)
-    }
-
     approveOutputRequest = async (req, res) => {
         new OK({
             message: "Approve output request successfully",
