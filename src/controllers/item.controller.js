@@ -15,6 +15,12 @@ class ItemController {
             })
         }).send(res)
     }
+    getDetailItem = async (req,res) => {                
+        new OK({
+            message:"Get item successfully",
+            metadata: await ItemService.getDetailItem(req.params,req.query.expand)
+        }).send(res)
+    }
     createItems = async (req,res) => {        
         new OK({
             message: 'Create item successfully',

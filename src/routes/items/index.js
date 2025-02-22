@@ -22,6 +22,10 @@ router.get("/",
     } */
     catchAsyncHandle(itemController.getAllItems)
 )
+router.get("/:id",
+    checkRoles({requiredRoles:[USER_ROLES.MANAGER,USER_ROLES.INVENTORY_STAFF]}),
+    catchAsyncHandle(itemController.getDetailItem)
+)
 router.post("/create", 
     checkRoles({requiredRoles:[USER_ROLES.MANAGER]}),
     catchAsyncHandle(itemController.createItems)

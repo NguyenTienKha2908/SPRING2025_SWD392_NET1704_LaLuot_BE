@@ -8,6 +8,10 @@ class ItemService {
     static getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
         return await getAllItems({ limit, sort, page, filter, select, expand });
     }
+    static getDetailItem = async ({id},expand) => {                
+            const detailBaseItem = await itemModel.findOne({_id:id}).select('-isDeleted').populate(expand);
+            return detailBaseItem;
+    }
     static createItem = async ({baseItemId,code,status,manufactureDate, expiredDate, unit}) => {
         const itemDTO = new CreateItemDTO(baseItemId,code,status,manufactureDate, expiredDate, unit)
         const newitem = await itemModel.create(itemDTO);
