@@ -5,4 +5,5 @@ const generateMedicineCode = (name) => {
     const nanoid = customAlphabet('0123456789', 3); 
     return `${prefix}-${nanoid()}`;
 };
+
 module.exports = {generateMedicineCode}

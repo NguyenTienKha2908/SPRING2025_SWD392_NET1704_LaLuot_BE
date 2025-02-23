@@ -78,6 +78,7 @@ class OutputService {
             warehouseId: warehouseId,
             description: description || `Output request for ${warehouseHolder.name}`,
             status: "Pending",
+            batchNumber:new Date().getTime().toString()+"-OUP"
         })
 
         const itemIds = outputDetails.map((outputDetail) => outputDetail.itemId);
