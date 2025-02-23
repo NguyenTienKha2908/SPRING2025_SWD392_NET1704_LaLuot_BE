@@ -28,7 +28,7 @@ var warehouseCheckSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["Pending", "Executing", "Done"],
+            enum: ["Pending", "Cancelled", "Done"],
             default: "Pending",
         },
         ...baseModelSchema.obj,
