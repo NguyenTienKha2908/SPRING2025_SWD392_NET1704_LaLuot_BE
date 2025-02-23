@@ -11,9 +11,15 @@ const router = express.Router();
 router.get(
     "/",
     /**
-     * #swagger.tags = ['User']
-     * #swagger.description='Get all users'
-     */
+      * #swagger.tags = ['User']
+      * #swagger.description='Get all users'
+      */
+    /* #swagger.parameters['query'] = {
+        in: 'query',
+        schema: {
+            $ref: "#/components/schemas/GetAllUsers"
+        }
+    } */
     catchAsyncHandle(userController.getAllUsers)
 );
 
@@ -21,9 +27,15 @@ router.get(
 router.get(
     "/:id",
     /**
-     * #swagger.tags = ['User']
-     * #swagger.description='Get user by ID'
-     */
+      * #swagger.tags = ['User']
+      * #swagger.description='Get user by ID'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'User id',
+        type: 'string'
+    } */
     catchAsyncHandle(userController.getUserById)
 );
 
@@ -53,9 +65,25 @@ router.post(
 router.put(
     "/:id",
     /**
-     * #swagger.tags = ['User']
-     * #swagger.description='Update user by ID'
-     */
+      * #swagger.tags = ['User']
+      * #swagger.description='Update user by ID'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'User id',
+        type: 'string'
+    } */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateUser"
+                }  
+            }
+        }
+    } 
+*/
     catchAsyncHandle(AuthMiddleware),
     checkRoles({ requiredRoles: [USER_ROLES.ADMIN] }),
     catchAsyncHandle(userController.updateUser)
@@ -65,9 +93,15 @@ router.put(
 router.delete(
     "/:id",
     /**
-     * #swagger.tags = ['User']
-     * #swagger.description='Delete user by ID'
-     */
+      * #swagger.tags = ['User']
+      * #swagger.description='Delete user by ID'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'User id',
+        type: 'string'
+    } */
     catchAsyncHandle(AuthMiddleware),
     checkRoles({ requiredRoles: [USER_ROLES.ADMIN] }),
     catchAsyncHandle(userController.deleteUser)
