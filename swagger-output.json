@@ -653,6 +653,26 @@
         }
       }
     },
+    "/api/v1/inventories/stock-check-detail/transfer-stock/{id}": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/items/": {
       "get": {
         "tags": [
@@ -773,6 +793,16 @@
                 "$ref": "#/components/schemas/UpdateCheckExpiredMedicineInterval"
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/items/create-disposal-request": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
       }

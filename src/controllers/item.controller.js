@@ -1,4 +1,4 @@
-const { OK } = require("../core/responses/success.response")
+const { OK, CREATED } = require("../core/responses/success.response")
 const ItemService = require("../services/item.service")
 
 class ItemController {
@@ -43,6 +43,12 @@ class ItemController {
         new OK({
             message: "Update check expired medicine interval successfully",
             metadata: await ItemService.updateExpiredMedicineInterval(req.body)
+        }).send(res)
+    }
+    createDisposalRequest = async (req,res) => {
+        new CREATED({
+            message: "Create request successfully",
+            metadata: await ItemService.createDisposalRequest(req.body)
         }).send(res)
     }
 }

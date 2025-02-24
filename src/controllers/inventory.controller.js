@@ -108,6 +108,13 @@ class InventoryController {
         }).send(res)
     }
 
+    createTransferExpiredStock = async (req,res) => {
+        new CREATED({
+            message: "Removing expired stock successfully",
+            metadata: await InventoryService.createTransferExpiredStock(req.params)
+        }).send(res)
+    }
+
     createStockCheckDetails = async (req, res) => {
         new CREATED({
             message: "Create stock check details successfully",

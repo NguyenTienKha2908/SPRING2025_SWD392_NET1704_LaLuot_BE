@@ -39,7 +39,6 @@ class InventoryService {
         return await stockTransactionModel.findOne({ _id: id, isDeleted: false })
             .populate(POPULATE_STOCK_TRANSACTIONS)
             .lean();
-
     }
 
 
@@ -340,6 +339,10 @@ class InventoryService {
         await stockCheckDetailModel.updateOne({ _id: id }, { isDeleted: true })
 
         return
+    }
+    static createTransferExpiredStock = async ({id}) => {
+        
+        
     }
 
 }

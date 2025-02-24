@@ -286,5 +286,9 @@ router.delete("/stock-check-details/:id",
     checkRoles({ requiredRoles: [USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(inventoryController.deleteStockCheckDetail)
 )
+router.post("/stock-check-detail/transfer-stock/:id", 
+    checkRoles({requiredRoles: [USER_ROLES.MANAGER]}),
+    catchAsyncHandle(inventoryController.createTransferExpiredStock)
+)
 
 module.exports = router;

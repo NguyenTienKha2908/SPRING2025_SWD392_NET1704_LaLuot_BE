@@ -61,6 +61,10 @@ class ItemService {
 
         return
     }
+    static createDisposalRequest = async ({request}) => {
+        
+        return        
+    }
 }
 
 module.exports = ItemService;
