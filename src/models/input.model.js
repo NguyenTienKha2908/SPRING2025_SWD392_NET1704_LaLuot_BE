@@ -7,6 +7,11 @@ const COLLECTION_NAME = "Inputs";
 
 var inputSchema = new mongoose.Schema(
     {
+        batchNumber:{
+            type: String,
+            trim: true,
+            required: true,
+        },
         description: {
             type: String,
             trim: true,
@@ -14,6 +19,7 @@ var inputSchema = new mongoose.Schema(
         cancelReason: {
             type: String,
             trim: true,
+            defaultValue: "none",
         },
         status: {
             type: String,
@@ -23,7 +29,6 @@ var inputSchema = new mongoose.Schema(
         warehouseId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Warehouse',
-            required: true,
         },
         supplierId: {
             type: mongoose.Schema.Types.ObjectId,

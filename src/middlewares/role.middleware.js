@@ -3,7 +3,8 @@ const { ForbiddenRequestError } = require("../core/responses/error.response");
 const checkRoles = ({ requiredRoles }) => {
     return (req, res, next) => {
         try {
-            const userRole = req.role;
+            // const userRole = req.role;
+            const userRole = req.user?.role;
             if (!Array.isArray(requiredRoles)) {
                 throw new Error("requiredRoles must be an array");
             }
