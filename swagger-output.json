@@ -21,6 +21,10 @@
       "description": ""
     },
     {
+      "name": "Warehouse",
+      "description": ""
+    },
+    {
       "name": "Inventory",
       "description": ""
     },
@@ -189,6 +193,15 @@
           "User"
         ],
         "description": "Get all users",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllUsers"
+            }
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -229,7 +242,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "User id"
           }
         ],
         "responses": {
@@ -250,12 +264,22 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "User id"
           }
         ],
         "responses": {
           "default": {
             "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUser"
+              }
+            }
           }
         }
       },
@@ -271,7 +295,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "User id"
           }
         ],
         "responses": {
@@ -908,6 +933,52 @@
         }
       }
     },
+    "/api/v1/outputs/details": {
+      "get": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Get all output details",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllOutputDetails"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/outputs/details/{id}": {
+      "get": {
+        "tags": [
+          "Output"
+        ],
+        "description": "Get output detail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Output detail id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/outputs/": {
       "get": {
         "tags": [
@@ -970,85 +1041,6 @@
         "responses": {
           "default": {
             "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/outputs/details": {
-      "get": {
-        "tags": [
-          "Output"
-        ],
-        "description": "Get all output details",
-        "parameters": [
-          {
-            "name": "query",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/GetAllOutputDetails"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/outputs/details/{id}": {
-      "get": {
-        "tags": [
-          "Output"
-        ],
-        "description": "Get output detail",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Output detail id"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/outputs/{id}/receive": {
-      "patch": {
-        "tags": [
-          "Output"
-        ],
-        "description": "Receive output request",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Output request id"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReceiveOutputRequest"
-              }
-            }
           }
         }
       }
@@ -1199,6 +1191,103 @@
           }
         }
       }
+    },
+    "/api/v1/warehouses/": {
+      "get": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Get all warehouses",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllWarehouses"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Create a new warehouse",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWarehouse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/warehouses/{id}": {
+      "put": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Update warehouse by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Warehouse id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWarehouse"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Delete warehouse by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Warehouse id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1316,6 +1405,119 @@
           "email",
           "password"
         ]
+      },
+      "UpdateUser": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "abc@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "***"
+          },
+          "role": {
+            "type": "string",
+            "example": "Customer"
+          }
+        },
+        "required": [
+          "fullName",
+          "email",
+          "password"
+        ]
+      },
+      "GetAllWarehouses": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "name description category status"
+          }
+        }
+      },
+      "CreateWarehouse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Warehouse 1"
+          },
+          "description": {
+            "type": "string",
+            "example": "Warehouse 1"
+          },
+          "category": {
+            "type": "string",
+            "example": "Medicine"
+          },
+          "minTemperature": {
+            "type": "number",
+            "example": 2
+          },
+          "maxTemperature": {
+            "type": "number",
+            "example": 8
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "category",
+          "minTemperature",
+          "maxTemperature"
+        ]
+      },
+      "UpdateWarehouse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Warehouse 1"
+          },
+          "description": {
+            "type": "string",
+            "example": "Warehouse 1"
+          },
+          "category": {
+            "type": "string",
+            "example": "Medicine"
+          },
+          "minTemperature": {
+            "type": "number",
+            "example": 2
+          },
+          "maxTemperature": {
+            "type": "number",
+            "example": 8
+          }
+        }
       },
       "GetAllInventories": {
         "type": "object",
@@ -1679,7 +1881,7 @@
           },
           "select": {
             "type": "string",
-            "example": "description cancelReason batchNumber status customerId warehouseId reportStaffId managerId inventoryStaffId"
+            "example": "description cancelReason batchNumber status customerId warehouseId managerId inventoryStaffId"
           },
           "expand": {
             "type": "string",
@@ -1766,15 +1968,6 @@
           "customerId",
           "warehouseId"
         ]
-      },
-      "ReceiveOutputRequest": {
-        "type": "object",
-        "properties": {
-          "reportStaffId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          }
-        }
       },
       "ApproveOutputRequest": {
         "type": "object",

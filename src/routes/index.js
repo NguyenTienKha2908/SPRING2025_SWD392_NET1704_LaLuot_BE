@@ -124,14 +124,11 @@ router.get("/", async (req, res) => {
     //     description: "Input from Tiki",
     //     status: "Pending",
     //     batchNumber:
-    //         new Date().getDate().toString() +
-    //         (new Date().getMonth() + 1).toString() +
-    //         (new Date().getFullYear() % 100).toString() +
+    //         new Date().getTime().toString() +
     //         "-INP",
     //     warehouseId: warehouse._id,
     //     managerId: manager._id,
     //     supplierId: supplier._id,
-    //     reportStaffId: reportStaff._id,
     //     inventoryStaffId: inventoryStaff._id,
     // })
 
@@ -148,9 +145,7 @@ router.get("/", async (req, res) => {
     //     itemId: item._id,
     //     quantity: 100,
     //     batchNumber:
-    //         new Date().getDate().toString() +
-    //         (new Date().getMonth() + 1).toString() +
-    //         (new Date().getFullYear() % 100).toString() +
+    //         new Date().getTime().toString() +
     //         '-INV-' +
     //         item.code,
     // })
@@ -167,14 +162,11 @@ router.get("/", async (req, res) => {
     //     description: "Output to Customer",
     //     status: "Pending",
     //     batchNumber:
-    //         new Date().getDate().toString() +
-    //         (new Date().getMonth() + 1).toString() +
-    //         (new Date().getFullYear() % 100).toString() +
+    //         new Date().getTime().toString() +
     //         '-OUP',
     //     warehouseId: warehouse._id,
     //     managerId: manager._id,
     //     customerId: customer._id,
-    //     reportStaffId: reportStaff._id,
     //     inventoryStaffId: inventoryStaff._id,
     // })
 
@@ -422,5 +414,6 @@ router.use("/items", require("./items"));
 router.use("/baseitems", require("./baseItems"));
 router.use("/system", require("./system"));
 router.use("/outputs", require("./outputs"));
+router.use("/warehouses", require("./warehouses"));
 
 module.exports = router;
