@@ -678,19 +678,9 @@
         }
       }
     },
-    "/api/v1/inventories/stock-check-detail/transfer-stock/{id}": {
+    "/api/v1/inventories/stock-check-detail/transfer-disposal": {
       "post": {
         "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "default": {
             "description": ""

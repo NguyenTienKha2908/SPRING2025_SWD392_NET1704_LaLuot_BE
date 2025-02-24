@@ -6,12 +6,12 @@ const { getAllStockCheckRequests, getAllInventories, getAllStockCheckDetails, ge
 const itemModel = require("../models/item.model");
 const inventoryModel = require("../models/inventory.model");
 const stockCheckDetailModel = require("../models/stockCheckDetail.model");
-const baseItemModel = require("../models/baseItem.model");
 const { default: mongoose } = require("mongoose");
 const stockTransactionModel = require("../models/stockTransaction.model");
 const outputModel = require("../models/output.model");
 const outputDetailModel = require("../models/outputDetail.model");
 const { POPULATE_STOCK_DETAILS, POPULATE_STOCK_TRANSACTIONS } = require("../configs/inventory.config");
+const InventoryPojo = require("../core/pojo/inventories");
 class InventoryService {
     static getAllInventories = async ({ limit, sort, page, filter, select, expand }) => {
         return await getAllInventories({ limit, sort, page, filter, select, expand });
@@ -340,10 +340,37 @@ class InventoryService {
 
         return
     }
-    static createTransferExpiredStock = async ({id}) => {
-        
-        
-    }
+    static createTransferExpiredStock = async ({id,quantity}) => {
+        const disposalWarehouse =await warehouseModel.findOne({category:'Disposal'}).exec()
+         if (!disposalWarehouse) {
+            throw new Error("Cannot find disposal warehouse!")
+         }
+        const inventoryItem = await inventoryModel.findOne({itemId:id}).exec();
+        if (!inventoryItem || inventoryItem.quantity < 1) {
+            throw new Error("Cannot find inventory or the quantity is not enough!")            
+        }        
+        await stockTransactionModel.create({            
+            description:"Transfer to Disposal Warehouse",
+            transactionType:"Input",
+            warehouseId:disposalWarehouse._id,
+            itemId:id,
+            quantity:quantity
+        })
+
+        await inventoryModel.updateOne(
+            { _id: inventoryItem._id },
+            { $inc: { quantity: -quantity } }            
+        );
+
+        await stockTransactionModel.create({            
+            description:"Transfer from medicine",
+            transactionType:"Output",
+            warehouseId:disposalWarehouse._id,
+            itemId:id,
+            quantity:quantity
+        })
+        return 
+    }   
 
 }
 
