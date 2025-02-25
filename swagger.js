@@ -5,7 +5,7 @@ const { SELECT_OUTPUT, SELECT_OUTPUT_DETAILS } = require('./src/configs/output.c
 const { SELECT_STOCK_DETAIL, SELECT_STOCK_REQUEST, SELECT_STOCK_TRANSACTION, SELECT_INVENTORY } = require('./src/configs/inventory.config.js');
 const { SELECT_ITEM } = require('./src/configs/item.config.js');
 const { SELECT_USER } = require('./src/configs/user.config.js');
-const { SELECT_WAREHOUSE } = require('./src/configs/warehouse.config.js');
+const { SELECT_WAREHOUSE, SELECT_WAREHOUSE_CHECK, SELECT_WAREHOUSE_CHECK_DETAIL } = require('./src/configs/warehouse.config.js');
 
 const doc = {
     host: `localhost:${process.env.DEV_APP_PORT}`,            // by default: 'localhost:3000'
@@ -116,6 +116,39 @@ const doc = {
                 category: "Medicine",
                 minTemperature: 2,
                 maxTemperature: 8
+            },
+            GetAllWarehouseChecks: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: SELECT_WAREHOUSE_CHECK.DEFAULT,
+                expand: 'warehouse manager inventoryStaff'
+            },
+            CreateWarehouseCheck: {
+                $warehouseId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                $managerId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                $inventoryStaffId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                description: 'Check warehouse 1'
+            },
+            GetAllWarehouseCheckDetails: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: SELECT_WAREHOUSE_CHECK_DETAIL.DEFAULT,
+                expand: 'warehouseCheck'
+            },
+            CreateWarehouseCheckDetail: {
+                $warehouseCheckId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                description: 'Check warehouse 1',
+                temperature: 5,
+                thresholdLevel: "Low",
+                condition: "Good"
             },
             GetAllInventories: {
                 limit: 10,

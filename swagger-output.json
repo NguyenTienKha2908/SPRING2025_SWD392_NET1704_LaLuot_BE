@@ -306,6 +306,125 @@
         }
       }
     },
+    "/api/v1/inventories/stock-check-requests": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get all stock check request",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllStockCheckRequest"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Create a new stock check request",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStockCheckRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inventories/stock-check-requests/{id}": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Get a stock check request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check request id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Update a stock check request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check request id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStockCheckRequest"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Inventory"
+        ],
+        "description": "Delete a stock check request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Stock check request id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/inventories/stock-transactions": {
       "get": {
         "tags": [
@@ -431,125 +550,6 @@
               "type": "string"
             },
             "description": "Inventory id"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/inventories/stock-check-requests": {
-      "get": {
-        "tags": [
-          "Inventory"
-        ],
-        "description": "Get all stock check request",
-        "parameters": [
-          {
-            "name": "query",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/GetAllStockCheckRequest"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Inventory"
-        ],
-        "description": "Create a new stock check request",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateStockCheckRequest"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/inventories/stock-check-requests/{id}": {
-      "get": {
-        "tags": [
-          "Inventory"
-        ],
-        "description": "Get a stock check request",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Stock check request id"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Inventory"
-        ],
-        "description": "Update a stock check request",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Stock check request id"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateStockCheckRequest"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Inventory"
-        ],
-        "description": "Delete a stock check request",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Stock check request id"
           }
         ],
         "responses": {
@@ -738,19 +738,7 @@
             "description": ""
           }
         }
-      }
-    },
-    "/api/v1/items/create": {
-      "post": {
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/items/delete/{id}": {
+      },
       "delete": {
         "tags": [
           "Item"
@@ -773,6 +761,16 @@
             }
           }
         ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/items/create": {
+      "post": {
+        "description": "",
         "responses": {
           "default": {
             "description": ""
@@ -1205,6 +1203,28 @@
       }
     },
     "/api/v1/warehouses/{id}": {
+      "get": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Get warehouse by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Warehouse id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
       "put": {
         "tags": [
           "Warehouse"
@@ -1250,6 +1270,162 @@
               "type": "string"
             },
             "description": "Warehouse id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/warehouses/checks-details": {
+      "get": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Get all warehouse check details",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllWarehouseCheckDetails"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/warehouses/checks-details/{id}": {
+      "get": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Get warehouse check detail by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Warehouse check detail id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/warehouses/check-details": {
+      "post": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Create a new warehouse check",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWarehouseCheckDetail"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/warehouses/checks": {
+      "get": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Get all warehouse checks",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAllWarehouseChecks"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Create a new warehouse check",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWarehouseCheck"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/warehouses/checks/{id}": {
+      "get": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Get warehouse check by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Warehouse check id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Delete warehouse check by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Warehouse check id"
           }
         ],
         "responses": {
@@ -1488,6 +1664,128 @@
             "example": 8
           }
         }
+      },
+      "GetAllWarehouseChecks": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "warehouseId managerId inventoryStaffId description status"
+          },
+          "expand": {
+            "type": "string",
+            "example": "warehouse manager inventoryStaff"
+          }
+        }
+      },
+      "CreateWarehouseCheck": {
+        "type": "object",
+        "properties": {
+          "warehouseId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "managerId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "inventoryStaffId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "description": {
+            "type": "string",
+            "example": "Check warehouse 1"
+          }
+        },
+        "required": [
+          "warehouseId",
+          "managerId",
+          "inventoryStaffId"
+        ]
+      },
+      "GetAllWarehouseCheckDetails": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "warehouseCheckId description temperature thresholdLevel condition status"
+          },
+          "expand": {
+            "type": "string",
+            "example": "warehouseCheck"
+          }
+        }
+      },
+      "CreateWarehouseCheckDetail": {
+        "type": "object",
+        "properties": {
+          "warehouseCheckId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "description": {
+            "type": "string",
+            "example": "Check warehouse 1"
+          },
+          "temperature": {
+            "type": "number",
+            "example": 5
+          },
+          "thresholdLevel": {
+            "type": "string",
+            "example": "Low"
+          },
+          "condition": {
+            "type": "string",
+            "example": "Good"
+          }
+        },
+        "required": [
+          "warehouseCheckId"
+        ]
       },
       "GetAllInventories": {
         "type": "object",
