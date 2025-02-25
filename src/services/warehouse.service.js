@@ -111,6 +111,22 @@ class WarehouseService {
         return newWarehouseCheck
     }
 
+    static updateWarehouseCheck = async ({ id, managerId, inventoryStaffId, description, status }) => {
+        const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: id, isDeleted: false }).lean()
+        if (!warehouseCheckHolder) {
+            throw new NotFoundRequestError('Warehouse check not found')
+        }
+
+        const updatedWarehouseCheck = await warehouseCheckModel.findOneAndUpdate({ _id: id }, {
+            managerId: managerId || warehouseCheckHolder.managerId,
+            inventoryStaffId: inventoryStaffId || warehouseCheckHolder.inventoryStaffId,
+            description: description || warehouseCheckHolder.description,
+            status: status || warehouseCheckHolder.status
+        }, { new: true })
+
+        return
+    }
+
     static deleteWarehouseCheck = async ({ id }) => {
         const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: id, isDeleted: false }).lean()
         if (!warehouseCheckHolder) {
@@ -156,6 +172,36 @@ class WarehouseService {
         })
 
         return newWarehouseCheckDetail
+    }
+
+    static updateWarehouseCheckDetail = async ({ id, description, temperature, thresholdLevel, condition, status }) => {
+        const warehouseCheckDetailHolder = await warehouseCheckDetailModel.findOne({ _id: id, isDeleted: false }).lean()
+        if (!warehouseCheckDetailHolder) {
+            throw new NotFoundRequestError('Warehouse check detail not found')
+        }
+
+        const updatedWarehouseCheckDetail = await warehouseCheckDetailModel.findOneAndUpdate({ _id: id }, {
+            description: description || warehouseCheckDetailHolder.description,
+            temperature: temperature || warehouseCheckDetailHolder.temperature,
+            thresholdLevel: thresholdLevel || warehouseCheckDetailHolder.thresholdLevel,
+            condition: condition || warehouseCheckDetailHolder.condition,
+            status: status || warehouseCheckDetailHolder.status
+        }, { new: true })
+
+        return
+    }
+
+    static deleteWarehouseCheckDetail = async ({ id }) => {
+        const warehouseCheckDetailHolder = await warehouseCheckDetailModel.findOne({ _id: id, isDeleted: false }).lean()
+        if (!warehouseCheckDetailHolder) {
+            throw new NotFoundRequestError('Warehouse check detail not found')
+        }
+
+        const updatedWarehouseCheckDetail = await warehouseCheckDetailModel.findOneAndUpdate({ _id: id }, {
+            isDeleted: true
+        }, { new: true })
+
+        return
     }
 
 }

@@ -1347,6 +1347,61 @@
         }
       }
     },
+    "/api/v1/warehouses/check-details/{id}": {
+      "put": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Update warehouse check detail by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Warehouse check detail id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWarehouseCheckDetail"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Delete warehouse check detail by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Warehouse check detail id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/warehouses/checks": {
       "get": {
         "tags": [
@@ -1409,6 +1464,37 @@
         "responses": {
           "default": {
             "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Update warehouse check by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Warehouse check id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWarehouseCheck"
+              }
+            }
           }
         }
       },
@@ -1725,6 +1811,27 @@
           "inventoryStaffId"
         ]
       },
+      "UpdateWarehouseCheck": {
+        "type": "object",
+        "properties": {
+          "managerId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "inventoryStaffId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "description": {
+            "type": "string",
+            "example": "Check warehouse 1"
+          },
+          "status": {
+            "type": "string",
+            "example": "Done"
+          }
+        }
+      },
       "GetAllWarehouseCheckDetails": {
         "type": "object",
         "properties": {
@@ -1786,6 +1893,31 @@
         "required": [
           "warehouseCheckId"
         ]
+      },
+      "UpdateWarehouseCheckDetail": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "example": "Check warehouse 1"
+          },
+          "temperature": {
+            "type": "number",
+            "example": 5
+          },
+          "thresholdLevel": {
+            "type": "string",
+            "example": "Low"
+          },
+          "condition": {
+            "type": "string",
+            "example": "Good"
+          },
+          "status": {
+            "type": "string",
+            "example": "Done"
+          }
+        }
       },
       "GetAllInventories": {
         "type": "object",
@@ -2194,6 +2326,10 @@
       "CreateOutputRequest": {
         "type": "object",
         "properties": {
+          "inventoryStaffId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
           "customerId": {
             "type": "string",
             "example": "60e0b3f0b3f0b3f0b3f0b3f0"
@@ -2233,6 +2369,7 @@
           }
         },
         "required": [
+          "inventoryStaffId",
           "customerId",
           "warehouseId"
         ]

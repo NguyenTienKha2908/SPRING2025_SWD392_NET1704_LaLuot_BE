@@ -133,6 +133,12 @@ const doc = {
                 $inventoryStaffId: '60e0b3f0b3f0b3f0b3f0b3f0',
                 description: 'Check warehouse 1'
             },
+            UpdateWarehouseCheck: {
+                managerId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                inventoryStaffId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                description: 'Check warehouse 1',
+                status: 'Done'
+            },
             GetAllWarehouseCheckDetails: {
                 limit: 10,
                 sort: 'ctime',
@@ -149,6 +155,13 @@ const doc = {
                 temperature: 5,
                 thresholdLevel: "Low",
                 condition: "Good"
+            },
+            UpdateWarehouseCheckDetail: {
+                description: 'Check warehouse 1',
+                temperature: 5,
+                thresholdLevel: "Low",
+                condition: "Good",
+                status: "Done"
             },
             GetAllInventories: {
                 limit: 10,
@@ -264,6 +277,7 @@ const doc = {
                 expand: 'output item'
             },
             CreateOutputRequest: {
+                $inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $customerId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 description: "Output request for warehouse 1",
