@@ -1,3 +1,5 @@
+const { default: mongoose } = require("mongoose");
+
 const checkNotFoundError = (req, res, next) => {
   console.log(`Not Found: ${req.originalUrl}`);
   const error = new Error("Not Found");
@@ -6,9 +8,23 @@ const checkNotFoundError = (req, res, next) => {
 };
 
 const catchAsyncHandle = (fn) => {
-  return (req, res, next) => {
-    fn(req, res, next).catch(next);
+  return async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      await fn(req, res, next, session);
+      await session.commitTransaction()
+    } catch (error) {
+      await session.abortTransaction().catch((abortErr) => {
+        console.error("❌ Error aborting transaction:", abortErr);
+      });
+      next(error);
+    } finally {
+      session.endSession(); // ✅ Ensures session always closes
+    }
   };
 };
+
 
 module.exports = { checkNotFoundError, catchAsyncHandle };

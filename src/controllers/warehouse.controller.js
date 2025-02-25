@@ -75,6 +75,16 @@ class WarehouseController {
         }).send(res)
     }
 
+    updateWarehouseCheck = async (req, res) => {
+        new OK({
+            message: "Update warehouse check successfully",
+            metadata: await WarehouseService.updateWarehouseCheck({
+                id: req.params.id,
+                ...req.body
+            })
+        }).send(res)
+    }
+
     deleteWarehouseCheck = async (req, res) => {
         new OK({
             message: "Delete warehouse check successfully",
@@ -107,6 +117,23 @@ class WarehouseController {
         new CREATED({
             message: "Create warehouse check detail successfully",
             metadata: await WarehouseService.createWarehouseCheckDetail(req.body)
+        }).send(res)
+    }
+
+    updateWarehouseCheckDetail = async (req, res) => {
+        new OK({
+            message: "Update warehouse check detail successfully",
+            metadata: await WarehouseService.updateWarehouseCheckDetail({
+                id: req.params.id,
+                ...req.body
+            })
+        }).send(res)
+    }
+
+    deleteWarehouseCheckDetail = async (req, res) => {
+        new OK({
+            message: "Delete warehouse check detail successfully",
+            metadata: await WarehouseService.deleteWarehouseCheckDetail({ id: req.params.id })
         }).send(res)
     }
 }

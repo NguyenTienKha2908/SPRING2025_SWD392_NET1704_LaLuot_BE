@@ -137,6 +137,43 @@ router.post("/check-details",
     catchAsyncHandle(warehouseController.createWarehouseCheckDetail)
 )
 
+router.put("/check-details/:id",
+    /**
+     * #swagger.tags = ['Warehouse']
+     * #swagger.description='Update warehouse check detail by ID'
+     */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Warehouse check detail id',
+        type: 'string'
+    } */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateWarehouseCheckDetail"
+                }  
+            }
+        }
+    }
+*/
+    catchAsyncHandle(warehouseController.updateWarehouseCheckDetail))
+
+router.delete("/check-details/:id",
+    /**
+     * #swagger.tags = ['Warehouse']
+     * #swagger.description='Delete warehouse check detail by ID'
+     */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Warehouse check detail id',
+        type: 'string'
+    } */
+    catchAsyncHandle(warehouseController.deleteWarehouseCheckDetail)
+)
+
 router.get("/checks",
     /**
      * #swagger.tags = ['Warehouse']
@@ -163,6 +200,30 @@ router.get("/checks/:id",
         type: 'string'
     } */
     catchAsyncHandle(warehouseController.getWarehouseCheck)
+)
+
+router.put("/checks/:id",
+    /**
+     * #swagger.tags = ['Warehouse']
+     * #swagger.description='Update warehouse check by ID'
+     */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Warehouse check id',
+        type: 'string'
+    } */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateWarehouseCheck"
+                }  
+            }
+        }
+    } 
+*/
+    catchAsyncHandle(warehouseController.updateWarehouseCheck)
 )
 
 router.post("/checks",
