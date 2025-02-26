@@ -5,7 +5,7 @@ const SELECT_WAREHOUSE = {
 }
 
 const SELECT_WAREHOUSE_CHECK = {
-    DEFAULT: 'warehouseId managerId inventoryStaffId description status',
+    DEFAULT: 'warehouseId managerId inventoryStaffId description temperature thresholdLevel condition status',
 }
 
 const SELECT_WAREHOUSE_CHECK_DETAIL = {
@@ -18,11 +18,4 @@ const POPULATE_WAREHOUSE_CHECK = [
     { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
 ]
 
-const POPULATE_WAREHOUSE_CHECK_DETAIL = [
-    {
-        path: 'warehouseCheckId', select: SELECT_WAREHOUSE_CHECK.DEFAULT,
-        populate: POPULATE_WAREHOUSE_CHECK
-    }
-]
-
-module.exports = { SELECT_WAREHOUSE, SELECT_WAREHOUSE_CHECK, SELECT_WAREHOUSE_CHECK_DETAIL, POPULATE_WAREHOUSE_CHECK, POPULATE_WAREHOUSE_CHECK_DETAIL };
+module.exports = { SELECT_WAREHOUSE, SELECT_WAREHOUSE_CHECK, SELECT_WAREHOUSE_CHECK_DETAIL, POPULATE_WAREHOUSE_CHECK };

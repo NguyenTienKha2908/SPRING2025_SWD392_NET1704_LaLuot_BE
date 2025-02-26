@@ -1259,129 +1259,6 @@
         }
       }
     },
-    "/api/v1/warehouses/checks-details": {
-      "get": {
-        "tags": [
-          "Warehouse"
-        ],
-        "description": "Get all warehouse check details",
-        "parameters": [
-          {
-            "name": "query",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/GetAllWarehouseCheckDetails"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/warehouses/checks-details/{id}": {
-      "get": {
-        "tags": [
-          "Warehouse"
-        ],
-        "description": "Get warehouse check detail by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Warehouse check detail id"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/warehouses/check-details": {
-      "post": {
-        "tags": [
-          "Warehouse"
-        ],
-        "description": "Create a new warehouse check",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateWarehouseCheckDetail"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/warehouses/check-details/{id}": {
-      "put": {
-        "tags": [
-          "Warehouse"
-        ],
-        "description": "Update warehouse check detail by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Warehouse check detail id"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateWarehouseCheckDetail"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Warehouse"
-        ],
-        "description": "Delete warehouse check detail by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Warehouse check detail id"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/api/v1/warehouses/checks": {
       "get": {
         "tags": [
@@ -1757,7 +1634,7 @@
           },
           "select": {
             "type": "string",
-            "example": "warehouseId managerId inventoryStaffId description status"
+            "example": "warehouseId managerId inventoryStaffId description temperature thresholdLevel condition status"
           },
           "expand": {
             "type": "string",
@@ -1794,65 +1671,6 @@
       "UpdateWarehouseCheck": {
         "type": "object",
         "properties": {
-          "managerId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
-          "inventoryStaffId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
-          "description": {
-            "type": "string",
-            "example": "Check warehouse 1"
-          },
-          "status": {
-            "type": "string",
-            "example": "Done"
-          }
-        }
-      },
-      "GetAllWarehouseCheckDetails": {
-        "type": "object",
-        "properties": {
-          "limit": {
-            "type": "number",
-            "example": 10
-          },
-          "sort": {
-            "type": "string",
-            "example": "ctime"
-          },
-          "page": {
-            "type": "number",
-            "example": 1
-          },
-          "filter": {
-            "type": "object",
-            "properties": {
-              "isDeleted": {
-                "type": "boolean",
-                "example": false
-              }
-            }
-          },
-          "select": {
-            "type": "string",
-            "example": "warehouseCheckId description temperature thresholdLevel condition status"
-          },
-          "expand": {
-            "type": "string",
-            "example": "warehouseCheck"
-          }
-        }
-      },
-      "CreateWarehouseCheckDetail": {
-        "type": "object",
-        "properties": {
-          "warehouseCheckId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
           "description": {
             "type": "string",
             "example": "Check warehouse 1"
@@ -1863,31 +1681,7 @@
           },
           "thresholdLevel": {
             "type": "string",
-            "example": "Low"
-          },
-          "condition": {
-            "type": "string",
-            "example": "Good"
-          }
-        },
-        "required": [
-          "warehouseCheckId"
-        ]
-      },
-      "UpdateWarehouseCheckDetail": {
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string",
-            "example": "Check warehouse 1"
-          },
-          "temperature": {
-            "type": "number",
-            "example": 5
-          },
-          "thresholdLevel": {
-            "type": "string",
-            "example": "Low"
+            "example": "Normal"
           },
           "condition": {
             "type": "string",
