@@ -9,90 +9,6 @@ const router = express.Router();
 
 router.use(catchAsyncHandle(AuthMiddleware));
 
-router.get("/",
-    /**
-      * #swagger.tags = ['Warehouse']
-      * #swagger.description='Get all warehouses'
-      */
-    /* #swagger.parameters['query'] = {
-        in: 'query',
-        schema: {
-            $ref: "#/components/schemas/GetAllWarehouses"
-        }
-    } */
-    catchAsyncHandle(warehouseController.getAllWarehouses)
-);
-
-router.get("/:id",
-    /**
-     * #swagger.tags = ['Warehouse']
-     * #swagger.description='Get warehouse by ID'
-     */
-    /* #swagger.parameters['id'] = {
-        in: 'path',
-        required: true,
-        description: 'Warehouse id',
-        type: 'string'
-    } */
-    catchAsyncHandle(warehouseController.getWarehouse)
-)
-
-router.post("/",
-    /**
-     * #swagger.tags = ['Warehouse']
-     * #swagger.description='Create a new warehouse'
-     */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/CreateWarehouse"
-                }  
-            }
-        }
-    } 
-*/
-    catchAsyncHandle(warehouseController.createWarehouse)
-)
-
-router.put("/:id",
-    /**
-     * #swagger.tags = ['Warehouse']
-     * #swagger.description='Update warehouse by ID'
-     */
-    /* #swagger.parameters['id'] = {
-        in: 'path',
-        required: true,
-        description: 'Warehouse id',
-        type: 'string'
-    } */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/UpdateWarehouse"
-                }  
-            }
-        }
-    } 
-*/
-    catchAsyncHandle(warehouseController.updateWarehouse)
-)
-
-router.delete("/:id",
-    /**
-     * #swagger.tags = ['Warehouse']
-     * #swagger.description='Delete warehouse by ID'
-     */
-    /* #swagger.parameters['id'] = {
-        in: 'path',
-        required: true,
-        description: 'Warehouse id',
-        type: 'string'
-    } */
-    catchAsyncHandle(warehouseController.deleteWarehouse)
-)
-
 router.get("/checks",
     /**
      * #swagger.tags = ['Warehouse']
@@ -180,6 +96,90 @@ router.delete("/checks/:id",
     } */
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
     catchAsyncHandle(warehouseController.deleteWarehouseCheck)
+)
+
+router.get("/",
+    /**
+      * #swagger.tags = ['Warehouse']
+      * #swagger.description='Get all warehouses'
+      */
+    /* #swagger.parameters['query'] = {
+        in: 'query',
+        schema: {
+            $ref: "#/components/schemas/GetAllWarehouses"
+        }
+    } */
+    catchAsyncHandle(warehouseController.getAllWarehouses)
+);
+
+router.get("/:id",
+    /**
+     * #swagger.tags = ['Warehouse']
+     * #swagger.description='Get warehouse by ID'
+     */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Warehouse id',
+        type: 'string'
+    } */
+    catchAsyncHandle(warehouseController.getWarehouse)
+)
+
+router.post("/",
+    /**
+     * #swagger.tags = ['Warehouse']
+     * #swagger.description='Create a new warehouse'
+     */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/CreateWarehouse"
+                }  
+            }
+        }
+    } 
+*/
+    catchAsyncHandle(warehouseController.createWarehouse)
+)
+
+router.put("/:id",
+    /**
+     * #swagger.tags = ['Warehouse']
+     * #swagger.description='Update warehouse by ID'
+     */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Warehouse id',
+        type: 'string'
+    } */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateWarehouse"
+                }  
+            }
+        }
+    } 
+*/
+    catchAsyncHandle(warehouseController.updateWarehouse)
+)
+
+router.delete("/:id",
+    /**
+     * #swagger.tags = ['Warehouse']
+     * #swagger.description='Delete warehouse by ID'
+     */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Warehouse id',
+        type: 'string'
+    } */
+    catchAsyncHandle(warehouseController.deleteWarehouse)
 )
 
 module.exports = router;
