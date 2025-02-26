@@ -10,6 +10,35 @@ const router = express.Router();
 router.use(
     catchAsyncHandle(AuthMiddleware),
 );
+router.get("/stock-check-requests",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Get all stock check request'
+      */
+    /* #swagger.parameters['query'] = {
+        in: 'query',
+        schema: {
+            $ref: "#/components/schemas/GetAllStockCheckRequest"
+        }
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.getAllStockCheckRequests)
+)
+
+router.get("/stock-check-requests/:id",
+    /**
+      * #swagger.tags = ['Inventory']
+      * #swagger.description='Get a stock check request'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Stock check request id',
+        type: 'string'
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inventoryController.getStockCheckRequest)
+)
 
 router.get("/stock-transactions",
     /**
@@ -69,55 +98,6 @@ router.get("/:id",
     } */
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(inventoryController.getInventory)
-)
-
-router.post("/",
-    /**
-      * #swagger.tags = ['Inventory']
-      * #swagger.description='Create a new inventory'
-      */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/CreateInventory"
-                }  
-            }
-        }
-    }
-*/
-    checkRoles({ requiredRoles: [USER_ROLES.INVENTORY_STAFF] }),
-    catchAsyncHandle(inventoryController.createInventory)
-)
-
-router.get("/stock-check-requests",
-    /**
-      * #swagger.tags = ['Inventory']
-      * #swagger.description='Get all stock check request'
-      */
-    /* #swagger.parameters['query'] = {
-        in: 'query',
-        schema: {
-            $ref: "#/components/schemas/GetAllStockCheckRequest"
-        }
-    } */
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
-    catchAsyncHandle(inventoryController.getAllStockCheckRequests)
-)
-
-router.get("/stock-check-requests/:id",
-    /**
-      * #swagger.tags = ['Inventory']
-      * #swagger.description='Get a stock check request'
-      */
-    /* #swagger.parameters['id'] = {
-        in: 'path',
-        required: true,
-        description: 'Stock check request id',
-        type: 'string'
-    } */
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
-    catchAsyncHandle(inventoryController.getStockCheckRequest)
 )
 
 router.get("/stock-check-details",

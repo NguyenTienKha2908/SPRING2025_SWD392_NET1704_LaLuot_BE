@@ -16,10 +16,19 @@ var itemSchema = new mongoose.Schema({
         ref: 'BaseItem',
         required: true,
     },
+    code:{
+        type: String,
+        required: true,
+        trim: true,
+    },
     status: {
         type: String,
         enum: ["Expired", "Available", "Out of Stock", "Damaged", "Lost"],
         default: "Available",
+    },
+    manufactureDate: {
+        type: Date,
+        required: true,
     },
     expiredDate: {
         type: Date,
@@ -31,10 +40,6 @@ var itemSchema = new mongoose.Schema({
         trim: true,
         enum: ["Box", "Bottle", "Tablet", "Capsule", "Syrup", "Injection", "Pcs", "Set", "Other"],
         default: "Pcs",
-    },
-    isFrozenStored: {
-        type: Boolean,
-        default: false,
     },
     ...baseModelSchema.obj,
 }, {
@@ -68,6 +73,9 @@ itemSchema.pre("findOneAndDelete", async function (next) {
     const warehouseTransactionDetails = await warehouseTransactionDetailModel.findOne({ itemId: itemId });
     if (warehouseTransactionDetails) {
         return next(new Error("Cannot delete itemId because it is used in warehouseTransactionDetails"));
+    }
+    if (this.expiredDate <= this.manufactureDate) {
+        return next(new Error("Expired date must be larger than manufracture date"))
     }
     next();
 })

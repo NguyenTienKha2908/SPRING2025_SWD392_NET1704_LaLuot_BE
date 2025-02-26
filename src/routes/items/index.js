@@ -22,7 +22,14 @@ router.get("/",
     } */
     catchAsyncHandle(itemController.getAllItems)
 )
-
+router.get("/:id",
+    checkRoles({requiredRoles:[USER_ROLES.MANAGER,USER_ROLES.INVENTORY_STAFF]}),
+    catchAsyncHandle(itemController.getDetailItem)
+)
+router.post("/create", 
+    checkRoles({requiredRoles:[USER_ROLES.MANAGER]}),
+    catchAsyncHandle(itemController.createItems)
+)
 router.put("/",
     /**
       * #swagger.tags = ['Item']
@@ -38,6 +45,20 @@ router.put("/",
     catchAsyncHandle(itemController.updateItems)
 )
 
+router.delete("/:id",
+    /**
+      * #swagger.tags = ['Item']
+      * #swagger.description='Update item'
+      */
+    /* #swagger.parameters['body'] = {
+        in: 'body',
+        schema: {
+            $ref: "#/components/schemas/UpdateItem"
+        }
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    catchAsyncHandle(itemController.deleteItems)
+)
 router.put("/check-expired-medicine",
     /**
       * #swagger.tags = ['Item']

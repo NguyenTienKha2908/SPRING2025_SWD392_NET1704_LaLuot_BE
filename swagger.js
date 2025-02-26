@@ -1,5 +1,12 @@
 const swaggerAutogen = require('swagger-autogen')({ openapi: '3.0.0' });
 require('dotenv').config();
+
+const { SELECT_OUTPUT, SELECT_OUTPUT_DETAILS } = require('./src/configs/output.config.js');
+const { SELECT_STOCK_DETAIL, SELECT_STOCK_REQUEST, SELECT_STOCK_TRANSACTION, SELECT_INVENTORY } = require('./src/configs/inventory.config.js');
+const { SELECT_ITEM } = require('./src/configs/item.config.js');
+const { SELECT_USER } = require('./src/configs/user.config.js');
+const { SELECT_WAREHOUSE, SELECT_WAREHOUSE_CHECK, SELECT_WAREHOUSE_CHECK_DETAIL } = require('./src/configs/warehouse.config.js');
+
 const doc = {
     host: `localhost:${process.env.DEV_APP_PORT}`,            // by default: 'localhost:3000'
     info: {
@@ -21,6 +28,10 @@ const doc = {
         },
         {
             name: 'User',
+            description: ''
+        },
+        {
+            name: 'Warehouse',
             description: ''
         },
         {
@@ -69,13 +80,88 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'fullName email role'
+                select: SELECT_USER.DEFAULT
             },
             CreateUser: {
                 $fullName: "John Doe",
                 $email: "abc@gmail.com",
                 $password: "***",
                 role: "Customer"
+            },
+            UpdateUser: {
+                $fullName: "John Doe",
+                $email: "abc@gmail.com",
+                $password: "***",
+                role: "Customer"
+            },
+            GetAllWarehouses: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: SELECT_WAREHOUSE.DEFAULT,
+            },
+            CreateWarehouse: {
+                $name: "Warehouse 1",
+                $description: "Warehouse 1",
+                $category: "Medicine",
+                $minTemperature: 2,
+                $maxTemperature: 8
+            },
+            UpdateWarehouse: {
+                name: "Warehouse 1",
+                description: "Warehouse 1",
+                category: "Medicine",
+                minTemperature: 2,
+                maxTemperature: 8
+            },
+            GetAllWarehouseChecks: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: SELECT_WAREHOUSE_CHECK.DEFAULT,
+                expand: 'warehouse manager inventoryStaff'
+            },
+            CreateWarehouseCheck: {
+                $warehouseId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                $managerId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                $inventoryStaffId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                description: 'Check warehouse 1'
+            },
+            UpdateWarehouseCheck: {
+                managerId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                inventoryStaffId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                description: 'Check warehouse 1',
+                status: 'Done'
+            },
+            GetAllWarehouseCheckDetails: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: SELECT_WAREHOUSE_CHECK_DETAIL.DEFAULT,
+                expand: 'warehouseCheck'
+            },
+            CreateWarehouseCheckDetail: {
+                $warehouseCheckId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                description: 'Check warehouse 1',
+                temperature: 5,
+                thresholdLevel: "Low",
+                condition: "Good"
+            },
+            UpdateWarehouseCheckDetail: {
+                description: 'Check warehouse 1',
+                temperature: 5,
+                thresholdLevel: "Low",
+                condition: "Good",
+                status: "Done"
             },
             GetAllInventories: {
                 limit: 10,
@@ -84,16 +170,8 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'warehouseId itemId quantity',
+                select: SELECT_INVENTORY,
                 expand: 'warehouse item'
-            },
-            CreateInventory: {
-                outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
-                $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
-                $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
-                $quantity: 100,
-                $transactionType: "Input",
-                description: "Create new inventory"
             },
             GetAllStockTransactions: {
                 limit: 10,
@@ -102,7 +180,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'warehouseId itemId description quantity transactionType',
+                select: SELECT_STOCK_TRANSACTION,
                 expand: 'warehouse item'
             },
             GetAllStockCheckRequest: {
@@ -112,7 +190,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'description status warehouseId managerId inventoryStaffId',
+                select: SELECT_STOCK_REQUEST,
                 expand: 'warehouse manager inventoryStaff'
             },
             GetAllStockCheckDetails: {
@@ -122,7 +200,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'stockCheckId itemId systemQuantity actualQuantity difference description',
+                select: SELECT_STOCK_DETAIL,
                 expand: 'stockCheck item'
             },
             CreateStockCheckRequest: {
@@ -157,7 +235,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'status expiredDate isFrozenStored baseItemId',
+                select: SELECT_ITEM,
                 expand: 'baseItem'
             },
             UpdateItem: {
@@ -177,7 +255,7 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'description status customerId warehouseId reportStaffId managerId inventoryStaffId',
+                select: SELECT_OUTPUT,
                 expand: 'customer warehouse reportStaff manager inventoryStaff outputDetails'
             },
             GetAllOutputDetails: {
@@ -187,10 +265,11 @@ const doc = {
                 filter: {
                     isDeleted: false
                 },
-                select: 'outputId itemId quantity outputPrice status',
+                select: SELECT_OUTPUT_DETAILS,
                 expand: 'output item'
             },
             CreateOutputRequest: {
+                $reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $customerId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 description: "Output request for warehouse 1",
@@ -202,9 +281,6 @@ const doc = {
                     }
                 ]
             },
-            ReceiveOutputRequest: {
-                reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0"
-            },
             ApproveOutputRequest: {
                 managerId: "60e0b3f0b3f0b3f0b3f0b3f0"
             },
@@ -213,6 +289,9 @@ const doc = {
             },
             DeliverOutputRequest: {
                 inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0"
+            },
+            CancelOutputRequest: {
+                $cancelReason: "Out of stock"
             },
         }
     },
@@ -231,6 +310,7 @@ root file where the route starts, such as index.js, app.js, routes.js, etc ... *
 
 const chalk = require("chalk");
 const getLogger = require("./src/utils/logger");
+
 const logger = getLogger("SWAGGER");
 swaggerAutogen(outputFile, routes, doc).then(() => {
     logger.info(`📄 Docs are running at ${chalk.magenta(chalk.underline(`${process.env.APP_BASE_URL}` + "/api-docs"))}`);

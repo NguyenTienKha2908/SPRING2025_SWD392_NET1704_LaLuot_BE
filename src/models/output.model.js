@@ -14,9 +14,15 @@ var outputSchema = new mongoose.Schema(
             type: String,
             trim: true,
         },
+        batchNumber: {
+            type: String,
+            trim: true,
+            unique: true,
+            required: true,
+        },
         status: {
             type: String,
-            enum: ["Pending", "Received", "Approved", "Rejected", "Delivering", "Cancelled", "Done"],
+            enum: ["Pending", "Approved", "Rejected", "Delivering", "Cancelled", "Done"],
             default: "Pending",
         },
         warehouseId: {
@@ -29,10 +35,6 @@ var outputSchema = new mongoose.Schema(
             ref: 'User',
             required: true,
         },
-        reportStaffId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-        },
         managerId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
@@ -40,6 +42,11 @@ var outputSchema = new mongoose.Schema(
         inventoryStaffId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
+        },
+        reportStaffId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
         },
         ...baseModelSchema.obj,
     },

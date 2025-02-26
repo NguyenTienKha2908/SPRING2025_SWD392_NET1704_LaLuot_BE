@@ -8,6 +8,7 @@ const outputDetailModel = require("../models/outputDetail.model");
 const userModel = require("../models/user.model");
 const warehouseModel = require("../models/warehouse.model");
 const { getAllOutputRequests, getAllOutputDetails } = require("../repositories/output.repo");
+const InventoryService = require("./inventory.service");
 
 class OutputService {
     static getAllOutputRequests = async ({ limit, sort, page, filter, select, expand }) => {
@@ -53,10 +54,19 @@ class OutputService {
         return outputDetailHolder;
     }
 
-    static createOuputRequest = async ({ customerId, warehouseId, description, outputDetails }) => {
-        if (!customerId || !warehouseId || !Array.isArray(outputDetails) || outputDetails.length === 0)
+    static createOuputRequest = async ({ reportStaffId, customerId, warehouseId, description, outputDetails, session }) => {
+        if (!reportStaffId || !customerId || !warehouseId || !Array.isArray(outputDetails) || outputDetails.length === 0)
             throw new BadRequestError("Invalid input");
 
+        const inventoryStaffHolder = await userModel.findOne({
+            _id: reportStaffId,
+            role: USER_ROLES.REPORT_STAFF,
+            isDeleted: false
+        }).lean();
+        if (!inventoryStaffHolder)
+            throw new NotFoundRequestError("Inventory staff not found");
+
+        // Kiểm tra customer
         const customerHolder = await userModel.findOne({
             _id: customerId,
             role: USER_ROLES.CUSTOMER,
@@ -66,6 +76,7 @@ class OutputService {
         if (!customerHolder)
             throw new NotFoundRequestError("Customer not found");
 
+        // Kiểm tra warehouse
         const warehouseHolder = await warehouseModel.findOne({
             _id: warehouseId,
             isDeleted: false
@@ -73,14 +84,25 @@ class OutputService {
         if (!warehouseHolder)
             throw new NotFoundRequestError("Warehouse not found");
 
-        const newOutput = await outputModel.create({
+        // Tạo output request
+        const newOutput = await outputModel.create([{
+            reportStaffId: reportStaffId,
             customerId: customerId,
             warehouseId: warehouseId,
             description: description || `Output request for ${warehouseHolder.name}`,
             status: "Pending",
-        })
+            batchNumber: new Date().getTime().toString() + "-OUP"
+        }], { session: session });
 
+        /**
+         * Kiểm tra item và số lượng trong kho
+         * Tạo output detail
+         * Cập nhật số lượng trong kho
+         */
+
+        // Lấy danh sách item trong output details
         const itemIds = outputDetails.map((outputDetail) => outputDetail.itemId);
+        // Lấy danh sách item và inventory trong kho
         const itemHolders = await itemModel.find({ _id: { $in: itemIds }, isDeleted: false }).lean();
         const inventoryHolders = await inventoryModel.find({
             itemId: { $in: itemIds },
@@ -88,11 +110,15 @@ class OutputService {
             isDeleted: false
         }).lean();
 
+        // Tạo map item và inventory
         const itemMap = new Map(itemHolders.map(item => [item._id.toString(), item]));
         const inventoryMap = new Map(inventoryHolders.map(inventory => [inventory.itemId.toString(), inventory]));
 
+        // Tạo output details
         const outputDetailsToCreate = outputDetails.map(outputDetail => {
             const { itemId, quantity, outputPrice } = outputDetail;
+
+            // Kiểm tra item
             if (!itemMap.has(itemId))
                 throw new NotFoundRequestError(`Item with id ${itemId} not found`);
 
@@ -104,7 +130,7 @@ class OutputService {
                 throw new BadRequestError(`Not enough stock for item with id ${itemId}`);
 
             return {
-                outputId: newOutput._id,
+                outputId: newOutput[0]._id,
                 itemId: itemId,
                 quantity: quantity,
                 outputPrice: outputPrice,
@@ -116,47 +142,13 @@ class OutputService {
         return newOutput;
     }
 
-    static receiveOutputRequest = async ({ id, reportStaffId }) => {
-        if (!id || !reportStaffId)
-            throw new BadRequestError("Invalid input");
-
-        const outputHolder = await outputModel.findOne({
-            _id: id,
-            status: "Pending",
-            isDeleted: false
-        }).lean();
-
-        if (!outputHolder)
-            throw new NotFoundRequestError("Output request not found");
-
-        const reportStaffHolder = await userModel.findOne({
-            _id: reportStaffId,
-            role: USER_ROLES.REPORT_STAFF,
-            isDeleted: false
-        }).lean();
-
-        if (!reportStaffHolder)
-            throw new NotFoundRequestError("Report staff not found");
-
-        const updatedOutput = await outputModel.updateOne({
-            _id: id,
-            status: "Pending",
-            isDeleted: false
-        }, {
-            status: "Received",
-            reportStaffId: reportStaffId
-        })
-
-        return updatedOutput;
-    }
-
     static approveOutputRequest = async ({ id, managerId }) => {
         if (!id || !managerId)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
             _id: id,
-            status: "Received",
+            status: "Pending",
             isDeleted: false
         }).lean();
 
@@ -174,14 +166,14 @@ class OutputService {
 
         const updatedOutput = await outputModel.updateOne({
             _id: id,
-            status: "Received",
+            status: "Pending",
             isDeleted: false
         }, {
             status: "Approved",
             managerId: managerId
         })
 
-        return updatedOutput;
+        return ;
     }
 
     static rejectOutputRequest = async ({ id, managerId }) => {
@@ -190,7 +182,7 @@ class OutputService {
 
         const outputHolder = await outputModel.findOne({
             _id: id,
-            status: "Received",
+            status: "Pending",
             isDeleted: false
         }).lean();
 
@@ -208,14 +200,14 @@ class OutputService {
 
         const updatedOutput = await outputModel.updateOne({
             _id: id,
-            status: "Received",
+            status: "Pending",
             isDeleted: false
         }, {
             status: "Rejected",
             managerId: managerId
         })
 
-        return updatedOutput;
+        return ;
     }
 
     static deliverOutputRequest = async ({ id, inventoryStaffId }) => {
@@ -247,7 +239,7 @@ class OutputService {
             inventoryStaffId: inventoryStaffId
         })
 
-        return updatedOutput;
+        return ;
     }
 
     static completeOutputRequest = async ({ id }) => {
@@ -265,10 +257,16 @@ class OutputService {
         const outputDetailHolders = await outputDetailModel.find({ outputId: id }).lean();
         if (!outputDetailHolders || outputDetailHolders.length === 0)
             throw new NotFoundRequestError("Output details not found");
+
         for (let outputDetail of outputDetailHolders) {
-            if (outputDetail.status !== "Done") {
-                throw new BadRequestError("Output detail not done yet");
-            }
+            await InventoryService.handleInventoryTransaction({
+                outputId: outputHolder._id,
+                warehouseId: outputHolder.warehouseId,
+                itemId: outputDetail.itemId,
+                quantity: outputDetail.quantity,
+                transactionType: "Output",
+                description: `Output request ${outputHolder.batchNumber}`
+            })
         }
 
         const updatedOutput = await outputModel.updateOne({
@@ -282,8 +280,8 @@ class OutputService {
         return;
     }
 
-    static cancelOutputRequest = async ({ id }) => {
-        if (!id)
+    static cancelOutputRequest = async ({ id, cancelReason }) => {
+        if (!id || !cancelReason)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
@@ -299,10 +297,11 @@ class OutputService {
             status: { $in: ["Pending", "Received", "Approved"] },
             isDeleted: false
         }, {
-            status: "Cancelled"
+            status: "Cancelled",
+            cancelReason: cancelReason
         })
 
-        return updatedOutput;
+        return ;
     }
 }
 

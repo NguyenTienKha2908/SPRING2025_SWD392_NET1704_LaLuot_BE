@@ -23,8 +23,14 @@ var inputSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["Pending", "Received", "Approved", "Rejected", "Delivering", "Cancelled", "Done"],
+            enum: ["Pending", "Approved", "Rejected", "Delivering", "Cancelled", "Done"],
             default: "Pending",
+        },
+        batchNumber: {
+            type: String,
+            trim: true,
+            unique: true,
+            required: true,
         },
         warehouseId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -34,10 +40,6 @@ var inputSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true,
-        },
-        reportStaffId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
         },
         managerId: {
             type: mongoose.Schema.Types.ObjectId,

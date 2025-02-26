@@ -1,5 +1,6 @@
 const StatusCode = {
     BAD_REQUEST: 400,
+    NOT_UPDATE:405,
     UNAUTHORIZED: 401,
     FORBIDDEN: 403,
     NOT_FOUND: 404,
@@ -14,6 +15,7 @@ const StatusCode = {
     NOT_FOUND: "Not Found Error",
     CONFLICT: "Conflict Error",
     INTERNAL_SERVER_ERROR: "Internal Server Error",
+    NOT_UPDATE:"Cannot update this field!"
   };
   
   class ErrorResponse extends Error {
@@ -27,6 +29,14 @@ const StatusCode = {
     constructor(
       message = ReasonStatusCode.BAD_REQUEST,
       status = StatusCode.BAD_REQUEST
+    ) {
+      super(message, status);
+    }
+  }
+  class NotUpdateError extends ErrorResponse {
+    constructor(
+      message = ReasonStatusCode.NOT_UPDATE,
+      status = StatusCode.NOT_UPDATE
     ) {
       super(message, status);
     }
@@ -81,5 +91,6 @@ const StatusCode = {
     ForbiddenRequestError,
     BadRequestError,
     InternalServerError,
+    NotUpdateError
   };
   

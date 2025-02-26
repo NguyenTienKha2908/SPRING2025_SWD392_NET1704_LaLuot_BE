@@ -13,15 +13,20 @@ const router = express.Router();
 // const outputDetailModel = require("../models/outputDetail.model");
 // const stockCheckModel = require("../models/stockCheck.model");
 // const stockCheckDetailModel = require("../models/stockCheckDetail.model");
-// const expiredMedicineCheckModel = require("../models/expiredMedicineCheck.model");
-// const expiredMedicineCheckDetailModel = require("../models/expiredMedicineCheckDetail.model");
 // const warehouseTransactionModel = require("../models/warehouseTransaction.model");
 // const warehouseTransactionDetailModel = require("../models/warehouseTransactionDetail.model");
 // const warehouseCheckModel = require("../models/warehouseCheck.model");
 // const baseItemModel = require("../models/baseItem.model");
 // const userModel = require("../models/user.model");
+// const warehouseCheckDetailModel = require("../models/warehouseCheckDetail.model");
+// const reportModel = require("../models/report.model");
+// const reportDetailModel = require("../models/reportDetail.model");
+// const systemModel = require("../models/system.model");
 
 router.get("/", async (req, res) => {
+    // const system=await systemModel.create({
+    //     checkExpiredMedicineInterval:'0 0 * * *',
+    // })
 
     // const admin = await userModel.create({
     //     fullName: "Admin 001",
@@ -67,9 +72,9 @@ router.get("/", async (req, res) => {
 
 
     // const warehouse = await warehouseModel.create({
-    //     name: "Medical Warehouse",
-    //     description: "Medical Warehouse",
-    //     category: "Medical",
+    //     name: "Normal Warehouse",
+    //     description: "Normal warehouse for normal medicine and equipment",
+    //     category: "Normal",
     //     minTemperature: 0,
     //     maxTemperature: 100,
     //     status: "Available",
@@ -77,7 +82,7 @@ router.get("/", async (req, res) => {
 
     // const diposalWarehouse = await warehouseModel.create({
     //     name: "Disposal Warehouse",
-    //     description: "Disposal Warehouse",
+    //     description: "Disposal warehouse for expired medicine",
     //     category: "Disposal",
     //     status: "Available",
     //     minTemperature: 0,
@@ -85,9 +90,9 @@ router.get("/", async (req, res) => {
     // })
 
     // const frozenWarehouse = await warehouseModel.create({
-    //     name: "Frozen Warehouse",
-    //     description: "Frozen Warehouse",
-    //     category: "Frozen",
+    //     name: "Cold Warehouse",
+    //     description: "Cold warehouse for cold stored medicine",
+    //     category: "Cold",
     //     status: "Available",
     //     minTemperature: -10,
     //     maxTemperature: 0,
@@ -97,20 +102,33 @@ router.get("/", async (req, res) => {
     //     name: "Paracetamol",
     //     description: "Paracetamol is a common painkiller used to treat aches and pain. It can also be used to reduce a high temperature. It's available combined with other painkillers and anti-sickness medicines.",
     //     category: "Medicine",
+    //     genericName: "Paracetamol 500mg Tablets",
+    //     brand: "Panadol",
+    //     countryOfOrigin: "Vietnam",
+    //     indication: "Paracetamol is used to relieve mild to moderate pain from a headache, toothache, cold, flu, joint pain, or periods pain.",
+    //     contraindication: "Paracetamol is contraindicated in patients with a known hypersensitivity to paracetamol.",
+    //     sideEffect: "Paracetamol is usually well tolerated at recommended doses. The most common side effects are usually mild. These include an allergic reaction, which may cause a rash and sometimes swelling.",
+    //     storageType: "Normal",
     // });
 
     // const item = await itemModel.create({
     //     baseItemId: baseItem._id,
+    //     code: "PCT-001",
     //     status: "Available",
+    //     manufactureDate: new Date() - 1000 * 60 * 60 * 24 * 365,
+    //     expiredDate: new Date(),
+    //     unit: "Tablet",
     // })
 
     // const input = await inputModel.create({
     //     description: "Input from Tiki",
     //     status: "Pending",
+    //     batchNumber:
+    //         new Date().getTime().toString() +
+    //         "-INP",
     //     warehouseId: warehouse._id,
     //     managerId: manager._id,
     //     supplierId: supplier._id,
-    //     reportStaffId: reportStaff._id,
     //     inventoryStaffId: inventoryStaff._id,
     // })
 
@@ -119,14 +137,17 @@ router.get("/", async (req, res) => {
     //     itemId: item._id,
     //     quantity: 100,
     //     inputPrice: 10000,
-    //     expiredDate: new Date(),
-    //     unit: "Tablet",
+    //     status: "Pending",
     // })
 
     // const inventory = await inventoryModel.create({
     //     warehouseId: warehouse._id,
     //     itemId: item._id,
     //     quantity: 100,
+    //     batchNumber:
+    //         new Date().getTime().toString() +
+    //         '-INV-' +
+    //         item.code,
     // })
 
     // await stockTransactionModel.create({
@@ -140,10 +161,12 @@ router.get("/", async (req, res) => {
     // const output = await outputModel.create({
     //     description: "Output to Customer",
     //     status: "Pending",
+    //     batchNumber:
+    //         new Date().getTime().toString() +
+    //         '-OUP',
     //     warehouseId: warehouse._id,
     //     managerId: manager._id,
     //     customerId: customer._id,
-    //     reportStaffId: reportStaff._id,
     //     inventoryStaffId: inventoryStaff._id,
     // })
 
@@ -178,20 +201,6 @@ router.get("/", async (req, res) => {
     //     systemQuantity: 80,
     //     actualQuantity: 80,
     //     difference: 0,
-    // })
-
-    // const expiredMedicineCheck = await expiredMedicineCheckModel.create({
-    //     warehouseId: warehouse._id,
-    //     description: "Check Expired Medicine",
-    //     status: "Pending",
-    // })
-
-    // const expiredMedicineCheckDetail = await expiredMedicineCheckDetailModel.create({
-    //     expiredMedicineCheckId: expiredMedicineCheck._id,
-    //     itemId: item._id,
-    //     quantity: 20,
-    //     status: "Expired",
-    //     expiredDate: new Date(),
     // })
 
     // const warehouseTransaction = await warehouseTransactionModel.create({
@@ -240,8 +249,28 @@ router.get("/", async (req, res) => {
     //     managerId: manager._id,
     //     inventoryStaffId: inventoryStaff._id,
     //     description: "Check Frozen Warehouse Temperature",
+    // })
+
+    // const warehouseCheckDetail = await warehouseCheckDetailModel.create({
+    //     warehouseCheckId: warehouseCheck._id,
+    //     description: "Check Frozen Warehouse Temperature",
     //     temperature: -5,
-    //     thresholdLevel: "Low",
+    //     thresholdLevel: "Normal",
+    //     condition: "Good",
+    //     status: "Pending"
+    // })
+
+    // const report = await reportModel.create({
+    //     managerId: manager._id,
+    //     reportStaffId: reportStaff._id,
+    //     title: "Stock Report",
+    //     content: "Stock Report Content",
+    // })
+
+    // const reportDetail = await reportDetailModel.create({
+    //     reportId: report._id,
+    //     type: "Inventory",
+    //     detail: "Stock Report Detail",
     // })
 
     res.status(200).send(`
@@ -384,6 +413,7 @@ router.use("/inventories", require("./inventories"));
 router.use("/items", require("./items"));
 router.use("/baseitems", require("./baseItems"));
 router.use("/system", require("./system"));
-router.use("/outputs",require("./outputs"));
+router.use("/outputs", require("./outputs"));
+router.use("/warehouses", require("./warehouses"));
 
 module.exports = router;

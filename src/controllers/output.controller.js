@@ -25,10 +25,10 @@ class OutputController {
         }).send(res)
     }
 
-    createOuputRequest = async (req, res) => {
+    createOuputRequest = async (req, res, next, session) => {
         new CREATED({
             message: "Create output request successfully",
-            metadata: await OutputService.createOuputRequest(req.body)
+            metadata: await OutputService.createOuputRequest({ session: session, ...req.body })
         }).send(res)
     }
 
@@ -51,16 +51,6 @@ class OutputController {
             message: "Get output detail successfully",
             metadata: await OutputService.getOutputDetail({
                 id: req.params.id
-            })
-        }).send(res)
-    }
-
-    receiveOutputRequest = async (req, res) => {
-        new OK({
-            message: "Receive output request successfully",
-            metadata: await OutputService.receiveOutputRequest({
-                id: req.params.id,
-                reportStaffId: req.body.reportStaffId
             })
         }).send(res)
     }
@@ -109,6 +99,7 @@ class OutputController {
             message: "Cancel output request successfully",
             metadata: await OutputService.cancelOutputRequest({
                 id: req.params.id,
+                cancelReason: req.body.cancelReason
             })
         }).send(res)
     }

@@ -1,4 +1,6 @@
 const { SELECT_BASEITEM } = require("../configs/baseitem.config");
+const { SELECT_ITEM } = require("../configs/item.config");
+const { SELECT_OUTPUT } = require("../configs/output.config");
 const { SELECT_USER } = require("../configs/user.config");
 const { SELECT_WAREHOUSE } = require("../configs/warehouse.config");
 const outputModel = require("../models/output.model");
@@ -11,7 +13,6 @@ const getAllOutputRequests = async ({ limit, sort, page, filter, select, expand 
     const populateOptions = {
         warehouse: { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
         customer: { path: 'customerId', select: SELECT_USER.DEFAULT },
-        reportStaff: { path: 'reportStaffId', select: SELECT_USER.DEFAULT },
         manager: { path: 'managerId', select: SELECT_USER.DEFAULT },
         inventoryStaff: { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT },
     }
@@ -45,7 +46,7 @@ const getAllOutputDetails = async ({ limit, sort, page, filter, select, expand }
     const populateOptions = {
         output: {
             path: 'outputId',
-            select: 'warehouseId, customerId, reportStaffId, managerId, inventoryStaffId',
+            select: SELECT_OUTPUT,
             populate: [
                 {
                     path: 'warehouseId',
@@ -53,10 +54,6 @@ const getAllOutputDetails = async ({ limit, sort, page, filter, select, expand }
                 },
                 {
                     path: 'customerId',
-                    select: SELECT_USER.DEFAULT
-                },
-                {
-                    path: 'reportStaffId',
                     select: SELECT_USER.DEFAULT
                 },
                 {
@@ -71,7 +68,7 @@ const getAllOutputDetails = async ({ limit, sort, page, filter, select, expand }
         },
         item: {
             path: 'itemId',
-            select: 'baseItemId status',
+            select: SELECT_ITEM,
             populate: { path: 'baseItemId', select: SELECT_BASEITEM.DEFAULT }
         },
     }
