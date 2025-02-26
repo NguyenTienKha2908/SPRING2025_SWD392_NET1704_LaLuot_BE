@@ -491,26 +491,6 @@
             "description": ""
           }
         }
-      },
-      "post": {
-        "tags": [
-          "Inventory"
-        ],
-        "description": "Create a new inventory",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateInventory"
-              }
-            }
-          }
-        }
       }
     },
     "/api/v1/inventories/{id}": {
@@ -1953,41 +1933,6 @@
           }
         }
       },
-      "CreateInventory": {
-        "type": "object",
-        "properties": {
-          "outputId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
-          "warehouseId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
-          "itemId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
-          "quantity": {
-            "type": "number",
-            "example": 100
-          },
-          "transactionType": {
-            "type": "string",
-            "example": "Input"
-          },
-          "description": {
-            "type": "string",
-            "example": "Create new inventory"
-          }
-        },
-        "required": [
-          "warehouseId",
-          "itemId",
-          "quantity",
-          "transactionType"
-        ]
-      },
       "GetAllStockTransactions": {
         "type": "object",
         "properties": {
@@ -2326,7 +2271,7 @@
       "CreateOutputRequest": {
         "type": "object",
         "properties": {
-          "inventoryStaffId": {
+          "reportStaffId": {
             "type": "string",
             "example": "60e0b3f0b3f0b3f0b3f0b3f0"
           },
@@ -2369,7 +2314,7 @@
           }
         },
         "required": [
-          "inventoryStaffId",
+          "reportStaffId",
           "customerId",
           "warehouseId"
         ]

@@ -8,6 +8,7 @@ const outputDetailModel = require("../models/outputDetail.model");
 const userModel = require("../models/user.model");
 const warehouseModel = require("../models/warehouse.model");
 const { getAllOutputRequests, getAllOutputDetails } = require("../repositories/output.repo");
+const InventoryService = require("./inventory.service");
 
 class OutputService {
     static getAllOutputRequests = async ({ limit, sort, page, filter, select, expand }) => {
@@ -53,13 +54,13 @@ class OutputService {
         return outputDetailHolder;
     }
 
-    static createOuputRequest = async ({ inventoryStaffId, customerId, warehouseId, description, outputDetails, session }) => {
-        if (!inventoryStaffId || !customerId || !warehouseId || !Array.isArray(outputDetails) || outputDetails.length === 0)
+    static createOuputRequest = async ({ reportStaffId, customerId, warehouseId, description, outputDetails, session }) => {
+        if (!reportStaffId || !customerId || !warehouseId || !Array.isArray(outputDetails) || outputDetails.length === 0)
             throw new BadRequestError("Invalid input");
 
         const inventoryStaffHolder = await userModel.findOne({
-            _id: inventoryStaffId,
-            role: USER_ROLES.INVENTORY_STAFF,
+            _id: reportStaffId,
+            role: USER_ROLES.REPORT_STAFF,
             isDeleted: false
         }).lean();
         if (!inventoryStaffHolder)
@@ -85,7 +86,7 @@ class OutputService {
 
         // Tạo output request
         const newOutput = await outputModel.create([{
-            inventoryStaffId: inventoryStaffId,
+            reportStaffId: reportStaffId,
             customerId: customerId,
             warehouseId: warehouseId,
             description: description || `Output request for ${warehouseHolder.name}`,
@@ -172,7 +173,7 @@ class OutputService {
             managerId: managerId
         })
 
-        return updatedOutput;
+        return ;
     }
 
     static rejectOutputRequest = async ({ id, managerId }) => {
@@ -206,7 +207,7 @@ class OutputService {
             managerId: managerId
         })
 
-        return updatedOutput;
+        return ;
     }
 
     static deliverOutputRequest = async ({ id, inventoryStaffId }) => {
@@ -238,7 +239,7 @@ class OutputService {
             inventoryStaffId: inventoryStaffId
         })
 
-        return updatedOutput;
+        return ;
     }
 
     static completeOutputRequest = async ({ id }) => {
@@ -256,10 +257,16 @@ class OutputService {
         const outputDetailHolders = await outputDetailModel.find({ outputId: id }).lean();
         if (!outputDetailHolders || outputDetailHolders.length === 0)
             throw new NotFoundRequestError("Output details not found");
+
         for (let outputDetail of outputDetailHolders) {
-            if (outputDetail.status !== "Done") {
-                throw new BadRequestError("Output detail not done yet");
-            }
+            await InventoryService.handleInventoryTransaction({
+                outputId: outputHolder._id,
+                warehouseId: outputHolder.warehouseId,
+                itemId: outputDetail.itemId,
+                quantity: outputDetail.quantity,
+                transactionType: "Output",
+                description: `Output request ${outputHolder.batchNumber}`
+            })
         }
 
         const updatedOutput = await outputModel.updateOne({
@@ -294,7 +301,7 @@ class OutputService {
             cancelReason: cancelReason
         })
 
-        return updatedOutput;
+        return ;
     }
 }
 
