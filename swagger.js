@@ -134,34 +134,11 @@ const doc = {
                 description: 'Check warehouse 1'
             },
             UpdateWarehouseCheck: {
-                managerId: '60e0b3f0b3f0b3f0b3f0b3f0',
-                inventoryStaffId: '60e0b3f0b3f0b3f0b3f0b3f0',
-                description: 'Check warehouse 1',
-                status: 'Done'
-            },
-            GetAllWarehouseCheckDetails: {
-                limit: 10,
-                sort: 'ctime',
-                page: 1,
-                filter: {
-                    isDeleted: false
-                },
-                select: SELECT_WAREHOUSE_CHECK_DETAIL.DEFAULT,
-                expand: 'warehouseCheck'
-            },
-            CreateWarehouseCheckDetail: {
-                $warehouseCheckId: '60e0b3f0b3f0b3f0b3f0b3f0',
                 description: 'Check warehouse 1',
                 temperature: 5,
-                thresholdLevel: "Low",
-                condition: "Good"
-            },
-            UpdateWarehouseCheckDetail: {
-                description: 'Check warehouse 1',
-                temperature: 5,
-                thresholdLevel: "Low",
+                thresholdLevel: "Normal",
                 condition: "Good",
-                status: "Done"
+                status: 'Done'
             },
             GetAllInventories: {
                 limit: 10,

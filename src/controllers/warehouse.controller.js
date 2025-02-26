@@ -91,51 +91,6 @@ class WarehouseController {
             metadata: await WarehouseService.deleteWarehouseCheck({ id: req.params.id })
         }).send(res)
     }
-
-    getAllWarehouseCheckDetails = async (req, res) => {
-        new OK({
-            message: "Get all warehouse check details successfully",
-            metadata: await WarehouseService.getAllWarehouseCheckDetails({
-                limit: req.query.limit || 10,
-                sort: req.query.sort || 'ctime',
-                page: req.query.page || 1,
-                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false },
-                select: req.query.select || SELECT_WAREHOUSE_CHECK_DETAIL.DEFAULT,
-                expand: req.query.expand || ''
-            })
-        }).send(res)
-    }
-
-    getWarehouseCheckDetail = async (req, res) => {
-        new OK({
-            message: "Get warehouse check detail successfully",
-            metadata: await WarehouseService.getWarehouseCheckDetail({ id: req.params.id })
-        }).send(res)
-    }
-
-    createWarehouseCheckDetail = async (req, res) => {
-        new CREATED({
-            message: "Create warehouse check detail successfully",
-            metadata: await WarehouseService.createWarehouseCheckDetail(req.body)
-        }).send(res)
-    }
-
-    updateWarehouseCheckDetail = async (req, res) => {
-        new OK({
-            message: "Update warehouse check detail successfully",
-            metadata: await WarehouseService.updateWarehouseCheckDetail({
-                id: req.params.id,
-                ...req.body
-            })
-        }).send(res)
-    }
-
-    deleteWarehouseCheckDetail = async (req, res) => {
-        new OK({
-            message: "Delete warehouse check detail successfully",
-            metadata: await WarehouseService.deleteWarehouseCheckDetail({ id: req.params.id })
-        }).send(res)
-    }
 }
 
 module.exports = new WarehouseController()

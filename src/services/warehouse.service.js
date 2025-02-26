@@ -1,10 +1,9 @@
-const { POPULATE_WAREHOUSE_CHECK, POPULATE_WAREHOUSE_CHECK_DETAIL } = require("../configs/warehouse.config")
+const { POPULATE_WAREHOUSE_CHECK } = require("../configs/warehouse.config")
 const { NotFoundRequestError } = require("../core/responses/error.response")
 const userModel = require("../models/user.model")
 const warehouseModel = require("../models/warehouse.model")
 const warehouseCheckModel = require("../models/warehouseCheck.model")
-const warehouseCheckDetailModel = require("../models/warehouseCheckDetail.model")
-const { getAllWarehouses, getAllWarehouseChecks, getAllWarehouseCheckDetails } = require("../repositories/warehouse.repo")
+const { getAllWarehouses, getAllWarehouseChecks } = require("../repositories/warehouse.repo")
 
 class WarehouseService {
     static getAllWarehouses = async ({ limit, sort, page, filter, select }) => {
@@ -74,12 +73,8 @@ class WarehouseService {
             throw new NotFoundRequestError('Warehouse check not found')
         }
 
-        const warehouseCheckDetailHolders = await warehouseCheckDetailModel.findOne({ warehouseCheckId: id, isDeleted: false })
-            .lean()
-
         return {
             warehouseCheck: warehouseCheckHolder,
-            warehouseCheckDetails: warehouseCheckDetailHolders
         }
 
     }
@@ -111,16 +106,17 @@ class WarehouseService {
         return newWarehouseCheck
     }
 
-    static updateWarehouseCheck = async ({ id, managerId, inventoryStaffId, description, status }) => {
+    static updateWarehouseCheck = async ({ id, description, temperature, thresholdLevel, condition, status }) => {
         const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: id, isDeleted: false }).lean()
         if (!warehouseCheckHolder) {
             throw new NotFoundRequestError('Warehouse check not found')
         }
 
         const updatedWarehouseCheck = await warehouseCheckModel.findOneAndUpdate({ _id: id }, {
-            managerId: managerId || warehouseCheckHolder.managerId,
-            inventoryStaffId: inventoryStaffId || warehouseCheckHolder.inventoryStaffId,
             description: description || warehouseCheckHolder.description,
+            temperature: temperature || warehouseCheckHolder.temperature,
+            thresholdLevel: thresholdLevel || warehouseCheckHolder.thresholdLevel,
+            condition: condition || warehouseCheckHolder.condition,
             status: status || warehouseCheckHolder.status
         }, { new: true })
 
@@ -139,71 +135,6 @@ class WarehouseService {
 
         return
     }
-
-    static getAllWarehouseCheckDetails = async ({ limit, sort, page, filter, select, expand }) => {
-        return await getAllWarehouseCheckDetails({ limit, sort, page, filter, select, expand })
-    }
-
-    static getWarehouseCheckDetail = async ({ id }) => {
-        const warehouseCheckDetailHolder = await warehouseCheckDetailModel.findOne({ _id: id, isDeleted: false })
-            .populate(POPULATE_WAREHOUSE_CHECK_DETAIL)
-            .lean()
-
-        if (!warehouseCheckDetailHolder) {
-            throw new NotFoundRequestError('Warehouse check detail not found')
-        }
-
-        return warehouseCheckDetailHolder
-    }
-
-    static createWarehouseCheckDetail = async ({ warehouseCheckId, description, temperature, thresholdLevel, condition }) => {
-        const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: warehouseCheckId, isDeleted: false }).lean()
-        if (!warehouseCheckHolder) {
-            throw new NotFoundRequestError('Warehouse check not found')
-        }
-
-        const newWarehouseCheckDetail = await warehouseCheckDetailModel.create({
-            warehouseCheckId,
-            description: description || `Check for ${warehouseCheckHolder.description}`,
-            temperature,
-            thresholdLevel,
-            condition,
-            status: 'Pending'
-        })
-
-        return newWarehouseCheckDetail
-    }
-
-    static updateWarehouseCheckDetail = async ({ id, description, temperature, thresholdLevel, condition, status }) => {
-        const warehouseCheckDetailHolder = await warehouseCheckDetailModel.findOne({ _id: id, isDeleted: false }).lean()
-        if (!warehouseCheckDetailHolder) {
-            throw new NotFoundRequestError('Warehouse check detail not found')
-        }
-
-        const updatedWarehouseCheckDetail = await warehouseCheckDetailModel.findOneAndUpdate({ _id: id }, {
-            description: description || warehouseCheckDetailHolder.description,
-            temperature: temperature || warehouseCheckDetailHolder.temperature,
-            thresholdLevel: thresholdLevel || warehouseCheckDetailHolder.thresholdLevel,
-            condition: condition || warehouseCheckDetailHolder.condition,
-            status: status || warehouseCheckDetailHolder.status
-        }, { new: true })
-
-        return
-    }
-
-    static deleteWarehouseCheckDetail = async ({ id }) => {
-        const warehouseCheckDetailHolder = await warehouseCheckDetailModel.findOne({ _id: id, isDeleted: false }).lean()
-        if (!warehouseCheckDetailHolder) {
-            throw new NotFoundRequestError('Warehouse check detail not found')
-        }
-
-        const updatedWarehouseCheckDetail = await warehouseCheckDetailModel.findOneAndUpdate({ _id: id }, {
-            isDeleted: true
-        }, { new: true })
-
-        return
-    }
-
 }
 
 module.exports = WarehouseService
