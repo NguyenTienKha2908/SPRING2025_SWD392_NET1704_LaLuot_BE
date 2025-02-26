@@ -2,7 +2,7 @@ const { isValidObjectId } = require("mongoose");
 
 class CreateInputDTO {
     constructor(supplierId, itemId, batchNumber, quantity, inputPrice) {
-        this.supplierId = supplierId; // Hệ thống tự lấy từ Token
+        this.supplierId = supplierId; 
         this.itemId = itemId;
         this.batchNumber = batchNumber;
         this.quantity = quantity;

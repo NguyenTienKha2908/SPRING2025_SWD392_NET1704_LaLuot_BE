@@ -1,30 +1,32 @@
-const InputModel = require("../models/input.model");
-const ItemModel = require("../models/item.model");
+const Input = require("../models/input.model");
+const InputDetail = require("../models/inputDetail.model");
+const Item = require("../models/item.model");
 
-class InputService {
-    static async createInput({ supplierId, itemId, batchNumber, quantity, inputPrice }) {
-        try {
-            // Kiểm tra xem Item có tồn tại không
-            const itemExists = await ItemModel.findById(itemId);
-            if (!itemExists) {
-                throw new Error("Item not found");
-            }
+exports.createInput = async (data) => {
+    const input = new Input({ title: data.title });
+    return await input.save();
+};
 
-            // Tạo Input mới
-            const newInput = new InputModel({
-                supplierId,
-                batchNumber,
-                status: "Pending",
-            });
-
-            // Lưu input vào DB
-            await newInput.save();
-
-            return { success: true, data: newInput };
-        } catch (error) {
-            throw new Error(error.message);
-        }
+exports.addInputDetail = async (inputId, data) => {
+    if (new Date(data.expiredDate) <= new Date(data.manufactureDate)) {
+        throw new Error("Expired date must be later than manufacture date");
     }
-}
+    
+    const item = await Item.findById(data.itemId);
+    if (!item) throw new Error("Item not found");
+    
+    const detail = new InputDetail({
+        inputId,
+        itemId: data.itemId,
+        quantity: data.quantity,
+        unitPrice: data.unitPrice,
+        batchNumber: data.batchNumber,
+        manufactureDate: data.manufactureDate,
+        expiredDate: data.expiredDate
+    });
+    return await detail.save();
+};
 
-module.exports = InputService;
+exports.selectSupplier = async (inputId, supplierId) => {
+    return await Input.findByIdAndUpdate(inputId, { supplierId, status: "Pending" }, { new: true });
+};

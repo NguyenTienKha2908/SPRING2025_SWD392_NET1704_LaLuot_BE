@@ -1,27 +1,28 @@
-const InputService = require("../services/input.service");
-const CreateInputDTO = require("../dto/createInput.dto");
+const inputService = require("../services/input.service");
 
-class InputController {
-    static async createInput(req, res) {
-        try {
-            const supplierId = req.userId; // Lấy từ token
-            const { itemId, batchNumber, quantity, inputPrice } = req.body;
-
-            // Tạo DTO và validate
-            const dto = new CreateInputDTO(supplierId, itemId, batchNumber, quantity, inputPrice);
-            await dto.validate();
-
-            // Gọi Service xử lý
-            const result = await InputService.createInput(dto);
-
-            return res.status(201).json({
-                message: "Input created successfully",
-                data: result.data,
-            });
-        } catch (error) {
-            return res.status(400).json({ message: error.message });
-        }
+exports.createInput = async (req, res) => {
+    try {
+        const input = await inputService.createInput(req.body);
+        res.status(201).json(input);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
-}
+};
 
-module.exports = InputController;
+exports.addInputDetail = async (req, res) => {
+    try {
+        const detail = await inputService.addInputDetail(req.params.inputId, req.body);
+        res.status(201).json(detail);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+exports.selectSupplier = async (req, res) => {
+    try {
+        const input = await inputService.selectSupplier(req.params.inputId, req.body.supplierId);
+        res.status(200).json(input);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};

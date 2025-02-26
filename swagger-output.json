@@ -1500,6 +1500,76 @@
           }
         }
       }
+    },
+    "/api/v1/input/create": {
+      "post": {
+        "tags": [
+          "Input"
+        ],
+        "description": "Create a new input request",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInputRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/input/{inputId}/add-detail": {
+      "post": {
+        "tags": [
+          "Input"
+        ],
+        "description": "Add detail to input request",
+        "parameters": [
+          {
+            "name": "inputId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Input request id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/input/{inputId}/select-supplier": {
+      "post": {
+        "tags": [
+          "Input"
+        ],
+        "description": "Select supplier for input request",
+        "parameters": [
+          {
+            "name": "inputId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Input request id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2268,14 +2338,18 @@
           }
         }
       },
-      "CreateOutputRequest": {
+      "CreateInputRequest": {
         "type": "object",
         "properties": {
+          "title": {
+            "type": "string",
+            "example": "INPUT REQUEST 1"
+          },
           "reportStaffId": {
             "type": "string",
             "example": "60e0b3f0b3f0b3f0b3f0b3f0"
           },
-          "customerId": {
+          "supplierId": {
             "type": "string",
             "example": "60e0b3f0b3f0b3f0b3f0b3f0"
           },
@@ -2285,77 +2359,46 @@
           },
           "description": {
             "type": "string",
-            "example": "Output request for warehouse 1"
+            "example": "Input request 1"
           },
-          "outputDetails": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "itemId": {
-                  "type": "string",
-                  "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-                },
-                "quantity": {
-                  "type": "number",
-                  "example": 10
-                },
-                "outputPrice": {
-                  "type": "number",
-                  "example": 1000
-                }
+          "inputDetails": {
+            "type": "object",
+            "properties": {
+              "itemId": {
+                "type": "string",
+                "example": "60e0b3f0b3f0b3f0b3f0b3f0"
               },
-              "required": [
-                "itemId",
-                "quantity",
-                "outputPrice"
-              ]
-            }
+              "quantity": {
+                "type": "number",
+                "example": 10
+              },
+              "inputPrice": {
+                "type": "number",
+                "example": 10
+              },
+              "manufactureDate": {
+                "type": "string",
+                "example": "2025-02-27"
+              },
+              "expiredDate": {
+                "type": "string",
+                "example": "2025-12-12"
+              }
+            },
+            "required": [
+              "itemId",
+              "quantity",
+              "inputPrice",
+              "manufactureDate",
+              "expiredDate"
+            ]
           }
         },
         "required": [
+          "title",
           "reportStaffId",
-          "customerId",
+          "supplierId",
           "warehouseId"
-        ]
-      },
-      "ApproveOutputRequest": {
-        "type": "object",
-        "properties": {
-          "managerId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          }
-        }
-      },
-      "RejectOutputRequest": {
-        "type": "object",
-        "properties": {
-          "managerId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          }
-        }
-      },
-      "DeliverOutputRequest": {
-        "type": "object",
-        "properties": {
-          "inventoryStaffId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          }
-        }
-      },
-      "CancelOutputRequest": {
-        "type": "object",
-        "properties": {
-          "cancelReason": {
-            "type": "string",
-            "example": "Out of stock"
-          }
-        },
-        "required": [
-          "cancelReason"
         ]
       }
     }

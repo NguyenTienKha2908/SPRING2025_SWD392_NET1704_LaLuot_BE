@@ -7,13 +7,17 @@ const COLLECTION_NAME = "Inputs";
 
 var inputSchema = new mongoose.Schema(
     {
-        batchNumber:{
-            type: String,
-            trim: true,
-            required: true,
+        title:{
+            type:"string",
+            trim:true,
+            required:true,
         },
         description: {
             type: String,
+            trim: true,
+        },
+        totalPrice: {
+            type: Number,
             trim: true,
         },
         cancelReason: {
@@ -26,20 +30,17 @@ var inputSchema = new mongoose.Schema(
             enum: ["Pending", "Approved", "Rejected", "Delivering", "Cancelled", "Done"],
             default: "Pending",
         },
-        batchNumber: {
-            type: String,
-            trim: true,
-            unique: true,
-            required: true,
-        },
         warehouseId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Warehouse',
         },
+        reportStaffId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
         supplierId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: true,
         },
         managerId: {
             type: mongoose.Schema.Types.ObjectId,
