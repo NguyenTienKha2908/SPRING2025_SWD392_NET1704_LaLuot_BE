@@ -173,14 +173,6 @@ const doc = {
                 select: SELECT_INVENTORY,
                 expand: 'warehouse item'
             },
-            CreateInventory: {
-                outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
-                $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
-                $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
-                $quantity: 100,
-                $transactionType: "Input",
-                description: "Create new inventory"
-            },
             GetAllStockTransactions: {
                 limit: 10,
                 sort: 'ctime',
@@ -277,7 +269,7 @@ const doc = {
                 expand: 'output item'
             },
             CreateOutputRequest: {
-                $inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                $reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $customerId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 description: "Output request for warehouse 1",

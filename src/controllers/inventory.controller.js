@@ -48,13 +48,6 @@ class InventoryController {
         }).send(res)
     }
 
-    createInventory = async (req, res) => {
-        new CREATED({
-            message: "Create inventory successfully",
-            metadata: await InventoryService.createInventory(req.body)
-        }).send(res)
-    }
-
     getAllStockCheckRequests = async (req, res) => {
         new OK({
             message: "Get all stock check request successfully",

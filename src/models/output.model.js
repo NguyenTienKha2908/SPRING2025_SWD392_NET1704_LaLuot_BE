@@ -42,6 +42,10 @@ var outputSchema = new mongoose.Schema(
         inventoryStaffId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
+        },
+        reportStaffId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
             required: true,
         },
         ...baseModelSchema.obj,

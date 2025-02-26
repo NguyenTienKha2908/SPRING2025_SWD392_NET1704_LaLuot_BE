@@ -45,7 +45,7 @@ class InventoryService {
     }
 
 
-    static createInventory = async ({ inputId, outputId, warehouseId, itemId, quantity, transactionType, description }) => {
+    static handleInventoryTransaction = async ({ inputId, outputId, warehouseId, itemId, quantity, transactionType, description }) => {
         const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean();
         if (!warehouseHolder) {
             throw new NotFoundRequestError("Warehouse not found");
