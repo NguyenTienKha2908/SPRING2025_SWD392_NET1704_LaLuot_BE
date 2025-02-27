@@ -248,11 +248,10 @@ const doc = {
             CreateOutputRequest: {
                 $reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $customerId: "60e0b3f0b3f0b3f0b3f0b3f0",
-                $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 description: "Output request for warehouse 1",
                 outputDetails: [
                     {
-                        $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
+                        $baseItemId: "60e0b3f0b3f0b3f0b3f0b3f0",
                         $quantity: 10,
                         $outputPrice: 1000,
                     }
