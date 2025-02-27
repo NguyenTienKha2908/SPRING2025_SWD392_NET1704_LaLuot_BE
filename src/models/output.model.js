@@ -25,11 +25,7 @@ var outputSchema = new mongoose.Schema(
             enum: ["Pending", "Approved", "Rejected", "Delivering", "Cancelled", "Done"],
             default: "Pending",
         },
-        warehouseId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Warehouse',
-            required: true,
-        },
+
         customerId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
