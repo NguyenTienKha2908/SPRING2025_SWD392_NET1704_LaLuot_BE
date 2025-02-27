@@ -1,4 +1,4 @@
-const { POPULATE_OUTPUT_DETAILS } = require("../configs/output.config");
+const { POPULATE_OUTPUT_DETAILS, POPULATE_OUTPUT } = require("../configs/output.config");
 const { USER_ROLES } = require("../configs/user.config");
 const { NotFoundRequestError, BadRequestError } = require("../core/responses/error.response");
 const baseItemModel = require("../models/baseItem.model");
@@ -20,13 +20,15 @@ class OutputService {
         const outputHolder = await outputModel.findOne({
             _id: id,
             isDeleted: false
-        }).lean();
+        })
+            .populate(POPULATE_OUTPUT)
+            .lean();
 
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
         const outputDetailHolders = await outputDetailModel.find({ outputId: id })
-            .populate(POPULATE_OUTPUT_DETAILS)
+            .populate([POPULATE_OUTPUT_DETAILS[1]])
             .lean();
         if (!outputDetailHolders || outputDetailHolders.length === 0)
             throw new NotFoundRequestError("Output details not found");
