@@ -25,10 +25,10 @@ class OutputController {
         }).send(res)
     }
 
-    createOuputRequest = async (req, res) => {
+    createOuputRequest = async (req, res, next, session) => {
         new CREATED({
             message: "Create output request successfully",
-            metadata: await OutputService.createOuputRequest(req.body)
+            metadata: await OutputService.createOuputRequest({ session: session, ...req.body })
         }).send(res)
     }
 

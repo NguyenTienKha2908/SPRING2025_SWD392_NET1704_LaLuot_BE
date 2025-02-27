@@ -10,25 +10,21 @@ const { default: mongoose } = require("mongoose");
 const stockTransactionModel = require("../models/stockTransaction.model");
 const outputModel = require("../models/output.model");
 const outputDetailModel = require("../models/outputDetail.model");
-const { POPULATE_STOCK_DETAILS, POPULATE_STOCK_TRANSACTIONS } = require("../configs/inventory.config");
-const InventoryPojo = require("../core/pojo/inventories");
+const { POPULATE_STOCK_DETAILS, POPULATE_STOCK_TRANSACTIONS, POPULATE_INVENTORY } = require("../configs/inventory.config");
 class InventoryService {
     static getAllInventories = async ({ limit, sort, page, filter, select, expand }) => {
         return await getAllInventories({ limit, sort, page, filter, select, expand });
     }
 
     static getInventory = async ({ id }) => {
-        const populateOptions = [
-            { path: 'warehouseId', select: 'name category status' },
-            {
-                path: 'itemId',
-                select: 'baseItemId status',
-                populate: { path: 'baseItemId', select: 'name description category' }
-            }
-        ];
-        return await inventoryModel.findOne({ _id: id, isDeleted: false })
-            .populate(populateOptions)
+        const inventoryHolder = await inventoryModel.findOne({ _id: id, isDeleted: false })
+            .populate(POPULATE_INVENTORY)
             .lean();
+        if (!inventoryHolder) {
+            throw new NotFoundRequestError("Inventory not found");
+        }
+
+        return inventoryHolder;
     }
 
     static getAllStockTransactions = async ({ limit, sort, page, filter, select, expand }) => {
@@ -36,13 +32,20 @@ class InventoryService {
     }
 
     static getStockTransaction = async ({ id }) => {
-        return await stockTransactionModel.findOne({ _id: id, isDeleted: false })
+        const stockTransactionHolder = await stockTransactionModel.findOne({ _id: id, isDeleted: false })
             .populate(POPULATE_STOCK_TRANSACTIONS)
             .lean();
+
+        if (!stockTransactionHolder) {
+            throw new NotFoundRequestError("Stock transaction not found");
+        }
+
+        return stockTransactionHolder;
+
     }
 
 
-    static createInventory = async ({ inputId, outputId, warehouseId, itemId, quantity, transactionType, description }) => {
+    static handleInventoryTransaction = async ({ inputId, outputId, warehouseId, itemId, quantity, transactionType, description }) => {
         const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean();
         if (!warehouseHolder) {
             throw new NotFoundRequestError("Warehouse not found");

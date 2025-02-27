@@ -45,7 +45,7 @@ router.put("/",
     catchAsyncHandle(itemController.updateItems)
 )
 
-router.delete("/delete/:id",
+router.delete("/:id",
     /**
       * #swagger.tags = ['Item']
       * #swagger.description='Update item'

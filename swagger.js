@@ -5,7 +5,7 @@ const { SELECT_OUTPUT, SELECT_OUTPUT_DETAILS } = require('./src/configs/output.c
 const { SELECT_STOCK_DETAIL, SELECT_STOCK_REQUEST, SELECT_STOCK_TRANSACTION, SELECT_INVENTORY } = require('./src/configs/inventory.config.js');
 const { SELECT_ITEM } = require('./src/configs/item.config.js');
 const { SELECT_USER } = require('./src/configs/user.config.js');
-const { SELECT_WAREHOUSE } = require('./src/configs/warehouse.config.js');
+const { SELECT_WAREHOUSE, SELECT_WAREHOUSE_CHECK, SELECT_WAREHOUSE_CHECK_DETAIL } = require('./src/configs/warehouse.config.js');
 
 const doc = {
     host: `localhost:${process.env.DEV_APP_PORT}`,            // by default: 'localhost:3000'
@@ -117,6 +117,29 @@ const doc = {
                 minTemperature: 2,
                 maxTemperature: 8
             },
+            GetAllWarehouseChecks: {
+                limit: 10,
+                sort: 'ctime',
+                page: 1,
+                filter: {
+                    isDeleted: false
+                },
+                select: SELECT_WAREHOUSE_CHECK.DEFAULT,
+                expand: 'warehouse manager inventoryStaff'
+            },
+            CreateWarehouseCheck: {
+                $warehouseId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                $managerId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                $inventoryStaffId: '60e0b3f0b3f0b3f0b3f0b3f0',
+                description: 'Check warehouse 1'
+            },
+            UpdateWarehouseCheck: {
+                description: 'Check warehouse 1',
+                temperature: 5,
+                thresholdLevel: "Normal",
+                condition: "Good",
+                status: 'Done'
+            },
             GetAllInventories: {
                 limit: 10,
                 sort: 'ctime',
@@ -126,14 +149,6 @@ const doc = {
                 },
                 select: SELECT_INVENTORY,
                 expand: 'warehouse item'
-            },
-            CreateInventory: {
-                outputId: "60e0b3f0b3f0b3f0b3f0b3f0",
-                $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
-                $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
-                $quantity: 100,
-                $transactionType: "Input",
-                description: "Create new inventory"
             },
             GetAllStockTransactions: {
                 limit: 10,
@@ -231,6 +246,7 @@ const doc = {
                 expand: 'output item'
             },
             CreateOutputRequest: {
+                $reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $customerId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 description: "Output request for warehouse 1",

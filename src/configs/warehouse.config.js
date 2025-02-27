@@ -1,5 +1,21 @@
+const { SELECT_USER } = require("./user.config");
+
 const SELECT_WAREHOUSE = {
     DEFAULT: 'name description category status',
 }
 
-module.exports = { SELECT_WAREHOUSE };
+const SELECT_WAREHOUSE_CHECK = {
+    DEFAULT: 'warehouseId managerId inventoryStaffId description temperature thresholdLevel condition status',
+}
+
+const SELECT_WAREHOUSE_CHECK_DETAIL = {
+    DEFAULT: 'warehouseCheckId description temperature thresholdLevel condition status'
+}
+
+const POPULATE_WAREHOUSE_CHECK = [
+    { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
+    { path: 'managerId', select: SELECT_USER.DEFAULT },
+    { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+]
+
+module.exports = { SELECT_WAREHOUSE, SELECT_WAREHOUSE_CHECK, SELECT_WAREHOUSE_CHECK_DETAIL, POPULATE_WAREHOUSE_CHECK };
