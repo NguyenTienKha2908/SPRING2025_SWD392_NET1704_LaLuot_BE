@@ -2020,7 +2020,7 @@
           },
           "select": {
             "type": "string",
-            "example": "description cancelReason batchNumber status customerId warehouseId managerId inventoryStaffId"
+            "example": "description cancelReason batchNumber status customerId reportStaffId managerId inventoryStaffId"
           },
           "expand": {
             "type": "string",
