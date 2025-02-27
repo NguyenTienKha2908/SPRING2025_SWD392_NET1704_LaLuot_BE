@@ -1501,18 +1501,28 @@
         }
       }
     },
-    "/api/v1/input/create": {
+    "/api/v1/input/": {
       "post": {
         "tags": [
           "Input"
         ],
         "description": "Create a new input request",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
           }
         },
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -1521,23 +1531,19 @@
             }
           }
         }
-      }
-    },
-    "/api/v1/input/{inputId}/add-detail": {
-      "post": {
+      },
+      "get": {
         "tags": [
           "Input"
         ],
-        "description": "Add detail to input request",
+        "description": "Get all input requests",
         "parameters": [
           {
-            "name": "inputId",
-            "in": "path",
-            "required": true,
+            "name": "authorization",
+            "in": "header",
             "schema": {
               "type": "string"
-            },
-            "description": "Input request id"
+            }
           }
         ],
         "responses": {
@@ -1547,12 +1553,12 @@
         }
       }
     },
-    "/api/v1/input/{inputId}/select-supplier": {
+    "/api/v1/input/{inputId}/select-item": {
       "post": {
         "tags": [
           "Input"
         ],
-        "description": "Select supplier for input request",
+        "description": "Add an item to an input request",
         "parameters": [
           {
             "name": "inputId",
@@ -1561,7 +1567,148 @@
             "schema": {
               "type": "string"
             },
-            "description": "Input request id"
+            "description": "Input request ID"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectItemRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/input/{inputId}": {
+      "get": {
+        "tags": [
+          "Input"
+        ],
+        "description": "Get an input request by ID",
+        "parameters": [
+          {
+            "name": "inputId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Input request ID"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/input/{inputId}/approve": {
+      "patch": {
+        "tags": [
+          "Input"
+        ],
+        "description": "Approve an input request",
+        "parameters": [
+          {
+            "name": "inputId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Input request ID"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/input/{inputId}/reject": {
+      "patch": {
+        "tags": [
+          "Input"
+        ],
+        "description": "Reject an input request",
+        "parameters": [
+          {
+            "name": "inputId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Input request ID"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/input/{inputId}/complete": {
+      "patch": {
+        "tags": [
+          "Input"
+        ],
+        "description": "Complete input request",
+        "parameters": [
+          {
+            "name": "inputId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Input request ID"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2362,44 +2509,38 @@
             "example": "Input request 1"
           },
           "inputDetails": {
-            "type": "object",
-            "properties": {
-              "itemId": {
-                "type": "string",
-                "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-              },
-              "quantity": {
-                "type": "number",
-                "example": 10
-              },
-              "inputPrice": {
-                "type": "number",
-                "example": 10
-              },
-              "manufactureDate": {
-                "type": "string",
-                "example": "2025-02-27"
-              },
-              "expiredDate": {
-                "type": "string",
-                "example": "2025-12-12"
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemId": {
+                  "type": "string",
+                  "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+                },
+                "batchNumber": {
+                  "type": "string",
+                  "example": "abc"
+                },
+                "quantity": {
+                  "type": "number",
+                  "example": 10
+                },
+                "inputPrice": {
+                  "type": "number",
+                  "example": 10
+                },
+                "manufactureDate": {
+                  "type": "string",
+                  "example": "2025-02-27"
+                },
+                "expiredDate": {
+                  "type": "string",
+                  "example": "2025-12-12"
+                }
               }
-            },
-            "required": [
-              "itemId",
-              "quantity",
-              "inputPrice",
-              "manufactureDate",
-              "expiredDate"
-            ]
+            }
           }
-        },
-        "required": [
-          "title",
-          "reportStaffId",
-          "supplierId",
-          "warehouseId"
-        ]
+        }
       }
     }
   },

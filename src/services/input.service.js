@@ -1,32 +1,53 @@
-const Input = require("../models/input.model");
-const InputDetail = require("../models/inputDetail.model");
-const Item = require("../models/item.model");
+const InputModel = require("../models/input.model");
+const InputDetailModel = require("../models/inputDetail.model");
 
-exports.createInput = async (data) => {
-    const input = new Input({ title: data.title });
-    return await input.save();
-};
-
-exports.addInputDetail = async (inputId, data) => {
-    if (new Date(data.expiredDate) <= new Date(data.manufactureDate)) {
-        throw new Error("Expired date must be later than manufacture date");
+class InputService {
+    async createInput(data) {
+        const newInput = new InputModel(data);
+        await newInput.save();
+        return newInput;
     }
-    
-    const item = await Item.findById(data.itemId);
-    if (!item) throw new Error("Item not found");
-    
-    const detail = new InputDetail({
-        inputId,
-        itemId: data.itemId,
-        quantity: data.quantity,
-        unitPrice: data.unitPrice,
-        batchNumber: data.batchNumber,
-        manufactureDate: data.manufactureDate,
-        expiredDate: data.expiredDate
-    });
-    return await detail.save();
-};
 
-exports.selectSupplier = async (inputId, supplierId) => {
-    return await Input.findByIdAndUpdate(inputId, { supplierId, status: "Pending" }, { new: true });
-};
+    async addItemToInput(inputId, data) {
+        const existingItem = await InputDetailModel.findOne({
+            inputId,
+            manufactureDate: data.manufactureDate,
+            expiredDate: data.expiredDate
+        });
+
+        if (existingItem) {
+            existingItem.quantity += data.quantity;
+            await existingItem.save();
+            return existingItem;
+        } else {
+            const newItem = new InputDetailModel({ ...data, inputId });
+            await newItem.save();
+            return newItem;
+        }
+    }
+
+    async getAllInputs() {
+        return await InputModel.find().populate("reportStaffId supplierId");
+    }
+
+    async getInputById(inputId) {
+        return await InputModel.findById(inputId).populate("reportStaffId supplierId");
+    }
+
+    async approveInput(inputId, managerId) {
+        const input = await InputModel.findByIdAndUpdate(inputId, { status: "Approved", managerId }, { new: true });
+        return input;
+    }
+
+    async rejectInput(inputId) {
+        const input = await InputModel.findByIdAndUpdate(inputId, { status: "Rejected" }, { new: true });
+        return input;
+    }
+
+    async completeInput(inputId, inventoryStaffId) {
+        const input = await InputModel.findByIdAndUpdate(inputId, { status: "Done", inventoryStaffId }, { new: true });
+        return input;
+    }
+}
+
+module.exports = new InputService();
