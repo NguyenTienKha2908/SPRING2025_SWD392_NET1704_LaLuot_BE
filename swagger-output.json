@@ -2040,7 +2040,7 @@
           },
           "select": {
             "type": "string",
-            "example": "description cancelReason batchNumber status customerId warehouseId managerId inventoryStaffId"
+            "example": "description cancelReason batchNumber status customerId reportStaffId managerId inventoryStaffId"
           },
           "expand": {
             "type": "string",
@@ -2093,10 +2093,6 @@
             "type": "string",
             "example": "60e0b3f0b3f0b3f0b3f0b3f0"
           },
-          "warehouseId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
           "description": {
             "type": "string",
             "example": "Output request for warehouse 1"
@@ -2106,7 +2102,7 @@
             "items": {
               "type": "object",
               "properties": {
-                "itemId": {
+                "baseItemId": {
                   "type": "string",
                   "example": "60e0b3f0b3f0b3f0b3f0b3f0"
                 },
@@ -2120,7 +2116,7 @@
                 }
               },
               "required": [
-                "itemId",
+                "baseItemId",
                 "quantity",
                 "outputPrice"
               ]
@@ -2129,8 +2125,7 @@
         },
         "required": [
           "reportStaffId",
-          "customerId",
-          "warehouseId"
+          "customerId"
         ]
       },
       "ApproveOutputRequest": {
