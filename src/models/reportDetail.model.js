@@ -13,7 +13,7 @@ var reportDetailSchema = new mongoose.Schema(
         },
         type: {
             type: String,
-            enum: ["Inventory", "Warehouse", "Finance"],
+            enum: ["Storage", "Warehouse", "Finance"],
             required: true,
         },
         detail: {

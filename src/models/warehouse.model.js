@@ -6,7 +6,7 @@ const outputModel = require("./output.model");
 const warehouseCheckModel = require("./warehouseCheck.model");
 const inputModel = require("./input.model");
 const stockTransactionModel = require("./stockTransaction.model");
-const inventoryModel = require("./inventory.model");
+const warehouseStorageModel = require("./warehouseStorage.model");
 
 const DOCUMENT_NAME = "Warehouse";
 const COLLECTION_NAME = "Warehouses";
@@ -82,9 +82,9 @@ warehouseSchema.pre("findOneAndDelete", async function (next) {
     if (stockTransactions) {
         return next(new Error("Cannot delete warehouse because it is used in stockTransactions"));
     }
-    const inventories = await inventoryModel.findOne({ warehouseId: warehouseId });
-    if (inventories) {
-        return next(new Error("Cannot delete warehouse because it is used in inventories"));
+    const warehouseStorages = await warehouseStorageModel.findOne({ warehouseId: warehouseId });
+    if (warehouseStorages) {
+        return next(new Error("Cannot delete warehouse because it is used in warehouseStorages"));
     }
 
     next();
