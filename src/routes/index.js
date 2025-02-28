@@ -409,7 +409,6 @@ router.get("/", async (req, res) => {
 
 router.use("/auth", require("./auth"));
 router.use("/users", require("./users"));
-router.use("/inventories", require("./inventories"));
 router.use("/items", require("./items"));
 router.use("/baseitems", require("./baseItems"));
 router.use("/system", require("./system"));

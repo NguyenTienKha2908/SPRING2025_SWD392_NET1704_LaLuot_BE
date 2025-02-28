@@ -2,14 +2,13 @@ const { POPULATE_OUTPUT_DETAILS, POPULATE_OUTPUT } = require("../configs/output.
 const { USER_ROLES } = require("../configs/user.config");
 const { NotFoundRequestError, BadRequestError } = require("../core/responses/error.response");
 const baseItemModel = require("../models/baseItem.model");
-const inventoryModel = require("../models/inventory.model");
 const itemModel = require("../models/item.model");
 const outputModel = require("../models/output.model");
 const outputDetailModel = require("../models/outputDetail.model");
 const userModel = require("../models/user.model");
-const warehouseModel = require("../models/warehouse.model");
+const warehouseStorageModel = require("../models/warehouseStorage.model");
 const { getAllOutputRequests, getAllOutputDetails } = require("../repositories/output.repo");
-const InventoryService = require("./inventory.service");
+const WarehouseService = require("./warehouse.service");
 
 class OutputService {
     static getAllOutputRequests = async ({ limit, sort, page, filter, select, expand }) => {
@@ -114,13 +113,13 @@ class OutputService {
 
             let itemQuantity = 0;
             for (let item of itemHolders) {
-                const inventoryHolder = await inventoryModel.findOne({
+                const warehouseStorageHolder = await warehouseStorageModel.findOne({
                     itemId: item._id,
                     isDeleted: false
                 }).lean();
 
-                if (!inventoryHolder) continue;
-                itemQuantity += inventoryHolder.quantity;
+                if (!warehouseStorageHolder) continue;
+                itemQuantity += warehouseStorageHolder.quantity;
             }
 
             if (itemQuantity < quantity)
@@ -129,11 +128,11 @@ class OutputService {
             let remainingQuantity = quantity;
             const results = [];
             for (let item of itemHolders) {
-                const inventoryHolder = await inventoryModel.findOne({
+                const warehouseStorageHolder = await warehouseStorageModel.findOne({
                     itemId: item._id,
                     isDeleted: false
                 }).lean();
-                if (inventoryHolder.quantity >= remainingQuantity) {
+                if (warehouseStorageHolder.quantity >= remainingQuantity) {
                     results.push({
                         outputId: newOutput[0]._id,
                         itemId: item._id,
@@ -145,10 +144,10 @@ class OutputService {
                     results.push({
                         outputId: newOutput[0]._id,
                         itemId: item._id,
-                        quantity: inventoryHolder.quantity,
+                        quantity: warehouseStorageHolder.quantity,
                         outputPrice: outputPrice,
                     });
-                    remainingQuantity -= inventoryHolder.quantity;
+                    remainingQuantity -= warehouseStorageHolder.quantity;
                 }
             }
             return results;
@@ -276,7 +275,7 @@ class OutputService {
             throw new NotFoundRequestError("Output details not found");
 
         for (let outputDetail of outputDetailHolders) {
-            await InventoryService.handleInventoryTransaction({
+            await WarehouseService.handleStorageTransaction({
                 outputId: outputHolder._id,
                 warehouseId: outputHolder.warehouseId,
                 itemId: outputDetail.itemId,

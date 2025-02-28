@@ -1,10 +1,10 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
 
-const DOCUMENT_NAME = "Inventory";
-const COLLECTION_NAME = "Inventories";
+const DOCUMENT_NAME = "WarehouseStorage";
+const COLLECTION_NAME = "WarehouseStorages";
 
-var inventorySchema = new mongoose.Schema(
+var warehouseStorage = new mongoose.Schema(
     {
         warehouseId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -33,4 +33,4 @@ var inventorySchema = new mongoose.Schema(
     }
 );
 
-module.exports = mongoose.model(DOCUMENT_NAME, inventorySchema);
+module.exports = mongoose.model(DOCUMENT_NAME, warehouseStorage);

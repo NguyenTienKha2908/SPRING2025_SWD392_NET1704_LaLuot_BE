@@ -3,6 +3,26 @@ const { NotFoundRequestError } = require("../core/responses/error.response");
 const baseItemModel = require("../models/baseItem.model");
 const inputDetailModel = require("../models/inputDetail.model");
 const itemModel = require("../models/item.model");
+const warehouseStorageModel = require("../models/warehouseStorage.model");
+
+getStorageQuantityOfBaseItem = async ({ id }) => {
+  const baseItemHolder = await baseItemModel
+    .findOne({ _id: id, isDeleted: false })
+    .lean();
+  if (!baseItemHolder) throw new NotFoundRequestError("Not found base item");
+
+  const itemHolders = await itemModel
+    .find({
+      baseItemId: id,
+      status: "Available",
+      isDeleted: false,
+    })
+    .lean();
+
+  const warehouseStorages = await warehouseStorageModel.find({
+    itemId: { $in: itemHolders.map((item) => item._id) },
+  });
+};
 
 const getAvgInputPriceOfBaseItem = async ({ id }) => {
   const baseItemHolder = await baseItemModel
@@ -13,6 +33,7 @@ const getAvgInputPriceOfBaseItem = async ({ id }) => {
   const itemHolders = await itemModel
     .find({
       baseItemId: id,
+      status: "Available",
       isDeleted: false,
     })
     .lean();
@@ -71,7 +92,6 @@ const getAllBaseItem = async ({
       id: baseItem._id,
     });
   }
-  console.log(baseItems);
 
   const totalBaseItems = await baseItemModel.countDocuments(filter);
   const totalPages = Math.ceil(totalBaseItems / limit);
