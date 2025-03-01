@@ -361,7 +361,7 @@ class WarehouseService {
                 itemId: warehouseStorage.itemId,
                 systemQuantity: warehouseStorage.quantity,
                 description: `Check for ${warehouseStorage.itemId}`,
-                status: "Normal"
+                status: "Pending"
             }
         })
         await stockCheckDetailModel.insertMany(stockCheckDetailsToCreate)
@@ -384,71 +384,7 @@ class WarehouseService {
         return stockRequests;
     }
 
-    // static createStockCheckDetails = async ({ stockCheckDetails }) => {
-    //     if (!Array.isArray(stockCheckDetails) || stockCheckDetails.length === 0) {
-    //         throw new BadRequestError("Stock check details must be an array and not empty")
-    //     }
-
-    //     const stockCheckId = stockCheckDetails[0].stockCheckId
-    //     const stockCheckHolder = await stockCheckModel.findOne({ _id: stockCheckId, status: "Pending", isDeleted: false }).lean();
-    //     if (!stockCheckHolder) {
-    //         throw new NotFoundRequestError("Stock check request not found")
-    //     }
-    //     if (stockCheckHolder.fromDate > new Date() || stockCheckHolder.toDate < new Date()) {
-    //         throw new BadRequestError("Stock check request is not in progress")
-    //     }
-
-    //     const itemIds = stockCheckDetails.map(stockCheckDetail => stockCheckDetail.itemId)
-    //     const itemHolders = await itemModel.find({ _id: { $in: itemIds }, isDeleted: false }).lean()
-    //     const warehouseStorageHolders = await warehouseStorageModel.find({
-    //         itemId: { $in: itemIds },
-    //         warehouseId: stockCheckHolder.warehouseId,
-    //         isDeleted: false
-    //     }).lean()
-
-    //     const itemMap = new Map(itemHolders.map(item => [item._id.toString(), item]))
-    //     const warehouseStorageMap = new Map(warehouseStorageHolders.map(warehouseStorage => [warehouseStorage.itemId.toString(), warehouseStorage]))
-
-    //     const stockCheckDetailsToCreate = stockCheckDetails.map(stockCheckDetail => {
-    //         const { itemId, systemQuantity, actualQuantity, description } = stockCheckDetail
-
-    //         if (!itemMap.has(itemId)) {
-    //             throw new NotFoundRequestError(`Item with id ${itemId} not found`)
-    //         }
-
-    //         const warehouseStorage = warehouseStorageMap.get(itemId);
-    //         if (!warehouseStorage) {
-    //             throw new BadRequestError(`Warehouse storage for item ${itemId} not found`);
-    //         }
-
-    //         if (systemQuantity < 0 || actualQuantity < 0) {
-    //             throw new BadRequestError("Quantity must be greater than 0");
-    //         }
-    //         if (systemQuantity !== warehouseStorage.quantity) {
-    //             throw new BadRequestError(`System quantity mismatch for item ${itemId}`);
-    //         }
-
-    //         const difference = actualQuantity - systemQuantity;
-
-    //         return {
-    //             stockCheckId,
-    //             itemId,
-    //             systemQuantity,
-    //             actualQuantity,
-    //             difference: difference,
-    //             description: description ||
-    //                 `${difference < 0 ? "Lost" : "Excess"} ${difference < 0 ? (difference) * -1 : difference} items`,
-    //             status: difference < 0 ? "Lost" : difference > 0 ? "Excess" : "Normal"
-    //         }
-    //     })
-
-    //     await stockCheckDetailModel.insertMany(stockCheckDetailsToCreate)
-    //     await stockCheckModel.updateOne({ _id: stockCheckId }, { status: "Done" })
-
-    //     return
-    // }
-
-    static updateStockCheckRequest = async ({ id, description, status, fromDate, toDate }) => {
+    static updateStockCheckRequest = async ({ id, description, status, fromDate, toDate, cancelReason }) => {
         const stockCheckHolder = await stockCheckModel.findOne({ _id: id, isDeleted: false }).lean();
         if (!stockCheckHolder) {
             throw new NotFoundRequestError("Stock check request not found");
@@ -467,12 +403,30 @@ class WarehouseService {
         }
 
         if (status === "Cancelled") {
-            await stockCheckModel.updateOne({ _id: id }, { status })
+            if (!cancelReason)
+                throw new BadRequestError("Cancel reason is required");
+
+            await stockCheckModel.updateOne({ _id: id }, {
+                status: status,
+                cancelReason: cancelReason
+
+            })
             return
         }
 
         if (status === "Done") {
+            const stockCheckDetailHolders = await stockCheckDetailModel
+                .find({
+                    stockCheckId: id,
+                    isDeleted: false
+                })
+                .lean();
 
+            for (const stockCheckDetail of stockCheckDetailHolders) {
+                if (stockCheckDetail.status === "Pending") {
+                    throw new BadRequestError("All stock check details must be done before request");
+                }
+            }
         }
 
 
@@ -486,28 +440,26 @@ class WarehouseService {
         return
     }
 
-    static updateStockCheckDetail = async ({ id, actualQuantity, description }) => {
-        if (!actualQuantity) {
-            throw new BadRequestError("Actual quantity is required");
-        }
-        if (actualQuantity < 0) {
+    static updateStockCheckDetail = async ({ id, actualQuantity, description, status }) => {
+        if (actualQuantity && actualQuantity < 0) {
             throw new BadRequestError("Quantity must be greater than 0");
         }
-
 
         const stockCheckDetailHolder = await stockCheckDetailModel.findOne({ _id: id, isDeleted: false }).lean();
         if (!stockCheckDetailHolder) {
             throw new NotFoundRequestError("Stock check detail not found");
         }
 
-        const difference = actualQuantity - stockCheckDetailHolder.systemQuantity;
+        let difference = null
+        if (actualQuantity) {
+            difference = actualQuantity - stockCheckDetailHolder.systemQuantity;
+        }
 
         await stockCheckDetailModel.updateOne({ _id: id }, {
-            actualQuantity,
-            difference: difference,
-            description: description ||
-                `${difference < 0 ? "Lost" : "Excess"} ${difference < 0 ? (difference) * -1 : difference} items`,
-            status: difference < 0 ? "Lost" : difference > 0 ? "Excess" : "Normal"
+            actualQuantity: actualQuantity || stockCheckDetailHolder.actualQuantity,
+            difference: difference || stockCheckDetailHolder.difference,
+            description: description || stockCheckDetailHolder.description,
+            status: status || stockCheckDetailHolder.status
         })
 
         return

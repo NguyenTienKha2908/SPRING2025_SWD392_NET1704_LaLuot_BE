@@ -29,6 +29,23 @@ class UserController {
             metadata: await UserService.createUser(req.body)
         }).send(res)
     }
+
+    updateUser = async (req, res) => {
+        new OK({
+            message: "Update user successfully",
+            metadata: await UserService.updateUser({
+                id: req.params.id,
+                ...req.body
+            })
+        }).send(res)
+    }
+
+    deleteUser = async (req, res) => {
+        new OK({
+            message: "Delete user successfully",
+            metadata: await UserService.deleteUser({ id: req.params.id })
+        }).send(res)
+    }
 }
 
 module.exports = new UserController()
