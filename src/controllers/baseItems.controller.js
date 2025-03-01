@@ -18,6 +18,7 @@ class BaseItemController {
                 page: req.query.page || 1,
                 filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false }, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}
                 select: req.query.select || '',
+                expand: req.query.expand || ''
             })
         }).send(res)
     }

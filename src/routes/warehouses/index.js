@@ -130,24 +130,24 @@ router.get("/stock-check-details/:id",
     catchAsyncHandle(warehouseController.getStockCheckDetail)
 )
 
-router.post("/stock-check-details",
-    /**
-      * #swagger.tags = ['Warehouse']
-      * #swagger.description='Create a new stock check details'
-      */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/CreateStockCheckDetails"
-                }  
-            }
-        }
-    }
-*/
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
-    catchAsyncHandle(warehouseController.createStockCheckDetails)
-)
+// router.post("/stock-check-details",
+//     /**
+//       * #swagger.tags = ['Warehouse']
+//       * #swagger.description='Create a new stock check details'
+//       */
+//     /*  #swagger.requestBody = {
+//         content: {
+//             "application/json": {
+//                 schema: {
+//                     $ref: "#/components/schemas/CreateStockCheckDetails"
+//                 }  
+//             }
+//         }
+//     }
+// */
+//     checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+//     catchAsyncHandle(warehouseController.createStockCheckDetails)
+// )
 
 router.put("/stock-check-details/:id",
     /**
@@ -218,6 +218,25 @@ router.get("/storages/:id",
     } */
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(warehouseController.getWarehouseStorage)
+)
+
+router.post("/storages",
+    /**
+      * #swagger.tags = ['Warehouse']
+      * #swagger.description='Create a new warehouse storage'
+      */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/CreateWarehouseStorage"
+                }  
+            }
+        }
+    }
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(warehouseController.createWarehouseStorage)
 )
 
 router.delete("/storages/:id",

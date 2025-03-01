@@ -115,6 +115,22 @@ class WarehouseController {
         }).send(res)
     }
 
+    createWarehouseStorage = async (req, res) => {
+        new CREATED({
+            message: "Create warehouse storage successfully",
+            metadata: await WarehouseService.createWarehouseStorage(req.body)
+        }).send(res)
+    }
+
+    deleteWarehouseStorage = async (req, res) => {
+        new OK({
+            message: "Delete warehouse storage successfully",
+            metadata: await WarehouseService.deleteWarehouseStorage({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
     getAllStockTransactions = async (req, res) => {
         new OK({
             message: "Get all stock transactions successfully",
@@ -191,12 +207,12 @@ class WarehouseController {
         }).send(res)
     }
 
-    createStockCheckDetails = async (req, res) => {
-        new CREATED({
-            message: "Create stock check details successfully",
-            metadata: await WarehouseService.createStockCheckDetails(req.body)
-        }).send(res)
-    }
+    // createStockCheckDetails = async (req, res) => {
+    //     new CREATED({
+    //         message: "Create stock check details successfully",
+    //         metadata: await WarehouseService.createStockCheckDetails(req.body)
+    //     }).send(res)
+    // }
 
     updateStockCheckRequest = async (req, res) => {
         new OK({
@@ -216,15 +232,6 @@ class WarehouseController {
             metadata: await WarehouseService.updateStockCheckDetail({
                 id: req.params.id,
                 actualQuantity: req.body.actualQuantity,
-            })
-        }).send(res)
-    }
-
-    deleteWarehouseStorage = async (req, res) => {
-        new OK({
-            message: "Delete warehouse storage successfully",
-            metadata: await WarehouseService.deleteWarehouseStorage({
-                id: req.params.id
             })
         }).send(res)
     }

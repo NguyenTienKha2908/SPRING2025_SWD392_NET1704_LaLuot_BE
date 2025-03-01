@@ -323,6 +323,26 @@
           }
         }
       },
+      "post": {
+        "tags": [
+          "Item"
+        ],
+        "description": "Create item",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/components/schemas/CreateItem"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
       "put": {
         "tags": [
           "Item"
@@ -346,7 +366,10 @@
     },
     "/api/v1/items/{id}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Item"
+        ],
+        "description": "Get an item",
         "parameters": [
           {
             "name": "id",
@@ -354,7 +377,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Item id"
           }
         ],
         "responses": {
@@ -367,7 +391,7 @@
         "tags": [
           "Item"
         ],
-        "description": "Update item",
+        "description": "Delete an item",
         "parameters": [
           {
             "name": "id",
@@ -375,26 +399,10 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/components/schemas/UpdateItem"
-            }
+            },
+            "description": "Item id"
           }
         ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/items/create": {
-      "post": {
-        "description": "",
         "responses": {
           "default": {
             "description": ""
@@ -424,26 +432,18 @@
         }
       }
     },
-    "/api/v1/baseitems/all": {
+    "/api/v1/baseitems/": {
       "get": {
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/baseitems/{id}": {
-      "get": {
-        "description": "",
+        "tags": [
+          "BaseItems"
+        ],
+        "description": "Get all base items",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "required": true,
+            "name": "query",
+            "in": "query",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/GetAllBaseItems"
             }
           }
         ],
@@ -453,44 +453,6 @@
           }
         }
       },
-      "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/baseitems/create": {
       "post": {
         "tags": [
           "BaseItems"
@@ -505,9 +467,86 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/createItem"
+                "$ref": "#/components/schemas/CreateBaseItem"
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/baseitems/{id}": {
+      "get": {
+        "tags": [
+          "BaseItems"
+        ],
+        "description": "Get base item detail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Base item id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "BaseItems"
+        ],
+        "description": "Update base item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Base item id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBaseItem"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "BaseItems"
+        ],
+        "description": "Delete base item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Base item id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
       }
@@ -923,26 +962,6 @@
             "description": ""
           }
         }
-      },
-      "post": {
-        "tags": [
-          "Warehouse"
-        ],
-        "description": "Create a new stock check details",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateStockCheckDetails"
-              }
-            }
-          }
-        }
       }
     },
     "/api/v1/warehouses/stock-check-details/{id}": {
@@ -1040,6 +1059,26 @@
         "responses": {
           "default": {
             "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Warehouse"
+        ],
+        "description": "Create a new warehouse storage",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWarehouseStorage"
+              }
+            }
           }
         }
       }
@@ -1723,6 +1762,28 @@
           }
         }
       },
+      "CreateWarehouseStorage": {
+        "type": "object",
+        "properties": {
+          "warehouseId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "itemId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 100
+          }
+        },
+        "required": [
+          "warehouseId",
+          "itemId",
+          "quantity"
+        ]
+      },
       "GetAllStockTransactions": {
         "type": "object",
         "properties": {
@@ -1783,7 +1844,7 @@
           },
           "select": {
             "type": "string",
-            "example": "description status warehouseId managerId inventoryStaffId"
+            "example": "description status warehouseId managerId inventoryStaffId fromDate toDate cancelReason"
           },
           "expand": {
             "type": "string",
@@ -1843,12 +1904,22 @@
           "inventoryStaffId": {
             "type": "string",
             "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "fromDate": {
+            "type": "string",
+            "example": "2025-02-19T08:37:54.729+00:00"
+          },
+          "toDate": {
+            "type": "string",
+            "example": "2025-02-19T08:37:54.729+00:00"
           }
         },
         "required": [
           "warehouseId",
           "managerId",
-          "inventoryStaffId"
+          "inventoryStaffId",
+          "fromDate",
+          "toDate"
         ]
       },
       "CreateStockCheckDetails": {
@@ -1915,6 +1986,145 @@
           "actualQuantity"
         ]
       },
+      "GetAllBaseItems": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "name genericName description category brand countryOfOrigin indication contraindication sideEffect storageType"
+          },
+          "expand": {
+            "type": "string",
+            "example": "avgInputPrice totalQuantity"
+          }
+        }
+      },
+      "CreateBaseItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Paracetamol"
+          },
+          "genericName": {
+            "type": "string",
+            "example": "Paracetamol"
+          },
+          "description": {
+            "type": "string",
+            "example": "Paracetamol"
+          },
+          "category": {
+            "type": "string",
+            "example": "Medicine"
+          },
+          "brand": {
+            "type": "string",
+            "example": "Paracetamol"
+          },
+          "countryOfOrigin": {
+            "type": "string",
+            "example": "Vietnam"
+          },
+          "indication": {
+            "type": "string",
+            "example": "Fever"
+          },
+          "contraindication": {
+            "type": "string",
+            "example": "None"
+          },
+          "sideEffect": {
+            "type": "string",
+            "example": "None"
+          },
+          "storageType": {
+            "type": "string",
+            "example": "Normal"
+          }
+        },
+        "required": [
+          "name",
+          "genericName",
+          "description",
+          "category",
+          "brand",
+          "countryOfOrigin",
+          "indication",
+          "contraindication",
+          "sideEffect",
+          "storageType"
+        ]
+      },
+      "UpdateBaseItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Paracetamol"
+          },
+          "genericName": {
+            "type": "string",
+            "example": "Paracetamol"
+          },
+          "description": {
+            "type": "string",
+            "example": "Paracetamol"
+          },
+          "brand": {
+            "type": "string",
+            "example": "Paracetamol"
+          },
+          "countryOfOrigin": {
+            "type": "string",
+            "example": "Vietnam"
+          },
+          "indication": {
+            "type": "string",
+            "example": "Fever"
+          },
+          "contraindication": {
+            "type": "string",
+            "example": "None"
+          },
+          "sideEffect": {
+            "type": "string",
+            "example": "None"
+          },
+          "storageType": {
+            "type": "string",
+            "example": "Normal"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
       "GetAllItems": {
         "type": "object",
         "properties": {
@@ -1948,6 +2158,38 @@
             "example": "baseItem"
           }
         }
+      },
+      "CreateItem": {
+        "type": "object",
+        "properties": {
+          "baseItemId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "status": {
+            "type": "string",
+            "example": "Available"
+          },
+          "manufactureDate": {
+            "type": "string",
+            "example": "2021-07-01"
+          },
+          "expiredDate": {
+            "type": "string",
+            "example": "2022-07-01"
+          },
+          "unit": {
+            "type": "string",
+            "example": "Box"
+          }
+        },
+        "required": [
+          "baseItemId",
+          "status",
+          "manufactureDate",
+          "expiredDate",
+          "unit"
+        ]
       },
       "UpdateItem": {
         "type": "object",
