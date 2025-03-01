@@ -1960,15 +1960,23 @@
       "UpdateStockCheckRequest": {
         "type": "object",
         "properties": {
-          "newInventoryStaffId": {
-            "type": "string",
-            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
-          },
           "description": {
             "type": "string",
             "example": ""
           },
           "status": {
+            "type": "string",
+            "example": ""
+          },
+          "fromDate": {
+            "type": "string",
+            "example": "2025-02-19T08:37:54.729+00:00"
+          },
+          "toDate": {
+            "type": "string",
+            "example": "2025-02-19T08:37:54.729+00:00"
+          },
+          "cancelReason": {
             "type": "string",
             "example": ""
           }
@@ -1977,14 +1985,19 @@
       "UpdateStockCheckDetail": {
         "type": "object",
         "properties": {
+          "description": {
+            "type": "string",
+            "example": ""
+          },
           "actualQuantity": {
             "type": "number",
             "example": 100
+          },
+          "status": {
+            "type": "string",
+            "example": "Done"
           }
-        },
-        "required": [
-          "actualQuantity"
-        ]
+        }
       },
       "GetAllBaseItems": {
         "type": "object",
