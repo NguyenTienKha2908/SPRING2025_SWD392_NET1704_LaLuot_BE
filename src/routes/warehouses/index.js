@@ -198,11 +198,11 @@ router.get("/storages",
     /* #swagger.parameters['query'] = {
         in: 'query',
         schema: {
-            $ref: "#/components/schemas/GetAllInventories"
+            $ref: "#/components/schemas/GetAllWarehouseStorages"
         }
     } */
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
-    catchAsyncHandle(warehouseController.getAllInventories)
+    catchAsyncHandle(warehouseController.getAllWarehouseStorages)
 )
 
 router.get("/storages/:id",

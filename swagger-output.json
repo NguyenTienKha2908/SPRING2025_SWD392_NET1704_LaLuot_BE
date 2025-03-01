@@ -1033,7 +1033,7 @@
             "name": "query",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/GetAllInventories"
+              "$ref": "#/components/schemas/GetAllWarehouseStorages"
             }
           }
         ],

@@ -1,6 +1,7 @@
 const { SELECT_BASEITEM } = require("../configs/baseitem.config");
 const { SELECT_USER } = require("../configs/user.config");
 const { SELECT_WAREHOUSE } = require("../configs/warehouse.config");
+const stockCheckModel = require("../models/stockCheck.model");
 const stockCheckDetailModel = require("../models/stockCheckDetail.model");
 const stockTransactionModel = require("../models/stockTransaction.model");
 const warehouseModel = require("../models/warehouse.model");
