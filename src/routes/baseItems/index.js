@@ -13,13 +13,33 @@ router.use(
     })
 )
 
-router.get("/all",
+router.get("/",
+    /**
+      * #swagger.tags = ['BaseItems']
+      * #swagger.description='Get all base items'
+      */
+    /* #swagger.parameters['query'] = {
+        in: 'query',
+        schema: {
+            $ref: "#/components/schemas/GetAllBaseItems"
+        }
+    } */
     catchAsyncHandle(baseItemsController.getAllBaseItem)
 )
 router.get("/:id",
+    /**
+      * #swagger.tags = ['BaseItems']
+      * #swagger.description='Get base item detail'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Base item id',
+        type: 'string'
+    } */
     catchAsyncHandle(baseItemsController.getDetailBaseItem)
 )
-router.post("/create",        
+router.post("/",
     /**
      * #swagger.tags = ['BaseItems']
      * #swagger.description='Create a new item'
@@ -28,7 +48,7 @@ router.post("/create",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/createItem"
+                    $ref: "#/components/schemas/CreateBaseItem"
                 }  
             }
         }
@@ -36,9 +56,39 @@ router.post("/create",
     catchAsyncHandle(baseItemsController.createBaseItem)
 )
 router.put("/:id",
-    catchAsyncHandle(baseItemsController.updateBaseItem)    
+    /**
+      * #swagger.tags = ['BaseItems']
+      * #swagger.description='Update base item'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Base item id',
+        type: 'string'
+    } */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateBaseItem"
+                }  
+            }
+        }
+    } 
+*/
+    catchAsyncHandle(baseItemsController.updateBaseItem)
 )
-router.delete('/:id', 
+router.delete('/:id',
+    /**
+      * #swagger.tags = ['BaseItems']
+      * #swagger.description='Delete base item'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Base item id',
+        type: 'string'
+    } */
     catchAsyncHandle(baseItemsController.deleteBaseItem)
 )
 module.exports = router;

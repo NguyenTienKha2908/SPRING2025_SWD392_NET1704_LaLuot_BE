@@ -31,6 +31,18 @@ var stockCheckSchema = new mongoose.Schema(
             ref: 'User',
             required: true,
         },
+        fromDate: {
+            type: Date,
+            required: true,
+        },
+        toDate: {
+            type: Date,
+            required: true,
+        },
+        cancelReason: {
+            type: String,
+            trim: true,
+        },
         ...baseModelSchema.obj,
     },
     {

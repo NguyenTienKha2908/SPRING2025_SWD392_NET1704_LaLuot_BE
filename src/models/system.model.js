@@ -11,6 +11,11 @@ var systemSchema = new mongoose.Schema({
         required: true,
         default: "*/1 * * * *",
     },
+    checkStockRequestDateInterval: {
+        type: String,
+        required: true,
+        default: "*/1 * * * *",
+    },
     ...baseModelSchema.obj,
 }, {
     timestamps: true,
