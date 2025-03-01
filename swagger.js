@@ -200,12 +200,16 @@ const doc = {
                 ]
             },
             UpdateStockCheckRequest: {
-                newInventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
                 description: "",
-                status: ""
+                status: "",
+                fromDate: "2025-02-19T08:37:54.729+00:00",
+                toDate: "2025-02-19T08:37:54.729+00:00",
+                cancelReason: ""
             },
             UpdateStockCheckDetail: {
-                $actualQuantity: 100
+                description: "",
+                actualQuantity: 100,
+                status: "Done"
             },
             GetAllBaseItems: {
                 limit: 10,
