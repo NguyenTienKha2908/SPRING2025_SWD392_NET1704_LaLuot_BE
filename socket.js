@@ -40,6 +40,10 @@ const socket = (io) => {
         eventEmitter.on("checkExpiredMedicine", async (expiredMedicines) => {
             socket.emit("expiredMedicines", expiredMedicines);
         })
+
+        eventEmitter.on("checkStockRequestDate", async (stockRequests) => {
+            socket.emit("stockRequests", stockRequests);
+        })
     });
 
 }

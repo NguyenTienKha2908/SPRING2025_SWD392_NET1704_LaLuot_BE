@@ -21,7 +21,7 @@ const POPULATE_WAREHOUSE_CHECK = [
 
 const SELECT_WAREHOUSE_STORAGE = 'warehouseId itemId batchNumber quantity'
 
-const SELECT_STOCK_REQUEST = 'description status warehouseId managerId inventoryStaffId'
+const SELECT_STOCK_REQUEST = 'description status warehouseId managerId inventoryStaffId fromDate toDate cancelReason'
 
 const SELECT_STOCK_DETAIL = 'stockCheckId itemId systemQuantity actualQuantity difference description'
 

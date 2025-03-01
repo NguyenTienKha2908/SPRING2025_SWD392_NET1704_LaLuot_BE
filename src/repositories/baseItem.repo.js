@@ -11,17 +11,24 @@ getStorageQuantityOfBaseItem = async ({ id }) => {
     .lean();
   if (!baseItemHolder) throw new NotFoundRequestError("Not found base item");
 
-  const itemHolders = await itemModel
-    .find({
-      baseItemId: id,
-      status: "Available",
-      isDeleted: false,
-    })
-    .lean();
+  const result = await warehouseStorageModel.aggregate([
+    {
+      $match: {
+        itemId:
+        {
+          $in: await itemModel.distinct("_id", { baseItemId: id, status: "Available", isDeleted: false })
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        totalQuantity: { $sum: "$quantity" }
+      }
+    }
+  ])
 
-  const warehouseStorages = await warehouseStorageModel.find({
-    itemId: { $in: itemHolders.map((item) => item._id) },
-  });
+  return result.length > 0 ? result[0].totalQuantity : null;
 };
 
 const getAvgInputPriceOfBaseItem = async ({ id }) => {
@@ -30,27 +37,24 @@ const getAvgInputPriceOfBaseItem = async ({ id }) => {
     .lean();
   if (!baseItemHolder) throw new NotFoundRequestError("Not found base item");
 
-  const itemHolders = await itemModel
-    .find({
-      baseItemId: id,
-      status: "Available",
-      isDeleted: false,
-    })
-    .lean();
+  const result = await inputDetailModel.aggregate([
+    {
+      $match: {
+        itemId: {
+          $in: await itemModel.distinct("_id", { baseItemId: id, status: "Available", isDeleted: false })
+        },
+        isDeleted: false
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        avgPrice: { $avg: "$inputPrice" }
+      }
+    }
+  ]);
 
-  const inputDetailHolders = await inputDetailModel.find({
-    itemId: { $in: itemHolders.map((item) => item._id) },
-    isDeleted: false,
-  });
-
-  let avgPrice = 0,
-    count = 0;
-  for (let inputDetail of inputDetailHolders) {
-    count++;
-    avgPrice += inputDetail.inputPrice;
-  }
-  avgPrice /= count;
-  return avgPrice;
+  return result.length > 0 ? result[0].avgPrice : null;
 };
 
 const getAllBaseItem = async ({
@@ -72,25 +76,30 @@ const getAllBaseItem = async ({
 
   const populateFields = expand
     ? expand
-        .split(" ")
-        .map((field) => populateOptions[field])
-        .filter(Boolean)
+      .split(" ")
+      .map((field) => populateOptions[field])
+      .filter(Boolean)
     : [];
-  const excludeFields = "-isDeleted -createdAt -updatedAt -__v";
 
   let baseItems = await baseItemModel
     .find(filter)
     .sort(sortBy)
     .skip(skip)
     .limit(limit)
-    .select(`${select} ${excludeFields}`)
+    .select(`${select}`)
     .populate(populateFields)
     .lean();
 
   for (let baseItem of baseItems) {
-    baseItem.avgInputPrice = await getAvgInputPriceOfBaseItem({
-      id: baseItem._id,
-    });
+    if (expand && expand.includes("avgInputPrice"))
+      baseItem.avgInputPrice = await getAvgInputPriceOfBaseItem({
+        id: baseItem._id,
+      });
+
+    if (expand && expand.includes("totalQuantity"))
+      baseItem.totalQuantity = await getStorageQuantityOfBaseItem({
+        id: baseItem._id
+      })
   }
 
   const totalBaseItems = await baseItemModel.countDocuments(filter);
@@ -103,4 +112,4 @@ const getAllBaseItem = async ({
     limit: limit,
   };
 };
-module.exports = { getAllBaseItem, getAvgInputPriceOfBaseItem };
+module.exports = { getAllBaseItem, getAvgInputPriceOfBaseItem, getStorageQuantityOfBaseItem };
