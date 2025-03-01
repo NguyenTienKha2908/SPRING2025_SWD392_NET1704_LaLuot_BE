@@ -14,11 +14,11 @@ const getAllOutputRequests = async ({ limit, sort, page, filter, select, expand 
         warehouse: { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
         customer: { path: 'customerId', select: SELECT_USER.DEFAULT },
         manager: { path: 'managerId', select: SELECT_USER.DEFAULT },
-        inventoryStaff: { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT },
+        reportStaff: { path: 'reportStaffId', select: SELECT_USER.DEFAULT },
     }
 
     const populateFields = expand
-        ? expand.split(" ").map(field => populateOptions[field]).filter(Boolean)
+        ? expand.split(",").map(field => populateOptions[field]).filter(Boolean)
         : [];
 
     const outputs = await outputModel

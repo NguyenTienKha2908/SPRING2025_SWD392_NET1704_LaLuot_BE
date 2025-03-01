@@ -66,12 +66,12 @@ const getAllBaseItem = async ({
     .populate(populateFields)
     .lean();
 
-  for (let baseItem of baseItems) {
-    baseItem.avgInputPrice = await getAvgInputPriceOfBaseItem({
-      id: baseItem._id,
-    });
-  }
-  console.log(baseItems);
+  // for (let baseItem of baseItems) {
+  //   baseItem.avgInputPrice = await getAvgInputPriceOfBaseItem({
+  //     id: baseItem._id,
+  //   });
+  // }
+  // console.log(baseItems);
 
   const totalBaseItems = await baseItemModel.countDocuments(filter);
   const totalPages = Math.ceil(totalBaseItems / limit);
