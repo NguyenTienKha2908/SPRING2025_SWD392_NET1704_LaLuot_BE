@@ -94,7 +94,7 @@ class WarehouseController {
 
     getAllWarehouseStorages = async (req, res) => {
         new OK({
-            message: "Get all inventories successfully",
+            message: "Get all warehouse storage successfully",
             metadata: await WarehouseService.getAllWarehouseStorages({
                 limit: req.query.limit || 10,
                 sort: req.query.sort || 'ctime',
