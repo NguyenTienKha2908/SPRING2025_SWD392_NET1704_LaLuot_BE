@@ -2397,6 +2397,164 @@
         "required": [
           "cancelReason"
         ]
+      },
+      "GetAllInputRequests": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "description cancelReason batchNumber status warehouseId supplierId reportStaffId managerId inventoryStaffId"
+          },
+          "expand": {
+            "type": "string",
+            "example": "warehouse supplier reportStaff manager inventoryStaff"
+          }
+        }
+      },
+      "GetAllInputDetails": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "sort": {
+            "type": "string",
+            "example": "ctime"
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "filter": {
+            "type": "object",
+            "properties": {
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          },
+          "select": {
+            "type": "string",
+            "example": "inputId itemId quantity inputPrice status"
+          },
+          "expand": {
+            "type": "string",
+            "example": "input item"
+          }
+        }
+      },
+      "CreateInputRequest": {
+        "type": "object",
+        "properties": {
+          "reportStaffId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "supplierId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "warehouseId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          },
+          "description": {
+            "type": "string",
+            "example": "Input request for warehouse 1"
+          },
+          "inputDetails": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemId": {
+                  "type": "string",
+                  "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+                },
+                "quantity": {
+                  "type": "number",
+                  "example": 10
+                },
+                "inputPrice": {
+                  "type": "number",
+                  "example": 1000
+                }
+              },
+              "required": [
+                "itemId",
+                "quantity",
+                "inputPrice"
+              ]
+            }
+          }
+        },
+        "required": [
+          "reportStaffId",
+          "supplierId",
+          "warehouseId"
+        ]
+      },
+      "ApproveInputRequest": {
+        "type": "object",
+        "properties": {
+          "managerId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          }
+        }
+      },
+      "RejectInputRequest": {
+        "type": "object",
+        "properties": {
+          "managerId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          }
+        }
+      },
+      "ReceiveInputRequest": {
+        "type": "object",
+        "properties": {
+          "inventoryStaffId": {
+            "type": "string",
+            "example": "60e0b3f0b3f0b3f0b3f0b3f0"
+          }
+        }
+      },
+      "CancelInputRequest": {
+        "type": "object",
+        "properties": {
+          "cancelReason": {
+            "type": "string",
+            "example": "Supplier delay"
+          }
+        },
+        "required": [
+          "cancelReason"
+        ]
       }
     }
   },
