@@ -20,7 +20,7 @@ var inputDetailSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    unitPrice: {
+    inputPrice: {
       type: Number,
       trim: true,
     },

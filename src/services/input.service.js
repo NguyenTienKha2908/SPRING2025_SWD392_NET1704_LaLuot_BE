@@ -15,7 +15,7 @@ class InputService {
     }
 
     static getInputRequest = async ({ id }) => {
-        const inputHolder = await inputModel.findOne({ _id: id, isDeleted: false })
+        const inputHolder = await inputModel.findOne({ _id: id })
             .populate(POPULATE_INPUT)
             .lean();
 
