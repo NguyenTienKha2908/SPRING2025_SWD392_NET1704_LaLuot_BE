@@ -16,7 +16,7 @@ class BaseItemService {
     }
 
     static getDetailBaseItem = async ({id}) => {
-        const detailBaseItem = await baseItemModel.findOne({_id:id}).select('-isDeleted')
+        const detailBaseItem = await baseItemModel.findOne({_id:id})
         return detailBaseItem;
     }
 

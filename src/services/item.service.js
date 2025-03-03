@@ -10,7 +10,7 @@ class ItemService {
         return await getAllItems({ limit, sort, page, filter, select, expand });
     }
     static getDetailItem = async ({id},expand) => {                
-            const detailBaseItem = await itemModel.findOne({_id:id}).select('-isDeleted').populate(expand);
+            const detailBaseItem = await itemModel.findOne({_id:id}).populate(expand);
             return detailBaseItem;
     }
     static createItem = async ({baseItemId,name,status,manufactureDate, expiredDate, unit}) => {
