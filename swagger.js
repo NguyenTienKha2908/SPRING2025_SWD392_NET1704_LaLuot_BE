@@ -1,26 +1,15 @@
 const swaggerAutogen = require("swagger-autogen")({ openapi: "3.0.0" });
 require("dotenv").config();
 
-const {
-  SELECT_OUTPUT,
-  SELECT_OUTPUT_DETAILS,
-} = require("./src/configs/output.config.js");
+const { SELECT_OUTPUT, SELECT_OUTPUT_DETAILS } = require('./src/configs/output.config.js');
+const { SELECT_ITEM } = require('./src/configs/item.config.js');
+const { SELECT_USER } = require('./src/configs/user.config.js');
+const { SELECT_WAREHOUSE, SELECT_WAREHOUSE_CHECK, SELECT_STOCK_DETAIL, SELECT_STOCK_REQUEST, SELECT_STOCK_TRANSACTION, SELECT_WAREHOUSE_STORAGE } = require('./src/configs/warehouse.config.js');
+const { SELECT_BASEITEM } = require('./src/configs/baseitem.config.js');
 const {
     SELECT_INPUT,
     SELECT_INPUT_DETAILS,
   } = require("./src/configs/input.config.js");
-const { SELECT_ITEM } = require("./src/configs/item.config.js");
-const { SELECT_USER } = require("./src/configs/user.config.js");
-const {
-  SELECT_WAREHOUSE,
-  SELECT_WAREHOUSE_CHECK,
-  SELECT_STOCK_DETAIL,
-  SELECT_STOCK_REQUEST,
-  SELECT_STOCK_TRANSACTION,
-  SELECT_WAREHOUSE_STORAGE,
-} = require("./src/configs/warehouse.config.js");
-const { SELECT_BASEITEM } = require("./src/configs/baseitem.config.js");
-
 const doc = {
   host: `localhost:${process.env.DEV_APP_PORT}`, // by default: 'localhost:3000'
   info: {
