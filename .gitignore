@@ -129,4 +129,4 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-.swagger-output.json
+swagger-output.json
