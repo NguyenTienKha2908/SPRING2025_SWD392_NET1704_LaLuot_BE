@@ -49,12 +49,11 @@ class UserService {
         return;
     };
 
-    static updateUser = async ({ id, fullName, email, password, role }) => {
+    static updateUser = async ({ id, fullName, email, role }) => {
         const updateUserDto = new UpdateUserDto(
             id,
             fullName,
             email,
-            password,
             role
         );
         await updateUserDto.validate();
@@ -67,11 +66,6 @@ class UserService {
         await userModel.updateOne({ _id: id }, {
             fullName: fullName || userHolder.fullName,
             email: email || userHolder.email,
-            password: password ?
-                await bcrypt.hash(
-                    password,
-                    parseInt(process.env.PASSWORD_SALT)
-                ) : userHolder.password,
             role: role || userHolder.role,
         });
         return;

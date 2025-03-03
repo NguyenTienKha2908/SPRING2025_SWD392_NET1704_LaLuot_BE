@@ -1,10 +1,20 @@
-const { POPULATE_WAREHOUSE_CHECK, POPULATE_WAREHOUSE_CHECK_DETAIL } = require("../configs/warehouse.config")
-const { NotFoundRequestError } = require("../core/responses/error.response")
-const userModel = require("../models/user.model")
-const warehouseModel = require("../models/warehouse.model")
+const stockTransactionModel = require("../models/stockTransaction.model")
 const warehouseCheckModel = require("../models/warehouseCheck.model")
-const warehouseCheckDetailModel = require("../models/warehouseCheckDetail.model")
-const { getAllWarehouses, getAllWarehouseChecks, getAllWarehouseCheckDetails } = require("../repositories/warehouse.repo")
+const warehouseStorageModel = require("../models/warehouseStorage.model")
+const { getAllWarehouses, getAllWarehouseChecks, getAllWarehouseStorages } = require("../repositories/warehouse.repo")
+const { NotFoundRequestError, BadRequestError } = require("../core/responses/error.response");
+const userModel = require("../models/user.model");
+const warehouseModel = require("../models/warehouse.model");
+const stockCheckModel = require("../models/stockCheck.model");
+const { getAllStockCheckRequests, getAllStockCheckDetails, getAllStockTransactions } = require("../repositories/warehouse.repo");
+const itemModel = require("../models/item.model");
+const stockCheckDetailModel = require("../models/stockCheckDetail.model");
+const { default: mongoose } = require("mongoose");
+const outputModel = require("../models/output.model");
+const outputDetailModel = require("../models/outputDetail.model");
+const { POPULATE_WAREHOUSE_STORAGES, POPULATE_STOCK_DETAILS, POPULATE_STOCK_TRANSACTIONS, POPULATE_WAREHOUSE_CHECK } = require("../configs/warehouse.config");
+const { USER_ROLES } = require("../configs/user.config");
+const { eventEmitter } = require("../../socket");
 
 class WarehouseService {
     static getAllWarehouses = async ({ limit, sort, page, filter, select }) => {
@@ -74,12 +84,8 @@ class WarehouseService {
             throw new NotFoundRequestError('Warehouse check not found')
         }
 
-        const warehouseCheckDetailHolders = await warehouseCheckDetailModel.findOne({ warehouseCheckId: id, isDeleted: false })
-            .lean()
-
         return {
             warehouseCheck: warehouseCheckHolder,
-            warehouseCheckDetails: warehouseCheckDetailHolders
         }
 
     }
@@ -111,16 +117,17 @@ class WarehouseService {
         return newWarehouseCheck
     }
 
-    static updateWarehouseCheck = async ({ id, managerId, inventoryStaffId, description, status }) => {
+    static updateWarehouseCheck = async ({ id, description, temperature, thresholdLevel, condition, status }) => {
         const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: id, isDeleted: false }).lean()
         if (!warehouseCheckHolder) {
             throw new NotFoundRequestError('Warehouse check not found')
         }
 
         const updatedWarehouseCheck = await warehouseCheckModel.findOneAndUpdate({ _id: id }, {
-            managerId: managerId || warehouseCheckHolder.managerId,
-            inventoryStaffId: inventoryStaffId || warehouseCheckHolder.inventoryStaffId,
             description: description || warehouseCheckHolder.description,
+            temperature: temperature || warehouseCheckHolder.temperature,
+            thresholdLevel: thresholdLevel || warehouseCheckHolder.thresholdLevel,
+            condition: condition || warehouseCheckHolder.condition,
             status: status || warehouseCheckHolder.status
         }, { new: true })
 
@@ -140,66 +147,352 @@ class WarehouseService {
         return
     }
 
-    static getAllWarehouseCheckDetails = async ({ limit, sort, page, filter, select, expand }) => {
-        return await getAllWarehouseCheckDetails({ limit, sort, page, filter, select, expand })
+    static getAllWarehouseStorages = async ({ limit, sort, page, filter, select, expand }) => {
+        return await getAllWarehouseStorages({ limit, sort, page, filter, select, expand });
     }
 
-    static getWarehouseCheckDetail = async ({ id }) => {
-        const warehouseCheckDetailHolder = await warehouseCheckDetailModel.findOne({ _id: id, isDeleted: false })
-            .populate(POPULATE_WAREHOUSE_CHECK_DETAIL)
-            .lean()
-
-        if (!warehouseCheckDetailHolder) {
-            throw new NotFoundRequestError('Warehouse check detail not found')
+    static getWarehouseStorage = async ({ id }) => {
+        const warehouseStorageHolder = await warehouseStorageModel.findOne({ _id: id, isDeleted: false })
+            .populate(POPULATE_WAREHOUSE_STORAGES)
+            .lean();
+        if (!warehouseStorageHolder) {
+            throw new NotFoundRequestError("Warehouse Storage not found");
         }
 
-        return warehouseCheckDetailHolder
+        return warehouseStorageHolder;
     }
 
-    static createWarehouseCheckDetail = async ({ warehouseCheckId, description, temperature, thresholdLevel, condition }) => {
-        const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: warehouseCheckId, isDeleted: false }).lean()
-        if (!warehouseCheckHolder) {
-            throw new NotFoundRequestError('Warehouse check not found')
+    static createWarehouseStorage = async ({ warehouseId, itemId, quantity }) => {
+        const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean()
+        if (!warehouseHolder) {
+            throw new NotFoundRequestError("Warehouse not found")
         }
 
-        const newWarehouseCheckDetail = await warehouseCheckDetailModel.create({
-            warehouseCheckId,
-            description: description || `Check for ${warehouseCheckHolder.description}`,
-            temperature,
-            thresholdLevel,
-            condition,
-            status: 'Pending'
+        const itemHolder = await itemModel.findOne({ _id: itemId, isDeleted: false }).lean()
+        if (!itemHolder) {
+            throw new NotFoundRequestError("Item not found")
+        }
+
+        if (!quantity || quantity < 0) {
+            throw new BadRequestError("Quantity must be greater than 0")
+        }
+
+        await warehouseStorageModel.create({
+            warehouseId: warehouseId,
+            itemId: itemId,
+            quantity: quantity,
+            batchNumber: Math.floor(Math.random() * 1000000),
         })
-
-        return newWarehouseCheckDetail
-    }
-
-    static updateWarehouseCheckDetail = async ({ id, description, temperature, thresholdLevel, condition, status }) => {
-        const warehouseCheckDetailHolder = await warehouseCheckDetailModel.findOne({ _id: id, isDeleted: false }).lean()
-        if (!warehouseCheckDetailHolder) {
-            throw new NotFoundRequestError('Warehouse check detail not found')
-        }
-
-        const updatedWarehouseCheckDetail = await warehouseCheckDetailModel.findOneAndUpdate({ _id: id }, {
-            description: description || warehouseCheckDetailHolder.description,
-            temperature: temperature || warehouseCheckDetailHolder.temperature,
-            thresholdLevel: thresholdLevel || warehouseCheckDetailHolder.thresholdLevel,
-            condition: condition || warehouseCheckDetailHolder.condition,
-            status: status || warehouseCheckDetailHolder.status
-        }, { new: true })
 
         return
     }
 
-    static deleteWarehouseCheckDetail = async ({ id }) => {
-        const warehouseCheckDetailHolder = await warehouseCheckDetailModel.findOne({ _id: id, isDeleted: false }).lean()
-        if (!warehouseCheckDetailHolder) {
-            throw new NotFoundRequestError('Warehouse check detail not found')
+    static deleteWarehouseStorage = async ({ id }) => {
+        const warehouseStorageHolder = await warehouseStorageModel.findOne({ _id: id, isDeleted: false }).lean();
+        if (!warehouseStorageHolder) {
+            throw new NotFoundRequestError("Warehouse storage not found");
         }
 
-        const updatedWarehouseCheckDetail = await warehouseCheckDetailModel.findOneAndUpdate({ _id: id }, {
-            isDeleted: true
-        }, { new: true })
+        if (warehouseStorageHolder.quantity > 0) {
+            throw new BadRequestError("Warehouse storage must be empty before deleting");
+        }
+
+        await warehouseStorageModel.updateOne({ _id: id }, { isDeleted: true })
+
+        return
+    }
+
+    static getAllStockTransactions = async ({ limit, sort, page, filter, select, expand }) => {
+        return await getAllStockTransactions({ limit, sort, page, filter, select, expand });
+    }
+
+    static getStockTransaction = async ({ id }) => {
+        const stockTransactionHolder = await stockTransactionModel.findOne({ _id: id, isDeleted: false })
+            .populate(POPULATE_STOCK_TRANSACTIONS)
+            .lean();
+
+        if (!stockTransactionHolder) {
+            throw new NotFoundRequestError("Stock transaction not found");
+        }
+
+        return stockTransactionHolder;
+
+    }
+
+
+    static handleStorageTransaction = async ({ inputId, outputId, warehouseId, itemId, quantity, transactionType, description }) => {
+        const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean();
+        if (!warehouseHolder) {
+            throw new NotFoundRequestError("Warehouse not found");
+        }
+
+        const itemHolder = await itemModel.findOne({ _id: itemId, isDeleted: false }).lean();
+        if (!itemHolder) {
+            throw new NotFoundRequestError("Item not found");
+        }
+
+        if (quantity < 0) {
+            throw new BadRequestError("Quantity must be greater than 0");
+        }
+
+        switch (transactionType) {
+            case "Output":
+                if (!outputId) {
+                    throw new BadRequestError("Output id is required");
+                }
+                const outputHolder = await outputModel.findOne({ _id: outputId, isDeleted: false }).lean();
+                if (!outputHolder) {
+                    throw new BadRequestError("Output not found");
+                }
+
+                const outputDetailHolders = await outputDetailModel.find({ outputId: outputHolder._id, isDeleted: false }).lean();
+                const outputItemIds = outputDetailHolders.map(outputDetail => outputDetail.itemId.toString());
+
+                if (!outputItemIds.includes(itemId.toString())) {
+                    throw new BadRequestError("Item not found in output");
+                }
+
+                const outputDetailHolder = outputDetailHolders.find(outputDetail => outputDetail.itemId.toString() === itemId.toString());
+                if (outputDetailHolder.status === "Done") {
+                    throw new BadRequestError("Output detail already done");
+                }
+
+                if (outputDetailHolder.quantity !== quantity) {
+                    console.log(outputDetailHolder.quantity, quantity)
+                    throw new BadRequestError("Quantity not match output quantity");
+                }
+
+                await outputDetailModel.updateOne({ _id: outputDetailHolder._id }, { status: "Done" })
+
+                const warehouseStorageHolder = await warehouseStorageModel.findOne({ warehouseId: warehouseId, itemId: itemId, isDeleted: false }).lean();
+
+                await warehouseStorageModel.updateOne({ warehouseId: warehouseId, itemId: itemId },
+                    { quantity: warehouseStorageHolder.quantity - quantity })
+
+                break;
+            default:
+                throw new BadRequestError("Invalid transaction type");
+        }
+
+
+        const newStockTransaction = await stockTransactionModel.create({
+            warehouseId,
+            itemId,
+            quantity,
+            transactionType,
+            description: description || `Warehouse storage ${transactionType} for ${warehouseHolder.name}`
+        })
+
+        return
+    }
+
+    static getAllStockCheckRequests = async ({ limit, sort, page, filter, select, expand }) => {
+        return await getAllStockCheckRequests({ limit, sort, page, filter, select, expand });
+    }
+
+    static getStockCheckRequest = async ({ id }) => {
+        const stockCheckHolder = await stockCheckModel.findOne({ _id: id, isDeleted: false })
+            .lean();
+
+        if (!stockCheckHolder) {
+            throw new NotFoundRequestError("Stock check request not found");
+        }
+
+        const stockCheckDetailHolders = await stockCheckDetailModel.find({ stockCheckId: id })
+            .populate(POPULATE_STOCK_DETAILS)
+            .lean();
+
+        return {
+            stockCheck: stockCheckHolder,
+            stockCheckDetails: stockCheckDetailHolders
+        };
+    }
+
+    static getAllStockCheckDetails = async ({ limit, sort, page, filter, select, expand }) => {
+        return await getAllStockCheckDetails({ limit, sort, page, filter, select, expand })
+    }
+
+    static getStockCheckDetail = async ({ id }) => {
+        return await stockCheckDetailModel.findOne({ _id: id, isDeleted: false })
+            .populate(POPULATE_STOCK_DETAILS)
+            .lean();
+    }
+
+    static createStockCheckRequest = async ({ description, warehouseId, managerId, inventoryStaffId, fromDate, toDate }) => {
+        const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean();
+        if (!warehouseHolder) {
+            throw new NotFoundRequestError("Warehouse not found");
+        }
+
+        const managerIdHolder = await userModel.findOne({ _id: managerId, role: "Manager", isDeleted: false }).lean();
+        if (!managerIdHolder) {
+            throw new NotFoundRequestError("Manager not found");
+        }
+
+        const inventoryStaffIdHolder = await userModel.findOne({ _id: inventoryStaffId, role: USER_ROLES.INVENTORY_STAFF, isDeleted: false }).lean();
+        if (!inventoryStaffIdHolder) {
+            throw new NotFoundRequestError("Inventory Staff not found");
+        }
+
+        if (!description) {
+            description = `Stock check for ${warehouseHolder.name}`
+        }
+
+        if (fromDate >= toDate || fromDate < new Date()) {
+            throw new BadRequestError("Invalid date range");
+        }
+
+        const newStockCheck = await stockCheckModel.create({
+            description,
+            warehouseId,
+            managerId,
+            inventoryStaffId,
+            fromDate,
+            toDate,
+        })
+
+        const warehouseStorageHolders = await warehouseStorageModel
+            .find({ warehouseId: warehouseId, isDeleted: false })
+            .lean();
+
+        const stockCheckDetailsToCreate = warehouseStorageHolders.map(warehouseStorage => {
+            return {
+                stockCheckId: newStockCheck._id,
+                itemId: warehouseStorage.itemId,
+                systemQuantity: warehouseStorage.quantity,
+                description: `Check for ${warehouseStorage.itemId}`,
+                status: "Pending"
+            }
+        })
+        await stockCheckDetailModel.insertMany(stockCheckDetailsToCreate)
+
+        return newStockCheck
+    }
+
+    static checkStockRequestDate = async () => {
+        const stockCheckHolders = await stockCheckModel.find({ status: "Pending", isDeleted: false }).lean();
+        const currentDate = new Date();
+
+        const stockRequests = stockCheckHolders.filter(stockCheck => stockCheck.toDate < currentDate);
+
+        stockRequests.forEach(async stockRequest => {
+            await stockCheckModel.updateOne({ _id: stockRequest._id }, { status: "Cancelled", cancelReason: "Exceeding deadline" })
+        })
+
+        eventEmitter.emit("checkStockRequestDate", stockRequests);
+
+        return stockRequests;
+    }
+
+    static updateStockCheckRequest = async ({ id, description, status, fromDate, toDate, cancelReason }) => {
+        const stockCheckHolder = await stockCheckModel.findOne({ _id: id, isDeleted: false }).lean();
+        if (!stockCheckHolder) {
+            throw new NotFoundRequestError("Stock check request not found");
+        }
+
+        if (stockCheckHolder.status === "Done") {
+            throw new BadRequestError("Stock check request already done");
+        }
+
+        if (stockCheckHolder.status === "Cancelled") {
+            throw new BadRequestError("Stock check request already cancelled");
+        }
+
+        if (fromDate >= toDate || fromDate < new Date()) {
+            throw new BadRequestError("Invalid date range");
+        }
+
+        if (status === "Cancelled") {
+            if (!cancelReason)
+                throw new BadRequestError("Cancel reason is required");
+
+            await stockCheckModel.updateOne({ _id: id }, {
+                status: status,
+                cancelReason: cancelReason
+
+            })
+            return
+        }
+
+        if (status === "Done") {
+            const stockCheckDetailHolders = await stockCheckDetailModel
+                .find({
+                    stockCheckId: id,
+                    isDeleted: false
+                })
+                .lean();
+
+            for (const stockCheckDetail of stockCheckDetailHolders) {
+                if (stockCheckDetail.status === "Pending") {
+                    throw new BadRequestError("All stock check details must be done before request");
+                }
+            }
+        }
+
+
+        await stockCheckModel.updateOne({ _id: id }, {
+            description: description || stockCheckHolder.description,
+            status: status || stockCheckHolder.status,
+            fromDate: fromDate || stockCheckHolder.fromDate,
+            toDate: toDate || stockCheckHolder.toDate
+        })
+
+        return
+    }
+
+    static updateStockCheckDetail = async ({ id, actualQuantity, description, status }) => {
+        if (actualQuantity && actualQuantity < 0) {
+            throw new BadRequestError("Quantity must be greater than 0");
+        }
+
+        const stockCheckDetailHolder = await stockCheckDetailModel.findOne({ _id: id, isDeleted: false }).lean();
+        if (!stockCheckDetailHolder) {
+            throw new NotFoundRequestError("Stock check detail not found");
+        }
+
+        let difference = null
+        if (actualQuantity) {
+            difference = actualQuantity - stockCheckDetailHolder.systemQuantity;
+        }
+
+        await stockCheckDetailModel.updateOne({ _id: id }, {
+            actualQuantity: actualQuantity || stockCheckDetailHolder.actualQuantity,
+            difference: difference || stockCheckDetailHolder.difference,
+            description: description || stockCheckDetailHolder.description,
+            status: status || stockCheckDetailHolder.status
+        })
+
+        return
+    }
+
+    static deleteStockCheckRequest = async ({ id }) => {
+        const stockCheckHolder = await stockCheckModel.findOne({ _id: id, isDeleted: false }).lean();
+        if (!stockCheckHolder) {
+            throw new NotFoundRequestError("Stock check request not found");
+        }
+
+        if (stockCheckHolder.status === "Done") {
+            throw new BadRequestError("Stock check request already done");
+        }
+
+        if (stockCheckHolder.status === "Cancelled") {
+            throw new BadRequestError("Stock check request already cancelled");
+        }
+
+        await stockCheckDetailModel.updateMany({ stockCheckId: id }, { isDeleted: true })
+
+        await stockCheckModel.updateOne({ _id: id }, { isDeleted: true })
+
+        return
+    }
+
+    static deleteStockCheckDetail = async ({ id }) => {
+        const stockCheckDetailHolder = await stockCheckDetailModel.findOne({ _id: id, isDeleted: false }).lean();
+        if (!stockCheckDetailHolder) {
+            throw new NotFoundRequestError("Stock check detail not found");
+        }
+
+        await stockCheckDetailModel.updateOne({ _id: id }, { isDeleted: true })
 
         return
     }

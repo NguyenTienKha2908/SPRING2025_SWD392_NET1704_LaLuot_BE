@@ -32,8 +32,8 @@ var stockCheckDetailSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["Normal", "Lost", "Excess"],
-            default: "Normal",
+            enum: ["Pending", "Done"],
+            default: "Pending",
         },
         ...baseModelSchema.obj,
     },

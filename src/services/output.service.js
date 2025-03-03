@@ -1,14 +1,14 @@
-const { POPULATE_OUTPUT_DETAILS } = require("../configs/output.config");
+const { POPULATE_OUTPUT_DETAILS, POPULATE_OUTPUT } = require("../configs/output.config");
 const { USER_ROLES } = require("../configs/user.config");
 const { NotFoundRequestError, BadRequestError } = require("../core/responses/error.response");
-const inventoryModel = require("../models/inventory.model");
+const baseItemModel = require("../models/baseItem.model");
 const itemModel = require("../models/item.model");
 const outputModel = require("../models/output.model");
 const outputDetailModel = require("../models/outputDetail.model");
 const userModel = require("../models/user.model");
-const warehouseModel = require("../models/warehouse.model");
+const warehouseStorageModel = require("../models/warehouseStorage.model");
 const { getAllOutputRequests, getAllOutputDetails } = require("../repositories/output.repo");
-const InventoryService = require("./inventory.service");
+const WarehouseService = require("./warehouse.service");
 
 class OutputService {
     static getAllOutputRequests = async ({ limit, sort, page, filter, select, expand }) => {
@@ -19,13 +19,15 @@ class OutputService {
         const outputHolder = await outputModel.findOne({
             _id: id,
             isDeleted: false
-        }).lean();
+        })
+            .populate(POPULATE_OUTPUT)
+            .lean();
 
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
         const outputDetailHolders = await outputDetailModel.find({ outputId: id })
-            .populate(POPULATE_OUTPUT_DETAILS)
+            .populate([POPULATE_OUTPUT_DETAILS[1]])
             .lean();
         if (!outputDetailHolders || outputDetailHolders.length === 0)
             throw new NotFoundRequestError("Output details not found");
@@ -54,8 +56,8 @@ class OutputService {
         return outputDetailHolder;
     }
 
-    static createOuputRequest = async ({ reportStaffId, customerId, warehouseId, description, outputDetails, session }) => {
-        if (!reportStaffId || !customerId || !warehouseId || !Array.isArray(outputDetails) || outputDetails.length === 0)
+    static createOuputRequest = async ({ reportStaffId, customerId, description, outputDetails, session }) => {
+        if (!reportStaffId || !customerId || !Array.isArray(outputDetails) || outputDetails.length === 0)
             throw new BadRequestError("Invalid input");
 
         const inventoryStaffHolder = await userModel.findOne({
@@ -76,68 +78,82 @@ class OutputService {
         if (!customerHolder)
             throw new NotFoundRequestError("Customer not found");
 
-        // Kiểm tra warehouse
-        const warehouseHolder = await warehouseModel.findOne({
-            _id: warehouseId,
-            isDeleted: false
-        }).lean();
-        if (!warehouseHolder)
-            throw new NotFoundRequestError("Warehouse not found");
-
         // Tạo output request
         const newOutput = await outputModel.create([{
             reportStaffId: reportStaffId,
             customerId: customerId,
-            warehouseId: warehouseId,
-            description: description || `Output request for ${warehouseHolder.name}`,
+            description: description || `Output request for ${customerHolder.name}`,
             status: "Pending",
             batchNumber: new Date().getTime().toString() + "-OUP"
         }], { session: session });
 
-        /**
-         * Kiểm tra item và số lượng trong kho
-         * Tạo output detail
-         * Cập nhật số lượng trong kho
-         */
 
-        // Lấy danh sách item trong output details
-        const itemIds = outputDetails.map((outputDetail) => outputDetail.itemId);
-        // Lấy danh sách item và inventory trong kho
-        const itemHolders = await itemModel.find({ _id: { $in: itemIds }, isDeleted: false }).lean();
-        const inventoryHolders = await inventoryModel.find({
-            itemId: { $in: itemIds },
-            warehouseId: warehouseId,
-            isDeleted: false
-        }).lean();
+        const baseItemIds = outputDetails.map((outputDetail) => outputDetail.baseItemId);
+        const baseItemHolders = await baseItemModel.find({ _id: { $in: baseItemIds }, isDeleted: false }).lean();
+        const baseItemMap = new Map(baseItemHolders.map(baseItem => [baseItem._id.toString(), baseItem]));
 
-        // Tạo map item và inventory
-        const itemMap = new Map(itemHolders.map(item => [item._id.toString(), item]));
-        const inventoryMap = new Map(inventoryHolders.map(inventory => [inventory.itemId.toString(), inventory]));
+        const outputDetailsToCreate = await Promise.all(outputDetails.map(async outputDetail => {
+            const { baseItemId, quantity, outputPrice } = outputDetail;
 
-        // Tạo output details
-        const outputDetailsToCreate = outputDetails.map(outputDetail => {
-            const { itemId, quantity, outputPrice } = outputDetail;
+            if (!baseItemMap.has(baseItemId))
+                throw new NotFoundRequestError(`Base item with id ${baseItemId} not found`);
 
-            // Kiểm tra item
-            if (!itemMap.has(itemId))
-                throw new NotFoundRequestError(`Item with id ${itemId} not found`);
+            const itemHolders = await itemModel
+                .find({
+                    baseItemId: baseItemId,
+                    status: "Available",
+                    isDeleted: false
+                })
+                .sort({ expiredDate: -1 })
+                .lean();
 
-            const inventoryHolder = inventoryMap.get(itemId);
-            if (!inventoryHolder)
-                throw new NotFoundRequestError(`Inventory for item with id ${itemId} not found`);
 
-            if (inventoryHolder.quantity < quantity)
-                throw new BadRequestError(`Not enough stock for item with id ${itemId}`);
+            if (!itemHolders || itemHolders.length === 0)
+                throw new NotFoundRequestError(`Item with base item id ${baseItemId} not found`);
 
-            return {
-                outputId: newOutput[0]._id,
-                itemId: itemId,
-                quantity: quantity,
-                outputPrice: outputPrice,
+            let itemQuantity = 0;
+            for (let item of itemHolders) {
+                const warehouseStorageHolder = await warehouseStorageModel.findOne({
+                    itemId: item._id,
+                    isDeleted: false
+                }).lean();
+
+                if (!warehouseStorageHolder) continue;
+                itemQuantity += warehouseStorageHolder.quantity;
             }
-        })
 
-        await outputDetailModel.insertMany(outputDetailsToCreate);
+            if (itemQuantity < quantity)
+                throw new BadRequestError(`Remaining quantity of item is ${itemQuantity} but requested quantity is ${quantity}`);
+
+            let remainingQuantity = quantity;
+            const results = [];
+            for (let item of itemHolders) {
+                const warehouseStorageHolder = await warehouseStorageModel.findOne({
+                    itemId: item._id,
+                    isDeleted: false
+                }).lean();
+                if (warehouseStorageHolder.quantity >= remainingQuantity) {
+                    results.push({
+                        outputId: newOutput[0]._id,
+                        itemId: item._id,
+                        quantity: remainingQuantity,
+                        outputPrice: outputPrice,
+                    });
+                    break;
+                } else {
+                    results.push({
+                        outputId: newOutput[0]._id,
+                        itemId: item._id,
+                        quantity: warehouseStorageHolder.quantity,
+                        outputPrice: outputPrice,
+                    });
+                    remainingQuantity -= warehouseStorageHolder.quantity;
+                }
+            }
+            return results;
+        }));
+
+        await outputDetailModel.insertMany(outputDetailsToCreate.flat());
 
         return newOutput;
     }
@@ -173,7 +189,7 @@ class OutputService {
             managerId: managerId
         })
 
-        return ;
+        return;
     }
 
     static rejectOutputRequest = async ({ id, managerId }) => {
@@ -207,7 +223,7 @@ class OutputService {
             managerId: managerId
         })
 
-        return ;
+        return;
     }
 
     static deliverOutputRequest = async ({ id, inventoryStaffId }) => {
@@ -239,7 +255,7 @@ class OutputService {
             inventoryStaffId: inventoryStaffId
         })
 
-        return ;
+        return;
     }
 
     static completeOutputRequest = async ({ id }) => {
@@ -259,7 +275,7 @@ class OutputService {
             throw new NotFoundRequestError("Output details not found");
 
         for (let outputDetail of outputDetailHolders) {
-            await InventoryService.handleInventoryTransaction({
+            await WarehouseService.handleStorageTransaction({
                 outputId: outputHolder._id,
                 warehouseId: outputHolder.warehouseId,
                 itemId: outputDetail.itemId,
@@ -301,7 +317,7 @@ class OutputService {
             cancelReason: cancelReason
         })
 
-        return ;
+        return;
     }
 }
 

@@ -1,6 +1,5 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
-const warehouseCheckDetailModel = require("./warehouseCheckDetail.model");
 
 const DOCUMENT_NAME = "WarehouseCheck";
 const COLLECTION_NAME = "WarehouseChecks";
@@ -26,6 +25,17 @@ var warehouseCheckSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        temperature: {
+            type: Number,
+        },
+        thresholdLevel: {
+            type: String,
+            enum: ["Low", "Normal", "High", "Full"],
+        },
+        condition:{
+            type: String,
+            enum: ["Good", "Need Repair", "Critical"],
+        },
         status: {
             type: String,
             enum: ["Pending", "Cancelled", "Done"],
@@ -38,16 +48,4 @@ var warehouseCheckSchema = new mongoose.Schema(
         collection: COLLECTION_NAME,
     }
 );
-
-warehouseCheckSchema.pre('findOneAndDelete', async function (next) {
-    const warehouseCheckId = this.getQuery()._id;
-
-    const warehouseCheckDetails = await warehouseCheckDetailModel.findOne({ warehouseCheckId: warehouseCheckId });
-    if (warehouseCheckDetails) {
-        return next(new Error("Cannot delete warehouseCheckId because it is used in warehouseCheckDetails"));
-    }
-
-    next();
-})
-
 module.exports = mongoose.model(DOCUMENT_NAME, warehouseCheckSchema);

@@ -92,48 +92,165 @@ class WarehouseController {
         }).send(res)
     }
 
-    getAllWarehouseCheckDetails = async (req, res) => {
+    getAllWarehouseStorages = async (req, res) => {
         new OK({
-            message: "Get all warehouse check details successfully",
-            metadata: await WarehouseService.getAllWarehouseCheckDetails({
+            message: "Get all warehouse storage successfully",
+            metadata: await WarehouseService.getAllWarehouseStorages({
                 limit: req.query.limit || 10,
                 sort: req.query.sort || 'ctime',
                 page: req.query.page || 1,
-                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false },
-                select: req.query.select || SELECT_WAREHOUSE_CHECK_DETAIL.DEFAULT,
-                expand: req.query.expand || ''
+                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false }, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}
+                select: req.query.select || '',
+                expand: req.query.expand || '',
             })
         }).send(res)
     }
 
-    getWarehouseCheckDetail = async (req, res) => {
+    getWarehouseStorage = async (req, res) => {
         new OK({
-            message: "Get warehouse check detail successfully",
-            metadata: await WarehouseService.getWarehouseCheckDetail({ id: req.params.id })
+            message: "Get warehouse storage successfully",
+            metadata: await WarehouseService.getWarehouseStorage({
+                id: req.params.id
+            })
         }).send(res)
     }
 
-    createWarehouseCheckDetail = async (req, res) => {
+    createWarehouseStorage = async (req, res) => {
         new CREATED({
-            message: "Create warehouse check detail successfully",
-            metadata: await WarehouseService.createWarehouseCheckDetail(req.body)
+            message: "Create warehouse storage successfully",
+            metadata: await WarehouseService.createWarehouseStorage(req.body)
         }).send(res)
     }
 
-    updateWarehouseCheckDetail = async (req, res) => {
+    deleteWarehouseStorage = async (req, res) => {
         new OK({
-            message: "Update warehouse check detail successfully",
-            metadata: await WarehouseService.updateWarehouseCheckDetail({
-                id: req.params.id,
-                ...req.body
+            message: "Delete warehouse storage successfully",
+            metadata: await WarehouseService.deleteWarehouseStorage({
+                id: req.params.id
             })
         }).send(res)
     }
 
-    deleteWarehouseCheckDetail = async (req, res) => {
+    getAllStockTransactions = async (req, res) => {
         new OK({
-            message: "Delete warehouse check detail successfully",
-            metadata: await WarehouseService.deleteWarehouseCheckDetail({ id: req.params.id })
+            message: "Get all stock transactions successfully",
+            metadata: await WarehouseService.getAllStockTransactions({
+                limit: req.query.limit || 10,
+                sort: req.query.sort || 'ctime',
+                page: req.query.page || 1,
+                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false }, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}
+                select: req.query.select || '',
+                expand: req.query.expand || '',
+            })
+        }).send(res)
+    }
+
+    getStockTransaction = async (req, res) => {
+        new OK({
+            message: "Get stock transaction successfully",
+            metadata: await WarehouseService.getStockTransaction({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
+    getAllStockCheckRequests = async (req, res) => {
+        new OK({
+            message: "Get all stock check request successfully",
+            metadata: await WarehouseService.getAllStockCheckRequests({
+                limit: req.query.limit || 10,
+                sort: req.query.sort || 'ctime',
+                page: req.query.page || 1,
+                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false }, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}
+                select: req.query.select || '',
+                expand: req.query.expand || '',
+            })
+        }).send(res)
+    }
+
+    getStockCheckRequest = async (req, res) => {
+        new OK({
+            message: "Get stock check request successfully",
+            metadata: await WarehouseService.getStockCheckRequest({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
+    getAllStockCheckDetails = async (req, res) => {
+        new OK({
+            message: "Get all stock check details successfully",
+            metadata: await WarehouseService.getAllStockCheckDetails({
+                limit: req.query.limit || 10,
+                sort: req.query.sort || 'ctime',
+                page: req.query.page || 1,
+                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false }, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}
+                select: req.query.select || '',
+                expand: req.query.expand || '',
+            })
+        }).send(res)
+    }
+
+    getStockCheckDetail = async (req, res) => {
+        new OK({
+            message: "Get stock check detail successfully",
+            metadata: await WarehouseService.getStockCheckDetail({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
+    createStockCheckRequest = async (req, res) => {
+        new CREATED({
+            message: "Create stock check request successfully",
+            metadata: await WarehouseService.createStockCheckRequest(req.body)
+        }).send(res)
+    }
+
+    // createStockCheckDetails = async (req, res) => {
+    //     new CREATED({
+    //         message: "Create stock check details successfully",
+    //         metadata: await WarehouseService.createStockCheckDetails(req.body)
+    //     }).send(res)
+    // }
+
+    updateStockCheckRequest = async (req, res) => {
+        new OK({
+            message: "Update stock check request successfully",
+            metadata: await WarehouseService.updateStockCheckRequest({
+                id: req.params.id,
+                newInventoryStaffId: req.body.newInventoryStaffId,
+                description: req.body.description,
+                status: req.body.status
+            })
+        }).send(res)
+    }
+
+    updateStockCheckDetail = async (req, res) => {
+        new OK({
+            message: "Update stock check detail successfully",
+            metadata: await WarehouseService.updateStockCheckDetail({
+                id: req.params.id,
+                actualQuantity: req.body.actualQuantity,
+            })
+        }).send(res)
+    }
+
+    deleteStockCheckRequest = async (req, res) => {
+        new OK({
+            message: "Delete stock check request successfully",
+            metadata: await WarehouseService.deleteStockCheckRequest({
+                id: req.params.id
+            })
+        }).send(res)
+    }
+
+    deleteStockCheckDetail = async (req, res) => {
+        new OK({
+            message: "Delete stock check detail successfully",
+            metadata: await WarehouseService.deleteStockCheckDetail({
+                id: req.params.id
+            })
         }).send(res)
     }
 }

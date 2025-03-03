@@ -23,10 +23,30 @@ router.get("/",
     catchAsyncHandle(itemController.getAllItems)
 )
 router.get("/:id",
+    /**
+      * #swagger.tags = ['Item']
+      * #swagger.description='Get an item'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Item id',
+        type: 'string'
+    } */
     checkRoles({requiredRoles:[USER_ROLES.MANAGER,USER_ROLES.INVENTORY_STAFF]}),
     catchAsyncHandle(itemController.getDetailItem)
 )
-router.post("/create", 
+router.post("/",
+    /**
+      * #swagger.tags = ['Item']
+      * #swagger.description='Create item'
+      */
+    /* #swagger.parameters['body'] = {
+        in: 'body',
+        schema: {
+            $ref: "#/components/schemas/CreateItem"
+        }
+    } */    
     checkRoles({requiredRoles:[USER_ROLES.MANAGER]}),
     catchAsyncHandle(itemController.createItems)
 )
@@ -46,15 +66,15 @@ router.put("/",
 )
 
 router.delete("/:id",
-    /**
+     /**
       * #swagger.tags = ['Item']
-      * #swagger.description='Update item'
+      * #swagger.description='Delete an item'
       */
-    /* #swagger.parameters['body'] = {
-        in: 'body',
-        schema: {
-            $ref: "#/components/schemas/UpdateItem"
-        }
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Item id',
+        type: 'string'
     } */
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
     catchAsyncHandle(itemController.deleteItems)
