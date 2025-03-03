@@ -62,6 +62,9 @@ class UserService {
         if (!userHolder) {
             throw new NotFoundRequestError("User not found");
         }
+        if (await userModel.findOne({ email })) {
+            throw new BadRequestError("Email already exists");
+        }
 
         await userModel.updateOne({ _id: id }, {
             fullName: fullName || userHolder.fullName,
@@ -72,7 +75,6 @@ class UserService {
     };
 
     static deleteUser = async ({ id }) => {
-        await validMongoObjectId(id);
         const userHolder = await userModel.findOne({ _id: id, isDeleted: false }).lean();
         if (!userHolder) {
             throw new NotFoundRequestError("User not found");
