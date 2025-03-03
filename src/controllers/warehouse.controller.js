@@ -23,13 +23,6 @@ class WarehouseController {
         }).send(res)
     }
 
-    createWarehouse = async (req, res) => {
-        new CREATED({
-            message: "Create warehouse successfully",
-            metadata: await WarehouseService.createWarehouse(req.body)
-        }).send(res)
-    }
-
     updateWarehouse = async (req, res) => {
         new OK({
             message: "Update warehouse successfully",
@@ -231,7 +224,7 @@ class WarehouseController {
             message: "Update stock check detail successfully",
             metadata: await WarehouseService.updateStockCheckDetail({
                 id: req.params.id,
-                actualQuantity: req.body.actualQuantity,
+                ...req.body
             })
         }).send(res)
     }
