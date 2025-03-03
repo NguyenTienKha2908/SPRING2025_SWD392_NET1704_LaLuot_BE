@@ -6,7 +6,10 @@ const { SELECT_ITEM } = require('./src/configs/item.config.js');
 const { SELECT_USER } = require('./src/configs/user.config.js');
 const { SELECT_WAREHOUSE, SELECT_WAREHOUSE_CHECK, SELECT_STOCK_DETAIL, SELECT_STOCK_REQUEST, SELECT_STOCK_TRANSACTION, SELECT_WAREHOUSE_STORAGE } = require('./src/configs/warehouse.config.js');
 const { SELECT_BASEITEM } = require('./src/configs/baseitem.config.js');
-
+const {
+    SELECT_INPUT,
+    SELECT_INPUT_DETAILS,
+  } = require("./src/configs/input.config.js");
 const doc = {
     host: `localhost:${process.env.DEV_APP_PORT}`,            // by default: 'localhost:3000'
     info: {
@@ -317,6 +320,51 @@ const doc = {
             CancelOutputRequest: {
                 $cancelReason: "Out of stock"
             },
+          GetAllInputRequests: {
+        limit: 10,
+        sort: "ctime",
+        page: 1,
+        filter: {
+          isDeleted: false,
+        },
+        select: SELECT_INPUT,
+        expand: "warehouse supplier reportStaff manager inventoryStaff",
+      },
+      GetAllInputDetails: {
+        limit: 10,
+        sort: "ctime",
+        page: 1,
+        filter: {
+          isDeleted: false,
+        },
+        select: SELECT_INPUT_DETAILS,
+        expand: "input item",
+      },
+      CreateInputRequest: {
+        $reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
+        $supplierId: "60e0b3f0b3f0b3f0b3f0b3f0",
+        $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
+        description: "Input request for warehouse 1",
+        inputDetails: [
+          {
+            $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
+            $quantity: 10,
+            $inputPrice: 1000,
+          },
+        ],
+      },
+      ApproveInputRequest: {
+        managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
+      },
+      RejectInputRequest: {
+        managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
+      },
+      ReceiveInputRequest: {
+        inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
+      },
+      CancelInputRequest: {
+        $cancelReason: "Supplier delay",
+      },
         }
     },
     security: [
