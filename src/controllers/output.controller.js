@@ -70,7 +70,7 @@ class OutputController {
             message: "Reject output request successfully",
             metadata: await OutputService.rejectOutputRequest({
                 id: req.params.id,
-                managerId: req.body.managerId
+                ...req.body
             })
         }).send(res)
     }
@@ -80,7 +80,7 @@ class OutputController {
             message: "Deliver output request successfully",
             metadata: await OutputService.deliverOutputRequest({
                 id: req.params.id,
-                inventoryStaffId: req.body.inventoryStaffId
+                ...req.body
             })
         }).send(res)
     }
@@ -99,7 +99,7 @@ class OutputController {
             message: "Cancel output request successfully",
             metadata: await OutputService.cancelOutputRequest({
                 id: req.params.id,
-                cancelReason: req.body.cancelReason
+                ...req.body
             })
         }).send(res)
     }

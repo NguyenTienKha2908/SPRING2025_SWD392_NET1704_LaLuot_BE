@@ -24,10 +24,10 @@ var inputDetailSchema = new mongoose.Schema(
       type: Number,
       trim: true,
     },
-    batchNumber: {
+    status: {
       type: String,
-      trim: true,
-      required: true,
+      enum: ["Pending", "Done"],
+      default: "Pending",
     },
     ...baseModelSchema.obj,
   },

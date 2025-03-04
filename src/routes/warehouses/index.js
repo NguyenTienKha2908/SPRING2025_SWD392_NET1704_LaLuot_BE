@@ -220,25 +220,6 @@ router.get("/storages/:id",
     catchAsyncHandle(warehouseController.getWarehouseStorage)
 )
 
-router.post("/storages",
-    /**
-      * #swagger.tags = ['Warehouse']
-      * #swagger.description='Create a new warehouse storage'
-      */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/CreateWarehouseStorage"
-                }  
-            }
-        }
-    }
-*/
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
-    catchAsyncHandle(warehouseController.createWarehouseStorage)
-)
-
 router.delete("/storages/:id",
     /**
       * #swagger.tags = ['Warehouse']
