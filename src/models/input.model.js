@@ -7,11 +7,6 @@ const COLLECTION_NAME = "Inputs";
 
 var inputSchema = new mongoose.Schema(
   {
-    title: {
-      type: "string",
-      trim: true,
-      required: true,
-    },
     description: {
       type: String,
       trim: true,

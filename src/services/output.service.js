@@ -166,8 +166,7 @@ class OutputService {
             _id: id,
             status: "Pending",
             isDeleted: false
-        }).lean();
-
+        })
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
@@ -180,14 +179,9 @@ class OutputService {
         if (!managerHolder)
             throw new NotFoundRequestError("Manager not found");
 
-        const updatedOutput = await outputModel.updateOne({
-            _id: id,
-            status: "Pending",
-            isDeleted: false
-        }, {
-            status: "Approved",
-            managerId: managerId
-        })
+        outputHolder.status = "Approved";
+        outputHolder.managerId = managerId;
+        await outputHolder.save();
 
         return;
     }
@@ -200,7 +194,7 @@ class OutputService {
             _id: id,
             status: "Pending",
             isDeleted: false
-        }).lean();
+        })
 
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
@@ -210,18 +204,12 @@ class OutputService {
             role: USER_ROLES.MANAGER,
             isDeleted: false
         }).lean();
-
         if (!managerHolder)
             throw new NotFoundRequestError("Manager not found");
 
-        const updatedOutput = await outputModel.updateOne({
-            _id: id,
-            status: "Pending",
-            isDeleted: false
-        }, {
-            status: "Rejected",
-            managerId: managerId
-        })
+        outputHolder.status = "Rejected";
+        outputHolder.managerId = managerId;
+        await outputHolder.save();
 
         return;
     }
@@ -234,7 +222,7 @@ class OutputService {
             _id: id,
             status: "Approved",
             isDeleted: false
-        }).lean();
+        })
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
@@ -246,14 +234,9 @@ class OutputService {
         if (!inventoryStaffHolder)
             throw new NotFoundRequestError("Inventory staff not found");
 
-        const updatedOutput = await outputModel.updateOne({
-            _id: id,
-            status: "Approved",
-            isDeleted: false
-        }, {
-            status: "Delivering",
-            inventoryStaffId: inventoryStaffId
-        })
+        outputHolder.status = "Delivering";
+        outputHolder.inventoryStaffId = inventoryStaffId;
+        await outputHolder.save();
 
         return;
     }
@@ -266,7 +249,7 @@ class OutputService {
             _id: id,
             status: "Delivering",
             isDeleted: false
-        }).lean();
+        })
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
@@ -285,14 +268,8 @@ class OutputService {
             })
         }
 
-        const updatedOutput = await outputModel.updateOne({
-            _id: id,
-            status: "Delivering",
-            isDeleted: false
-        }, {
-            status: "Completed"
-        })
-
+        outputHolder.status = "Done";
+        await outputHolder.save();
         return;
     }
 
@@ -302,20 +279,15 @@ class OutputService {
 
         const outputHolder = await outputModel.findOne({
             _id: id,
-            status: { $in: ["Pending", "Received", "Approved"] },
+            status: { $in: ["Pending", "Approved"] },
             isDeleted: false
-        }).lean();
+        })
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
-        const updatedOutput = await outputModel.updateOne({
-            _id: id,
-            status: { $in: ["Pending", "Received", "Approved"] },
-            isDeleted: false
-        }, {
-            status: "Cancelled",
-            cancelReason: cancelReason
-        })
+        outputHolder.status = "Cancelled";
+        outputHolder.cancelReason = cancelReason;
+        await outputHolder.save();
 
         return;
     }
