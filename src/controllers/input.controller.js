@@ -1,48 +1,108 @@
-const inputService = require("../services/input.service");
+const { CREATED, OK } = require("../core/responses/success.response");
+const InputService = require("../services/input.service");
 
 class InputController {
-    async createInputRequest(req, res, next) {
-        const inputDTO = req.body;
-        const result = await inputService.createInput(inputDTO);
-        return res.status(201).json(result);
+    getAllInputRequests = async (req, res) => {
+        new OK({
+            message: "Get all input requests successfully",
+            metadata: await InputService.getAllInputRequests({
+                limit: req.query.limit || 10,
+                sort: req.query.sort || 'ctime',
+                page: req.query.page || 1,
+                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false },
+                select: req.query.select || '',
+                expand: req.query.expand || ''
+            })
+        }).send(res);
     }
 
-    async selectItem(req, res, next) {
-        const { inputId } = req.params;
-        const itemDTO = req.body;
-        const result = await inputService.addItemToInput(inputId, itemDTO);
-        return res.status(200).json(result);
+    getInputRequest = async (req, res) => {
+        new OK({
+            message: "Get input request successfully",
+            metadata: await InputService.getInputRequest({
+                id: req.params.id
+            })
+        }).send(res);
     }
 
-    async getAllInputRequests(req, res, next) {
-        const result = await inputService.getAllInputs();
-        return res.status(200).json(result);
+    createInputRequest = async (req, res) => {
+        new CREATED({
+            message: "Create input request successfully",
+            metadata: await InputService.createInputRequest(req.body)
+        }).send(res);
     }
 
-    async getInputRequest(req, res, next) {
-        const { inputId } = req.params;
-        const result = await inputService.getInputById(inputId);
-        return res.status(200).json(result);
+    getAllInputDetails = async (req, res) => {
+        new OK({
+            message: "Get all input details successfully",
+            metadata: await InputService.getAllInputDetails({
+                limit: req.query.limit || 10,
+                sort: req.query.sort || 'ctime',
+                page: req.query.page || 1,
+                filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false },
+                select: req.query.select || '',
+                expand: req.query.expand || ''
+            })
+        }).send(res);
     }
 
-    async approveInputRequest(req, res, next) {
-        const { inputId } = req.params;
-        const { managerId } = req.body;
-        const result = await inputService.approveInput(inputId, managerId);
-        return res.status(200).json(result);
+    getInputDetail = async (req, res) => {
+        new OK({
+            message: "Get input detail successfully",
+            metadata: await InputService.getInputDetail({
+                id: req.params.id
+            })
+        }).send(res);
     }
 
-    async rejectInputRequest(req, res, next) {
-        const { inputId } = req.params;
-        const result = await inputService.rejectInput(inputId);
-        return res.status(200).json(result);
+    approveInputRequest = async (req, res) => {
+        new OK({
+            message: "Approve input request successfully",
+            metadata: await InputService.approveInputRequest({
+                id: req.params.id,
+                ...req.body
+            })
+        }).send(res);
     }
 
-    async completeInputRequest(req, res, next) {
-        const { inputId } = req.params;
-        const { inventoryStaffId } = req.body;
-        const result = await inputService.completeInput(inputId, inventoryStaffId);
-        return res.status(200).json(result);
+    rejectInputRequest = async (req, res) => {
+        new OK({
+            message: "Reject input request successfully",
+            metadata: await InputService.rejectInputRequest({
+                id: req.params.id,
+                ...req.body
+            })
+        }).send(res);
+    }
+
+    deliverInputRequest = async (req, res) => {
+        new OK({
+            message: "Receive input request successfully",
+            metadata: await InputService.deliverInputRequest({
+                id: req.params.id,
+                ...req.body
+            })
+        }).send(res);
+    }
+
+    completeInputRequest = async (req, res) => {
+        new OK({
+            message: "Complete input request successfully",
+            metadata: await InputService.completeInputRequest({
+                id: req.params.id,
+                ...req.body
+            })
+        }).send(res);
+    }
+
+    cancelInputRequest = async (req, res) => {
+        new OK({
+            message: "Cancel input request successfully",
+            metadata: await InputService.cancelInputRequest({
+                id: req.params.id,
+                cancelReason: req.body.cancelReason
+            })
+        }).send(res);
     }
 }
 

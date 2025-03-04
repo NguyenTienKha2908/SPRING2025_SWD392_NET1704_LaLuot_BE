@@ -347,9 +347,12 @@ const doc = {
         description: "Input request for warehouse 1",
         inputDetails: [
           {
-            $itemId: "60e0b3f0b3f0b3f0b3f0b3f0",
+            $baseItemId: "60e0b3f0b3f0b3f0b3f0b3f0",
             $quantity: 10,
             $inputPrice: 1000,
+            $manufactureDate: "2021-07-01T00:00:00.000Z",
+            $expiredDate: "2022-07-01T00:00:00.000Z",
+            $unit: "Box",
           },
         ],
       },
@@ -359,7 +362,7 @@ const doc = {
       RejectInputRequest: {
         managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
       },
-      ReceiveInputRequest: {
+      DeliverInputRequest: {
         inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
       },
       CancelInputRequest: {

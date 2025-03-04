@@ -200,21 +200,12 @@ class WarehouseController {
         }).send(res)
     }
 
-    // createStockCheckDetails = async (req, res) => {
-    //     new CREATED({
-    //         message: "Create stock check details successfully",
-    //         metadata: await WarehouseService.createStockCheckDetails(req.body)
-    //     }).send(res)
-    // }
-
     updateStockCheckRequest = async (req, res) => {
         new OK({
             message: "Update stock check request successfully",
             metadata: await WarehouseService.updateStockCheckRequest({
                 id: req.params.id,
-                newInventoryStaffId: req.body.newInventoryStaffId,
-                description: req.body.description,
-                status: req.body.status
+                ...req.body
             })
         }).send(res)
     }

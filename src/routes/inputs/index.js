@@ -134,10 +134,10 @@ router.patch("/:id/reject",
     catchAsyncHandle(inputController.rejectInputRequest)
 );
 
-router.patch("/:id/receive",
+router.patch("/:id/deliver",
     /**
       * #swagger.tags = ['Input']
-      * #swagger.description='Receive input request'
+      * #swagger.description='Deliver input request'
       */
     /* #swagger.parameters['id'] = {
         in: 'path',
@@ -145,8 +145,32 @@ router.patch("/:id/receive",
         description: 'Input request id',
         type: 'string'
     } */
-    checkRoles({ requiredRoles: [USER_ROLES.INVENTORY_STAFF] }),
-    catchAsyncHandle(inputController.receiveInputRequest)
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/DeliverInputRequest"
+                }  
+            }
+        }
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    catchAsyncHandle(inputController.deliverInputRequest)
+);
+
+router.patch("/:id/complete",
+    /**
+      * #swagger.tags = ['Input']
+      * #swagger.description='Complete input request'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Input request id',
+        type: 'string'
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    catchAsyncHandle(inputController.completeInputRequest)
 );
 
 router.patch("/:id/cancel",

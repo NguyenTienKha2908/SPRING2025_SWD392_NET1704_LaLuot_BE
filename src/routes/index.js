@@ -413,6 +413,6 @@ router.use("/baseitems", require("./baseItems"));
 router.use("/system", require("./system"));
 router.use("/outputs", require("./outputs"));
 router.use("/warehouses", require("./warehouses"));
-router.use("/input", require("./input"));
+router.use("/inputs", require("./inputs"));
 
 module.exports = router;

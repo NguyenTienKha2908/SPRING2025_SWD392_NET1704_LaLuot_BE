@@ -8,6 +8,8 @@ const inputDetailModel = require("../models/inputDetail.model");
 const userModel = require("../models/user.model");
 const warehouseModel = require("../models/warehouse.model");
 const { getAllInputRequests, getAllInputDetails } = require("../repositories/input.repo");
+const WarehouseService = require("./warehouse.service");
+const { generateMedicineCode } = require("../utils/medicine.util");
 
 class InputService {
     static getAllInputRequests = async ({ limit, sort, page, filter, select, expand }) => {
@@ -48,50 +50,197 @@ class InputService {
         if (!reportStaffId || !supplierId || !warehouseId || !Array.isArray(inputDetails) || inputDetails.length === 0)
             throw new BadRequestError("Invalid input");
 
-        const warehouseHolder = await warehouseModel.findById(warehouseId).lean();
+        const warehouseHolder = await warehouseModel.findOne({
+            _id: warehouseId,
+            status: "Available",
+            isDeleted: false
+        }).lean();
         if (!warehouseHolder) throw new NotFoundRequestError("Warehouse not found");
 
-        const supplierHolder = await userModel.findById(supplierId).lean();
+        const supplierHolder = await userModel.findOne({
+            _id: supplierId,
+            role: USER_ROLES.SUPPLIER,
+            isDeleted: false
+        }).lean();
         if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
 
-        const newInput = await inputModel.create([{ reportStaffId, supplierId, warehouseId, description, status: "Pending", batchNumber: new Date().getTime().toString() + "-INP" }], { session });
+        const reportStaffHolder = await userModel.findOne({
+            _id: reportStaffId,
+            role: USER_ROLES.REPORT_STAFF,
+            isDeleted: false
+        }).lean();
+        if (!reportStaffHolder) throw new NotFoundRequestError("Report staff not found");
 
-        await inputDetailModel.insertMany(inputDetails.map(detail => ({
-            inputId: newInput[0]._id,
-            itemId: detail.itemId,
-            quantity: detail.quantity,
-            inputPrice: detail.inputPrice,
-        })));
+        const newInput = await inputModel.create([{
+            reportStaffId,
+            supplierId,
+            warehouseId,
+            description,
+            status: "Pending",
+            batchNumber: new Date().getTime().toString() + "-INP"
+        }],
+            { session });
 
-        return newInput;
+        const baseItemIds = inputDetails.map(inputDetail => inputDetail.baseItemId);
+        const baseItemHolders = await baseItemModel.find({ _id: { $in: baseItemIds }, isDeleted: false }).lean();
+        const baseItemMap = new Map(baseItemHolders.map(baseItem => [baseItem._id.toString(), baseItem]));
+
+        let totalPrice = 0;
+        for (let inputDetail of inputDetails) {
+            const { baseItemId, inputPrice, quantity, manufactureDate, expiredDate, unit } = inputDetail;
+
+            if (!baseItemMap.has(baseItemId)) throw new NotFoundRequestError("Base item not found");
+
+            const baseItem = baseItemMap.get(baseItemId);
+
+            if (baseItem.storageType !== warehouseHolder.category)
+                throw new BadRequestError("Warehouse is not suitable for cold storage");
+
+            const newItem = await itemModel.create([{
+                baseItemId: baseItemId,
+                code: generateMedicineCode(baseItem.name),
+                status: "Available",
+                manufactureDate,
+                expiredDate,
+                unit,
+            }], { session });
+
+            await inputDetailModel.create([{
+                inputId: newInput[0]._id,
+                itemId: newItem[0]._id,
+                quantity,
+                inputPrice,
+            }], { session });
+
+            totalPrice += inputPrice * quantity;
+        }
+
+        newInput[0].totalPrice = totalPrice;
+        await newInput[0].save({ session });
+
+        return newInput[0];
     }
 
     static approveInputRequest = async ({ id, managerId }) => {
-        const inputHolder = await inputModel.findOne({ _id: id, status: "Pending", isDeleted: false }).lean();
+        if (!id || !managerId) throw new BadRequestError("Invalid input");
+
+        const inputHolder = await inputModel.findOne({
+            _id: id,
+            status: "Pending",
+            isDeleted: false
+        })
         if (!inputHolder) throw new NotFoundRequestError("Input request not found");
 
-        await inputModel.updateOne({ _id: id }, { status: "Approved", managerId });
+        const managerHolder = await userModel.findOne({
+            _id: managerId,
+            role: USER_ROLES.MANAGER,
+            isDeleted: false
+        }).lean();
+        if (!managerHolder) throw new NotFoundRequestError("Manager not found");
+
+        inputHolder.status = "Approved";
+        inputHolder.managerId = managerId;
+        await inputHolder.save();
+
+        return
     }
 
     static rejectInputRequest = async ({ id, managerId }) => {
-        const inputHolder = await inputModel.findOne({ _id: id, status: "Pending", isDeleted: false }).lean();
+        if (!id || !managerId) throw new BadRequestError("Invalid input");
+
+        const inputHolder = await inputModel
+            .findOne({
+                _id: id,
+                status: "Pending",
+                isDeleted: false
+            })
         if (!inputHolder) throw new NotFoundRequestError("Input request not found");
 
-        await inputModel.updateOne({ _id: id }, { status: "Rejected", managerId });
+        const managerHolder = await userModel.findOne({
+            _id: managerId,
+            role: USER_ROLES.MANAGER,
+            isDeleted: false
+        }).lean();
+        if (!managerHolder)
+            throw new NotFoundRequestError("Manager not found");
+
+        inputHolder.status = "Rejected";
+        inputHolder.managerId = managerId;
+        await inputHolder.save();
+
+        return
     }
 
-    static receiveInputRequest = async ({ id, inventoryStaffId }) => {
-        const inputHolder = await inputModel.findOne({ _id: id, status: "Approved", isDeleted: false }).lean();
+    static deliverInputRequest = async ({ id, inventoryStaffId }) => {
+        if (!id || !inventoryStaffId) throw new BadRequestError("Invalid input");
+
+        const inputHolder = await inputModel.findOne({
+            _id: id,
+            status: "Approved",
+            isDeleted: false
+        })
         if (!inputHolder) throw new NotFoundRequestError("Input request not found");
 
-        await inputModel.updateOne({ _id: id }, { status: "Received", inventoryStaffId });
+        const inventoryStaffHolder = await userModel.findOne({
+            _id: inventoryStaffId,
+            role: USER_ROLES.INVENTORY_STAFF,
+            isDeleted: false
+        }).lean();
+        if (!inventoryStaffHolder) throw new NotFoundRequestError("Inventory staff not found");
+
+        inputHolder.status = "Delivering";
+        inputHolder.inventoryStaffId = inventoryStaffId;
+        await inputHolder.save();
+
+        return
+    }
+
+    static completeInputRequest = async ({ id }) => {
+        if (!id) throw new BadRequestError("Invalid input");
+
+        const inputHolder = await inputModel.findOne({
+            _id: id,
+            status: "Delivering",
+            isDeleted: false
+        })
+        if (!inputHolder) throw new NotFoundRequestError("Input request not found");
+
+        const inputDetailHolders = await inputDetailModel.find({ inputId: id })
+        if (!inputDetailHolders || inputDetailHolders.length === 0)
+            throw new NotFoundRequestError("Input details not found");
+
+        for (let inputDetail of inputDetailHolders) {
+            await WarehouseService.handleStorageTransaction({
+                inputId: inputHolder._id,
+                warehouseId: inputHolder.warehouseId,
+                itemId: inputDetail.itemId,
+                quantity: inputDetail.quantity,
+                transactionType: "Input",
+                description: `Input request ${inputHolder.batchNumber}`
+            })
+        }
+
+        inputHolder.status = "Done";
+        await inputHolder.save();
+
+        return
     }
 
     static cancelInputRequest = async ({ id, cancelReason }) => {
-        const inputHolder = await inputModel.findOne({ _id: id, status: { $in: ["Pending", "Approved"] }, isDeleted: false }).lean();
+        if (!id || !cancelReason) throw new BadRequestError("Invalid input");
+
+        const inputHolder = await inputModel.findOne({
+            _id: id,
+            status: { $in: ["Pending", "Approved"] },
+            isDeleted: false
+        })
         if (!inputHolder) throw new NotFoundRequestError("Input request not found");
 
-        await inputModel.updateOne({ _id: id }, { status: "Cancelled", cancelReason });
+        inputHolder.status = "Cancelled";
+        inputHolder.cancelReason = cancelReason;
+        await inputHolder.save();
+
+        return
     }
 }
 
