@@ -93,6 +93,9 @@ class InputService {
 
             const baseItem = baseItemMap.get(baseItemId);
 
+            if (baseItem.storageType !== warehouseHolder.category)
+                throw new BadRequestError("Warehouse is not suitable for cold storage");
+
             const newItem = await itemModel.create([{
                 baseItemId: baseItemId,
                 code: generateMedicineCode(baseItem.name),
