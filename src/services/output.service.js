@@ -134,6 +134,7 @@ class OutputService {
                 if (warehouseStorageHolder.quantity >= remainingQuantity) {
                     results.push({
                         outputId: newOutput[0]._id,
+                        warehouseId: warehouseStorageHolder.warehouseId,
                         itemId: item._id,
                         quantity: remainingQuantity,
                         outputPrice: outputPrice,
@@ -142,6 +143,7 @@ class OutputService {
                 } else {
                     results.push({
                         outputId: newOutput[0]._id,
+                        warehouseId: warehouseStorageHolder.warehouseId,
                         itemId: item._id,
                         quantity: warehouseStorageHolder.quantity,
                         outputPrice: outputPrice,
@@ -259,8 +261,8 @@ class OutputService {
         for (let outputDetail of outputDetailHolders) {
             await WarehouseService.handleStorageTransaction({
                 outputId: outputHolder._id,
-                warehouseId: outputHolder.warehouseId,
                 itemId: outputDetail.itemId,
+                warehouseId: outputDetail.warehouseId,
                 quantity: outputDetail.quantity,
                 transactionType: "Output",
                 description: `Output request ${outputHolder.batchNumber}`
