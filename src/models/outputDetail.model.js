@@ -16,6 +16,11 @@ var outputDetailSchema = new mongoose.Schema(
             ref: 'Item',
             required: true,
         },
+        warehouseId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Warehouse',
+            required: true,
+        },
         quantity: {
             type: Number,
             required: true,
