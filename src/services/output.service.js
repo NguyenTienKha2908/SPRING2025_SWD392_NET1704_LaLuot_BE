@@ -18,7 +18,6 @@ class OutputService {
     static getOutputRequest = async ({ id }) => {
         const outputHolder = await outputModel.findOne({
             _id: id,
-            isDeleted: false
         })
             .populate(POPULATE_OUTPUT)
             .lean();
@@ -45,7 +44,6 @@ class OutputService {
     static getOutputDetail = async ({ id }) => {
         const outputDetailHolder = await outputDetailModel.findOne({
             _id: id,
-            isDeleted: false
         }).
             populate(POPULATE_OUTPUT_DETAILS)
             .lean();
@@ -132,6 +130,7 @@ class OutputService {
                     itemId: item._id,
                     isDeleted: false
                 }).lean();
+                if (!warehouseStorageHolder) continue
                 if (warehouseStorageHolder.quantity >= remainingQuantity) {
                     results.push({
                         outputId: newOutput[0]._id,

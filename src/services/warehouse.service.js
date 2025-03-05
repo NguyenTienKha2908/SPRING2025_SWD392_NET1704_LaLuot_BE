@@ -15,7 +15,6 @@ const {
 } = require("../repositories/warehouse.repo");
 const itemModel = require("../models/item.model");
 const stockCheckDetailModel = require("../models/stockCheckDetail.model");
-const { default: mongoose } = require("mongoose");
 const outputModel = require("../models/output.model");
 const outputDetailModel = require("../models/outputDetail.model");
 const {
@@ -33,7 +32,7 @@ class WarehouseService {
     }
 
     static getWarehouse = async ({ id }) => {
-        const warehouseHolder = await warehouseModel.findOne({ _id: id, isDeleted: false }).lean()
+        const warehouseHolder = await warehouseModel.findOne({ _id: id }).lean()
         if (!warehouseHolder) {
             throw new NotFoundRequestError('Warehouse not found')
         }
@@ -64,7 +63,7 @@ class WarehouseService {
             throw new NotFoundRequestError('Warehouse not found')
         }
 
-        const updatedWarehouse = await warehouseModel.findOneAndUpdate({ _id: id }, {
+        await warehouseModel.findOneAndUpdate({ _id: id }, {
             isDeleted: true
         }, { new: true })
 
@@ -76,7 +75,7 @@ class WarehouseService {
     }
 
     static getWarehouseCheck = async ({ id }) => {
-        const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: id, isDeleted: false })
+        const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: id })
             .populate(POPULATE_WAREHOUSE_CHECK)
             .lean()
         if (!warehouseCheckHolder) {
@@ -122,7 +121,7 @@ class WarehouseService {
             throw new NotFoundRequestError('Warehouse check not found')
         }
 
-        const updatedWarehouseCheck = await warehouseCheckModel.findOneAndUpdate({ _id: id }, {
+        await warehouseCheckModel.findOneAndUpdate({ _id: id }, {
             description: description || warehouseCheckHolder.description,
             temperature: temperature || warehouseCheckHolder.temperature,
             thresholdLevel: thresholdLevel || warehouseCheckHolder.thresholdLevel,
@@ -151,7 +150,7 @@ class WarehouseService {
     }
 
     static getWarehouseStorage = async ({ id }) => {
-        const warehouseStorageHolder = await warehouseStorageModel.findOne({ _id: id, isDeleted: false })
+        const warehouseStorageHolder = await warehouseStorageModel.findOne({ _id: id })
             .populate(POPULATE_WAREHOUSE_STORAGES)
             .lean();
         if (!warehouseStorageHolder) {
@@ -181,7 +180,7 @@ class WarehouseService {
     }
 
     static getStockTransaction = async ({ id }) => {
-        const stockTransactionHolder = await stockTransactionModel.findOne({ _id: id, isDeleted: false })
+        const stockTransactionHolder = await stockTransactionModel.findOne({ _id: id })
             .populate(POPULATE_STOCK_TRANSACTIONS)
             .lean();
 
@@ -319,7 +318,7 @@ class WarehouseService {
     }
 
     static getStockCheckRequest = async ({ id }) => {
-        const stockCheckHolder = await stockCheckModel.findOne({ _id: id, isDeleted: false })
+        const stockCheckHolder = await stockCheckModel.findOne({ _id: id })
             .lean();
 
         if (!stockCheckHolder) {
@@ -341,7 +340,7 @@ class WarehouseService {
     }
 
     static getStockCheckDetail = async ({ id }) => {
-        return await stockCheckDetailModel.findOne({ _id: id, isDeleted: false })
+        return await stockCheckDetailModel.findOne({ _id: id })
             .populate(POPULATE_STOCK_DETAILS)
             .lean();
     }
