@@ -9,13 +9,13 @@ class ItemService {
     static getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
         return await getAllItems({ limit, sort, page, filter, select, expand });
     }
-    static getDetailItem = async ({id},expand) => {                
-            const detailBaseItem = await itemModel.findOne({_id:id}).populate(expand);
-            return detailBaseItem;
+    static getDetailItem = async ({ id }, expand) => {
+        const detailBaseItem = await itemModel.findOne({ _id: id }).populate(expand);
+        return detailBaseItem;
     }
-    static createItem = async ({baseItemId,name,status,manufactureDate, expiredDate, unit}) => {
+    static createItem = async ({ baseItemId, name, status, manufactureDate, expiredDate, unit }) => {
         const codeGen = generateMedicineCode(name)
-        const itemDTO = new CreateItemDTO(baseItemId,codeGen,status,manufactureDate, expiredDate, unit)
+        const itemDTO = new CreateItemDTO(baseItemId, codeGen, status, manufactureDate, expiredDate, unit)
         const newitem = await itemModel.create(itemDTO);
         return newitem;
     }
@@ -33,8 +33,8 @@ class ItemService {
 
         return
     }
-    static deleteItem = async ({id}) => {
-        const updatedItem = await itemModel.findOneAndUpdate({_id:id},{
+    static deleteItem = async ({ id }) => {
+        const updatedItem = await itemModel.findOneAndUpdate({ _id: id }, {
             isDeleted: true
         })
         return updatedItem;
