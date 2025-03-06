@@ -20,9 +20,11 @@ var inputDetailSchema = new mongoose.Schema(
       ref: "Item",
       required: true,
     },
-    quantity: {
+    requestQuantity: {
       type: Number,
-      required: true,
+    },
+    actualQuantity: {
+      type: Number,
     },
     inputPrice: {
       type: Number,
@@ -32,6 +34,10 @@ var inputDetailSchema = new mongoose.Schema(
       type: String,
       enum: ["Pending", "Done"],
       default: "Pending",
+    },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     ...baseModelSchema.obj,
   },
