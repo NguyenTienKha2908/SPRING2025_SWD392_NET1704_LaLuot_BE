@@ -9,7 +9,7 @@ const router = express.Router();
 router.use(
     catchAsyncHandle(AuthMiddleware),
     checkRoles({
-        requiredRoles: [USER_ROLES.MANAGER]
+        requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.REPORT_STAFF]
     })
 )
 
