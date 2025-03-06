@@ -22,10 +22,19 @@ var outputSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["Pending", "Approved", "Rejected", "Delivering", "Cancelled", "Done"],
+            enum: ["Pending", "Approved", "Assigned", "Cancelled", "Done"],
             default: "Pending",
         },
-
+        totalPrice: {
+            type: Number,
+            default: 0,
+        },
+        fromDate: {
+            type: Date,
+        },
+        toDate: {
+            type: Date,
+        },
         customerId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
@@ -35,10 +44,10 @@ var outputSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
         },
-        inventoryStaffId: {
+        inventoryStaffId: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-        },
+        }],
         reportStaffId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',

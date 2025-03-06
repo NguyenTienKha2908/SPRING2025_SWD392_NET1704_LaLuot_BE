@@ -33,6 +33,10 @@ var outputDetailSchema = new mongoose.Schema(
             enum: ["Pending", "Done"],
             default: "Pending",
         },
+        updatedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
         ...baseModelSchema.obj,
     },
     {
