@@ -33,10 +33,6 @@ var inputSchema = new mongoose.Schema(
       ],
       default: "Pending",
     },
-    warehouseId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Warehouse",
-    },
     reportStaffId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
