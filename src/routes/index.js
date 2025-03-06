@@ -23,6 +23,38 @@ const router = express.Router();
 // const reportDetailModel = require("../models/reportDetail.model");
 // const systemModel = require("../models/system.model");
 
+router.get("/movie/:id",async (req,res)=>{
+    res.status(200).send(`
+        <html>
+<style>
+html {
+  overflow: hidden;
+  background-color: black;
+}
+html,
+body,
+div,
+iframe {
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
+  border: none;
+  display: block;
+  width: 100%;
+  border: none;
+  overflow: hidden;
+  padding-bottom: 100;
+}
+</style>
+<body>
+  <iframe
+    id="thisIframe"
+    width="100%" height="100%"
+    src="https://www.youtube.com/embed/${req.params.id}?rel=0&enablejsapi=1&playsinline=1&showInfo=0&controls=1&fullscreen=1" frameborder="0" allowfullscreen="true"></iframe>
+</body>
+</html>`)
+})
+
 router.get("/", async (req, res) => {
   // const system=await systemModel.create({
   //     checkExpiredMedicineInterval:'0 0 * * *',

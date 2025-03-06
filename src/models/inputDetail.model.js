@@ -6,6 +6,10 @@ const COLLECTION_NAME = "InputDetails";
 
 var inputDetailSchema = new mongoose.Schema(
   {
+    warehouseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Warehouse",
+    },
     inputId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Input",

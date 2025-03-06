@@ -2,14 +2,14 @@ const { CREATED, OK, UPDATED, DELETED } = require("../core/responses/success.res
 const BaseItemService = require("../services/baseitem.service")
 
 class BaseItemController {
-    createBaseItem = async (req,res) => {
+    createBaseItem = async (req, res) => {
         new CREATED({
-            message:"Create base item successfully!",
+            message: "Create base item successfully!",
             metadata: await BaseItemService.createItem(req.body)
         }).send(res)
     }
 
-    getAllBaseItem = async (req,res) => {
+    getAllBaseItem = async (req, res) => {
         new OK({
             message: "Get all baseItems successfully",
             metadata: await BaseItemService.getAllBaseItem({
@@ -22,19 +22,22 @@ class BaseItemController {
             })
         }).send(res)
     }
-    getDetailBaseItem = async (req,res) => {        
+    getDetailBaseItem = async (req, res) => {
         new OK({
-            message:"Get item successfully",
+            message: "Get item successfully",
             metadata: await BaseItemService.getDetailBaseItem(req.params)
         }).send(res)
     }
-    updateBaseItem = async (req,res) => {
+    updateBaseItem = async (req, res) => {
         new UPDATED({
             message: "Update baseItem successfully",
-            metadata: await BaseItemService.updateBaseItem(req.body)
+            metadata: await BaseItemService.updateBaseItem({
+                id: req.params.id,
+                ...req.body
+            })
         }).send(res)
     }
-    deleteBaseItem = async (req,res) => {        
+    deleteBaseItem = async (req, res) => {
         new DELETED({
             message: "Delete baseItem successfully",
             metadata: await BaseItemService.deleteBaseItem(req.params)
