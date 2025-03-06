@@ -343,7 +343,6 @@ const doc = {
       CreateInputRequest: {
         $reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
         $supplierId: "60e0b3f0b3f0b3f0b3f0b3f0",
-        $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
         description: "Input request for warehouse 1",
         inputDetails: [
           {

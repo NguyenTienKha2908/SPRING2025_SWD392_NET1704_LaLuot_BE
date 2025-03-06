@@ -46,16 +46,16 @@ class InputService {
         return inputDetailHolder;
     }
 
-    static createInputRequest = async ({ reportStaffId, supplierId, warehouseId, description, inputDetails, session }) => {
-        if (!reportStaffId || !supplierId || !warehouseId || !Array.isArray(inputDetails) || inputDetails.length === 0)
+    static createInputRequest = async ({ reportStaffId, supplierId, description, inputDetails, session }) => {
+        if (!reportStaffId || !supplierId || !Array.isArray(inputDetails) || inputDetails.length === 0)
             throw new BadRequestError("Invalid input");
 
-        const warehouseHolder = await warehouseModel.findOne({
-            _id: warehouseId,
-            status: "Available",
-            isDeleted: false
-        }).lean();
-        if (!warehouseHolder) throw new NotFoundRequestError("Warehouse not found");
+        // const warehouseHolder = await warehouseModel.findOne({
+        //     _id: warehouseId,
+        //     status: "Available",
+        //     isDeleted: false
+        // }).lean();
+        // if (!warehouseHolder) throw new NotFoundRequestError("Warehouse not found");
 
         const supplierHolder = await userModel.findOne({
             _id: supplierId,
@@ -74,7 +74,6 @@ class InputService {
         const newInput = await inputModel.create([{
             reportStaffId,
             supplierId,
-            warehouseId,
             description,
             status: "Pending",
             batchNumber: new Date().getTime().toString() + "-INP"
@@ -93,6 +92,11 @@ class InputService {
 
             const baseItem = baseItemMap.get(baseItemId);
 
+            const warehouseHolder = await warehouseModel.findOne({
+                category: baseItem.storageType,
+                status: "Available",
+            })
+
             if (baseItem.storageType !== warehouseHolder.category)
                 throw new BadRequestError("Warehouse is not suitable for cold storage");
 
@@ -106,6 +110,7 @@ class InputService {
             }], { session });
 
             await inputDetailModel.create([{
+                warehouseId: warehouseHolder._id,
                 inputId: newInput[0]._id,
                 itemId: newItem[0]._id,
                 quantity,
@@ -212,11 +217,11 @@ class InputService {
         for (let inputDetail of inputDetailHolders) {
             await WarehouseService.handleStorageTransaction({
                 inputId: inputHolder._id,
-                warehouseId: inputHolder.warehouseId,
+                warehouseId: inputDetail.warehouseId,
                 itemId: inputDetail.itemId,
                 quantity: inputDetail.quantity,
                 transactionType: "Input",
-                description: `Input request ${inputHolder.batchNumber}`
+                description: `Input request ${inputDetail._id} has been completed`
             })
         }
 
