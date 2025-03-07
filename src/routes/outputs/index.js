@@ -39,6 +39,31 @@ router.get("/details/:id",
     catchAsyncHandle(outputController.getOutputDetail)
 )
 
+router.put("/details/:id",
+    /**
+      * #swagger.tags = ['Output']
+      * #swagger.description='Update output detail'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output detail id',
+        type: 'string'
+    } */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateOutputDetails"
+                }  
+            }
+        }
+    } 
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.REPORT_STAFF] }),
+    catchAsyncHandle(outputController.updateOutputDetail)
+)
+
 router.get("/",
     /**
       * #swagger.tags = ['Output']
@@ -87,6 +112,31 @@ router.post("/",
     catchAsyncHandle(outputController.createOuputRequest)
 )
 
+router.put("/:id",
+    /**
+      * #swagger.tags = ['Output']
+      * #swagger.description='Update output request'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output request id',
+        type: 'string'
+    } */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateOutputRequest"
+                }  
+            }
+        }
+    } 
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    catchAsyncHandle(outputController.updateOutputRequest)
+)
+
 
 router.patch("/:id/approve",
     /**
@@ -113,31 +163,6 @@ router.patch("/:id/approve",
     catchAsyncHandle(outputController.approveOutputRequest)
 )
 
-router.patch("/:id/reject",
-    /**
-      * #swagger.tags = ['Output']
-      * #swagger.description='Reject output request'
-      */
-    /* #swagger.parameters['id'] = {
-        in: 'path',
-        required: true,
-        description: 'Output request id',
-        type: 'string'
-    } */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/RejectOutputRequest"
-                }  
-            }
-        }
-    } 
-*/
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
-    catchAsyncHandle(outputController.rejectOutputRequest)
-)
-
 router.patch("/:id/assign",
     /**
       * #swagger.tags = ['Output']
@@ -153,14 +178,14 @@ router.patch("/:id/assign",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/DeliverOutputRequest"
+                    $ref: "#/components/schemas/AssignOutputRequest"
                 }  
             }
         }
     } 
 */
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
-    catchAsyncHandle(outputController.deliverOutputRequest)
+    catchAsyncHandle(outputController.assignOutputRequest)
 )
 
 router.patch("/:id/complete",

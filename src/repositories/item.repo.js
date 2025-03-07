@@ -1,4 +1,5 @@
 const { SELECT_BASEITEM } = require("../configs/baseitem.config");
+const inputDetailModel = require("../models/inputDetail.model");
 const itemModel = require("../models/item.model");
 const systemModel = require("../models/system.model");
 
@@ -97,8 +98,11 @@ const checkAlmostExpiredMedicines = async () => {
         }
     ])
 
-    await itemModel.updateMany({ _id: { $in: expiredMedicines.map(medicine => medicine._id) } },
+    await itemModel.updateMany({ _id: { $in: almostExpiredMedicines.map(medicine => medicine._id) } },
         { status: "Almost Expired" })
+
+    await inputDetailModel.updateMany({ itemId: { $in: almostExpiredMedicines.map(medicine => medicine._id) } },
+        { $set: { suggestedOutputPrice: { $add: ["$inputPrice", await systemModel.findOne({}).select("almostExipiredOutputPricePercentage")] } } })
 
 
     for (let medicine of almostExpiredMedicines) {

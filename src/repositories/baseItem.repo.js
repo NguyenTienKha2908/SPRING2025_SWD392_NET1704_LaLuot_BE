@@ -90,18 +90,6 @@ const getAllBaseItem = async ({
     .populate(populateFields)
     .lean();
 
-  for (let baseItem of baseItems) {
-    if (expand && expand.includes("avgInputPrice"))
-      baseItem.avgInputPrice = await getAvgInputPriceOfBaseItem({
-        id: baseItem._id,
-      });
-
-    if (expand && expand.includes("totalQuantity"))
-      baseItem.totalQuantity = await getStorageQuantityOfBaseItem({
-        id: baseItem._id
-      })
-  }
-
   const totalBaseItems = await baseItemModel.countDocuments(filter);
   const totalPages = Math.ceil(totalBaseItems / limit);
 

@@ -32,6 +32,16 @@ class OutputController {
         }).send(res)
     }
 
+    updateOutputRequest = async (req, res) => {
+        new OK({
+            message: "Update output request successfully",
+            metadata: await OutputService.updateOutputRequest({
+                id: req.params.id,
+                ...req.body
+            })
+        }).send(res)
+    }
+
     getAllOuputDetails = async (req, res) => {
         new OK({
             message: "Get all output details successfully",
@@ -51,6 +61,17 @@ class OutputController {
             message: "Get output detail successfully",
             metadata: await OutputService.getOutputDetail({
                 id: req.params.id
+            })
+        }).send(res)
+    }
+
+    updateOutputDetail = async (req, res) => {
+        new OK({
+            message: "Update output detail successfully",
+            metadata: await OutputService.updateOutputDetail({
+                id: req.params.id,
+                ...req.body,
+                requesterId: req.userId
             })
         }).send(res)
     }
@@ -75,11 +96,12 @@ class OutputController {
         }).send(res)
     }
 
-    completeOutputRequest = async (req, res) => {
+    completeOutputRequest = async (req, res, next, session) => {
         new OK({
             message: "Complete output request successfully",
             metadata: await OutputService.completeOutputRequest({
                 id: req.params.id,
+                session: session,
             })
         }).send(res)
     }
