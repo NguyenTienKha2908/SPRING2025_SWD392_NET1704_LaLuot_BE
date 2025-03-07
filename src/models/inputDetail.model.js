@@ -30,6 +30,10 @@ var inputDetailSchema = new mongoose.Schema(
       type: Number,
       trim: true,
     },
+    suggestedOutputPrice: {
+      type: Number,
+      trim: true,
+    },
     status: {
       type: String,
       enum: ["Pending", "Done"],
