@@ -21,7 +21,15 @@ var warehouseStorage = new mongoose.Schema(
             trim: true,
             unique: true,
         },
-        quantity: {
+        totalQuantity: {
+            type: Number,
+            required: true,
+        },
+        availableQuantity: {
+            type: Number,
+            required: true,
+        },
+        servedQuantity: {
             type: Number,
             required: true,
         },

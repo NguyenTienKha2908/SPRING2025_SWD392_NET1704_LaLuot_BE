@@ -5,7 +5,8 @@ const SELECT_INPUT = 'description cancelReason batchNumber status warehouseId su
 
 const SELECT_INPUT_DETAILS = 'inputId itemId quantity inputPrice status';
 
-const POPULATE_INPUT = [    
+
+const POPULATE_INPUT = [
     {
         path: 'supplierId',
         select: SELECT_USER.DEFAULT
@@ -28,24 +29,7 @@ const POPULATE_INPUT_DETAILS = [
     {
         path: 'inputId',
         select: SELECT_INPUT,
-        populate: [            
-            {
-                path: 'supplierId',
-                select: SELECT_USER.DEFAULT
-            },
-            {
-                path: 'managerId',
-                select: SELECT_USER.DEFAULT
-            },
-            {
-                path: 'inventoryStaffId',
-                select: SELECT_USER.DEFAULT
-            },
-            {
-                path: 'reportStaffId',
-                select: SELECT_USER.DEFAULT
-            }
-        ]
+        populate: POPULATE_INPUT
     },
     {
         path: 'itemId',
