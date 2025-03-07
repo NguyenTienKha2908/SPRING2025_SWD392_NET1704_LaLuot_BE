@@ -1,3 +1,4 @@
+const { notifyUser } = require("../../socket");
 const { POPULATE_OUTPUT_DETAILS, POPULATE_OUTPUT } = require("../configs/output.config");
 const { USER_ROLES } = require("../configs/user.config");
 const { NotFoundRequestError, BadRequestError } = require("../core/responses/error.response");
@@ -149,7 +150,10 @@ class OutputService {
         }));
         await newOutput[0].save({ session: session });
         await outputDetailModel.insertMany(outputDetailsToCreate.flat(), { session: session });
-
+        await notifyUser({ userId: customerId, task: `Your output request has been created`, navigatePage: "inventoryrequestcustomer", type: "success" });
+        await notifyUser({ userId: reportStaffId, task: `You have created a new output request`, navigatePage: "reportstaffoutputrequest", type: "success" });
+        const managerHolder = await userModel.findOne({ role: USER_ROLES.MANAGER, isDeleted: false }).lean();
+        await notifyUser({ userId: managerHolder._id, task: `You have a new output request`, navigatePage: "listOutputRequestManager", type: "success" });
         return newOutput;
     }
 

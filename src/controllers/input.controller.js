@@ -6,7 +6,7 @@ class InputController {
         new OK({
             message: "Get all input requests successfully",
             metadata: await InputService.getAllInputRequests({
-                limit: req.query.limit || 10,
+                limit: req.query.limit || 1000,
                 sort: req.query.sort || 'ctime',
                 page: req.query.page || 1,
                 filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false },
@@ -36,7 +36,7 @@ class InputController {
         new OK({
             message: "Get all input details successfully",
             metadata: await InputService.getAllInputDetails({
-                limit: req.query.limit || 10,
+                limit: req.query.limit || 1000,
                 sort: req.query.sort || 'ctime',
                 page: req.query.page || 1,
                 filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false },
