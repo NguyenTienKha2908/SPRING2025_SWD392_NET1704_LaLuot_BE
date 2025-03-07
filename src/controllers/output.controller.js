@@ -6,7 +6,7 @@ class OutputController {
         new OK({
             message: "Get all output requests successfully",
             metadata: await OutputService.getAllOutputRequests({
-                limit: req.query.limit || 10,
+                limit: req.query.limit || 1000,
                 sort: req.query.sort || 'ctime',
                 page: req.query.page || 1,
                 filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false },
@@ -46,7 +46,7 @@ class OutputController {
         new OK({
             message: "Get all output details successfully",
             metadata: await OutputService.getAllOutputDetails({
-                limit: req.query.limit || 10,
+                limit: req.query.limit || 1000,
                 sort: req.query.sort || 'ctime',
                 page: req.query.page || 1,
                 filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false },
