@@ -85,12 +85,13 @@ class InputController {
         }).send(res);
     }
 
-    completeInputRequest = async (req, res) => {
+    completeInputRequest = async (req, res, next, session) => {
         new OK({
             message: "Complete input request successfully",
             metadata: await InputService.completeInputRequest({
                 id: req.params.id,
-                ...req.body
+                ...req.body,
+                session: session
             })
         }).send(res);
     }

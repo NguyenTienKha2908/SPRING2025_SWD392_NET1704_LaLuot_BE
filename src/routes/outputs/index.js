@@ -39,6 +39,31 @@ router.get("/details/:id",
     catchAsyncHandle(outputController.getOutputDetail)
 )
 
+router.put("/details/:id",
+    /**
+      * #swagger.tags = ['Output']
+      * #swagger.description='Update output detail'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output detail id',
+        type: 'string'
+    } */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateOutputDetails"
+                }  
+            }
+        }
+    } 
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.REPORT_STAFF] }),
+    catchAsyncHandle(outputController.updateOutputDetail)
+)
+
 router.get("/",
     /**
       * #swagger.tags = ['Output']
@@ -87,6 +112,31 @@ router.post("/",
     catchAsyncHandle(outputController.createOuputRequest)
 )
 
+router.put("/:id",
+    /**
+      * #swagger.tags = ['Output']
+      * #swagger.description='Update output request'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Output request id',
+        type: 'string'
+    } */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateOutputRequest"
+                }  
+            }
+        }
+    } 
+*/
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    catchAsyncHandle(outputController.updateOutputRequest)
+)
+
 
 router.patch("/:id/approve",
     /**
@@ -113,10 +163,10 @@ router.patch("/:id/approve",
     catchAsyncHandle(outputController.approveOutputRequest)
 )
 
-router.patch("/:id/reject",
+router.patch("/:id/assign",
     /**
       * #swagger.tags = ['Output']
-      * #swagger.description='Reject output request'
+      * #swagger.description='Assign output request'
       */
     /* #swagger.parameters['id'] = {
         in: 'path',
@@ -128,39 +178,14 @@ router.patch("/:id/reject",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/RejectOutputRequest"
+                    $ref: "#/components/schemas/AssignOutputRequest"
                 }  
             }
         }
     } 
 */
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
-    catchAsyncHandle(outputController.rejectOutputRequest)
-)
-
-router.patch("/:id/deliver",
-    /**
-      * #swagger.tags = ['Output']
-      * #swagger.description='Deliver output request'
-      */
-    /* #swagger.parameters['id'] = {
-        in: 'path',
-        required: true,
-        description: 'Output request id',
-        type: 'string'
-    } */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/DeliverOutputRequest"
-                }  
-            }
-        }
-    } 
-*/
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
-    catchAsyncHandle(outputController.deliverOutputRequest)
+    catchAsyncHandle(outputController.assignOutputRequest)
 )
 
 router.patch("/:id/complete",

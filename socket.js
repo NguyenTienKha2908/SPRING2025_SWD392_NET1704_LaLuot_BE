@@ -37,12 +37,20 @@ const socket = (io) => {
             })
         });
 
+        eventEmitter.on("checkAlmostExpiredMedicine", async (almostExpiredMedicines) => {
+            socket.emit("almostExpiredMedicines", almostExpiredMedicines);
+        })
+
         eventEmitter.on("checkExpiredMedicine", async (expiredMedicines) => {
             socket.emit("expiredMedicines", expiredMedicines);
         })
 
         eventEmitter.on("checkStockRequestDate", async (stockRequests) => {
-            socket.emit("stockRequests", stockRequests);
+            socket.emit("stockRequestsExceedDeadline", stockRequests);
+        })
+
+        eventEmitter.on("checkOutputRequestDate", async (outputRequests) => {
+            socket.emit("outputRequestsExceedDeadline", outputRequests);
         })
     });
 

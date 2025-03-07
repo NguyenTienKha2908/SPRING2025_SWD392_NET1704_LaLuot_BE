@@ -200,7 +200,8 @@ class WarehouseService {
         itemId,
         quantity,
         transactionType,
-        description
+        description,
+        session
     }) => {
         const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean();
         if (!warehouseHolder) {
@@ -244,14 +245,14 @@ class WarehouseService {
                     throw new BadRequestError("Quantity not match input quantity");
                 }
 
-                await inputDetailModel.updateOne({ _id: inputDetailHolder._id }, { status: "Done" })
+                await inputDetailModel.updateOne({ _id: inputDetailHolder._id }, { status: "Done" }, { session: session })
 
                 await warehouseStorageModel.create({
                     warehouseId,
                     itemId,
                     quantity,
                     batchNumber: "INP-" + new Date().getTime().toString(),
-                })
+                }, { session: session })
 
                 break
 
@@ -283,7 +284,7 @@ class WarehouseService {
                     throw new BadRequestError("Quantity not match output quantity");
                 }
 
-                await outputDetailModel.updateOne({ _id: outputDetailHolder._id }, { status: "Done" })
+                await outputDetailModel.updateOne({ _id: outputDetailHolder._id }, { status: "Done" }, { session: session })
 
                 const warehouseStorageHolder = await warehouseStorageModel.findOne({
                     warehouseId: warehouseId,
@@ -293,9 +294,12 @@ class WarehouseService {
                 if (!warehouseStorageHolder) {
                     throw new NotFoundRequestError("Warehouse storage not found");
                 }
-                warehouseStorageHolder.quantity -= quantity;
-                await warehouseStorageHolder.save();
 
+                warehouseStorageHolder.quantity -= quantity;
+                if (warehouseStorageHolder.quantity < 0) {
+                    throw new BadRequestError("Not enough quantity in warehouse storage");
+                }
+                await warehouseStorageHolder.save();
                 break;
             default:
                 throw new BadRequestError("Invalid transaction type");
@@ -425,6 +429,24 @@ class WarehouseService {
         return stockRequests;
     }
 
+    static checkOutputRequestDate = async () => {
+        const outputHolders = await outputModel.find({ status: "Pending", isDeleted: false }).lean();
+        const currentDate = new Date();
+
+        const outputRequests = outputHolders.filter(output => output.toDate < currentDate);
+
+        for (const outputRequest of outputRequests) {
+            await outputModel.updateOne({ _id: outputRequest._id }, {
+                status: "Cancelled",
+                cancelReason: "Exceeding deadline"
+            })
+        }
+
+        eventEmitter.emit("checkOutputRequestDate", outputRequests);
+
+        return outputRequests;
+    }
+
     static updateStockCheckRequest = async ({ id, description, status, fromDate, toDate, cancelReason }) => {
         const stockCheckHolder = await stockCheckModel
             .findOne({
@@ -485,7 +507,7 @@ class WarehouseService {
 
     static updateStockCheckDetail = async ({ id, actualQuantity, description, status }) => {
         console.log(id, actualQuantity, description, status);
-        
+
         if (actualQuantity && actualQuantity < 0) {
             throw new BadRequestError("Quantity must be greater than 0");
         }

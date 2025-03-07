@@ -32,6 +32,16 @@ class OutputController {
         }).send(res)
     }
 
+    updateOutputRequest = async (req, res) => {
+        new OK({
+            message: "Update output request successfully",
+            metadata: await OutputService.updateOutputRequest({
+                id: req.params.id,
+                ...req.body
+            })
+        }).send(res)
+    }
+
     getAllOuputDetails = async (req, res) => {
         new OK({
             message: "Get all output details successfully",
@@ -55,6 +65,17 @@ class OutputController {
         }).send(res)
     }
 
+    updateOutputDetail = async (req, res) => {
+        new OK({
+            message: "Update output detail successfully",
+            metadata: await OutputService.updateOutputDetail({
+                id: req.params.id,
+                ...req.body,
+                requesterId: req.userId
+            })
+        }).send(res)
+    }
+
     approveOutputRequest = async (req, res) => {
         new OK({
             message: "Approve output request successfully",
@@ -65,31 +86,22 @@ class OutputController {
         }).send(res)
     }
 
-    rejectOutputRequest = async (req, res) => {
+    assignOutputRequest = async (req, res) => {
         new OK({
-            message: "Reject output request successfully",
-            metadata: await OutputService.rejectOutputRequest({
+            message: "Assign output request successfully",
+            metadata: await OutputService.assignOutputRequest({
                 id: req.params.id,
                 ...req.body
             })
         }).send(res)
     }
 
-    deliverOutputRequest = async (req, res) => {
-        new OK({
-            message: "Deliver output request successfully",
-            metadata: await OutputService.deliverOutputRequest({
-                id: req.params.id,
-                ...req.body
-            })
-        }).send(res)
-    }
-
-    completeOutputRequest = async (req, res) => {
+    completeOutputRequest = async (req, res, next, session) => {
         new OK({
             message: "Complete output request successfully",
             metadata: await OutputService.completeOutputRequest({
                 id: req.params.id,
+                session: session,
             })
         }).send(res)
     }

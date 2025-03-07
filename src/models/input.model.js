@@ -18,8 +18,8 @@ var inputSchema = new mongoose.Schema(
     },
     totalPrice: {
       type: Number,
-      trim: true,
       default: 0,
+      min: 0,
     },
     cancelReason: {
       type: String,

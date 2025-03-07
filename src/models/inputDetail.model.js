@@ -22,13 +22,19 @@ var inputDetailSchema = new mongoose.Schema(
     },
     requestQuantity: {
       type: Number,
+      min: 0,
     },
     actualQuantity: {
       type: Number,
+      min: 0,
     },
     inputPrice: {
       type: Number,
-      trim: true,
+      min: 0,
+    },
+    suggestedOutputPrice: {
+      type: Number,
+      min: 0,
     },
     status: {
       type: String,

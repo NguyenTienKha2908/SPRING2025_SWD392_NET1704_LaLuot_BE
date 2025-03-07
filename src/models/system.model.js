@@ -6,7 +6,17 @@ const DOCUMENT_NAME = "System";
 const COLLECTION_NAME = "Systems";
 
 var systemSchema = new mongoose.Schema({
-    checkExpiredMedicineInterval: {
+    expiredMedicineDate: {
+        type: Number,
+        required: true,
+        default: 7776000000
+    },
+    almostExpiredMedicineDate: {
+        type: Number,
+        required: true,
+        default: 2592000000
+    },
+    checkMedicinesConditionInterval: {
         type: String,
         required: true,
         default: "*/1 * * * *",
@@ -16,6 +26,22 @@ var systemSchema = new mongoose.Schema({
         required: true,
         default: "*/1 * * * *",
     },
+    checkOutputRequestDateInterval: {
+        type: String,
+        required: true,
+        default: "*/1 * * * *",
+    },
+    normalOutputPricePercentage: {
+        type: Number,
+        required: true,
+        default: 0.2,
+    },
+    almostExpiredOutputPricePercentage: {
+        type: Number,
+        required: true,
+        default: 0.8,
+    },
+
     ...baseModelSchema.obj,
 }, {
     timestamps: true,
