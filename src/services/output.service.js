@@ -54,17 +54,51 @@ class OutputService {
         return outputDetailHolder;
     }
 
-    static createOuputRequest = async ({ reportStaffId, customerId, description, fromDate, toDate, outputDetails, session }) => {
+    static updateOutputDetail = async ({ id, quantity, outputPrice, status, requesterId }) => {
+        const outputDetailHolder = await outputDetailModel.findOne({
+            _id: id,
+        })
+        if (!outputDetailHolder)
+            throw new NotFoundRequestError("Output detail not found");
+
+        if (quantity && quantity < 0)
+            throw new BadRequestError("Invalid quantity");
+
+        if (outputPrice && outputPrice < 0)
+            throw new BadRequestError("Invalid output price");
+
+        if (status && !["Pending", "Done"].includes(status))
+            throw new BadRequestError("Invalid status");
+
+        if (requesterId) {
+            const requesterHolder = await userModel.findOne({
+                _id: requesterId,
+                isDeleted: false
+            }).lean();
+            if (!requesterHolder)
+                throw new NotFoundRequestError("Requester not found");
+        }
+
+        outputDetailHolder.quantity = quantity || outputDetailHolder.quantity;
+        outputDetailHolder.outputPrice = outputPrice || outputDetailHolder.outputPrice;
+        outputDetailHolder.status = status || outputDetailHolder.status;
+        outputDetailHolder.updatedBy = requesterId || outputDetailHolder.updatedBy;
+        await outputDetailHolder.save();
+
+        return;
+    }
+
+    static createOuputRequest = async ({ reportStaffId, customerId, description, outputDetails, session }) => {
         if (!reportStaffId || !customerId || !Array.isArray(outputDetails) || outputDetails.length === 0)
             throw new BadRequestError("Invalid input");
 
-        const inventoryStaffHolder = await userModel.findOne({
+        const reportStaffHolder = await userModel.findOne({
             _id: reportStaffId,
             role: USER_ROLES.REPORT_STAFF,
             isDeleted: false
         }).lean();
-        if (!inventoryStaffHolder)
-            throw new NotFoundRequestError("Inventory staff not found");
+        if (!reportStaffHolder)
+            throw new NotFoundRequestError("Report staff not found");
 
         // Kiểm tra customer
         const customerHolder = await userModel.findOne({
@@ -83,8 +117,6 @@ class OutputService {
             description: description || `Output request for ${customerHolder.name}`,
             status: "Pending",
             batchNumber: new Date().getTime().toString() + "-OUP",
-            fromDate: fromDate,
-            toDate: toDate
         }], { session: session });
 
         const outputDetailsToCreate = await Promise.all(outputDetails.map(async outputDetail => {
@@ -101,7 +133,12 @@ class OutputService {
             const warehouseStorageHolder = await warehouseStorageModel.findOne({ itemId: itemId, isDeleted: false })
             if (!warehouseStorageHolder)
                 throw new NotFoundRequestError("Warehouse storage not found");
-            
+
+            if (warehouseStorageHolder.quantity < quantity)
+                throw new BadRequestError("Not enough quantity in warehouse");
+
+            newOutput[0].totalPrice += outputPrice * quantity;
+
             return {
                 outputId: newOutput[0]._id,
                 warehouseId: warehouseStorageHolder.warehouseId,
@@ -110,10 +147,41 @@ class OutputService {
                 outputPrice: outputPrice,
             }
         }));
-
+        await newOutput[0].save({ session: session });
         await outputDetailModel.insertMany(outputDetailsToCreate.flat(), { session: session });
 
         return newOutput;
+    }
+
+    static updateOutputRequest = async ({ id, description, fromDate, toDate, inventoryStaffIds }) => {
+        if (!id || (inventoryStaffIds && (!Array.isArray(inventoryStaffIds) || inventoryStaffIds.length === 0)))
+            throw new BadRequestError("Invalid input");
+
+        const outputHolder = await outputModel.findOne({
+            _id: id,
+            status: ["Pending", "Approved", "Assigned"],
+            isDeleted: false
+        })
+        if (!outputHolder)
+            throw new NotFoundRequestError("Output request not found");
+
+        if (inventoryStaffIds) {
+            const inventoryStaffHolders = await userModel.find({
+                _id: { $in: inventoryStaffIds },
+                role: USER_ROLES.INVENTORY_STAFF,
+                isDeleted: false
+            })
+            if (!inventoryStaffHolders || inventoryStaffHolders.length === 0)
+                throw new NotFoundRequestError("Inventory staffs not found");
+            outputHolder.inventoryStaffIds = inventoryStaffIds || outputHolder.inventoryStaffIds;
+        }
+
+        outputHolder.description = description || outputHolder.description;
+        outputHolder.fromDate = fromDate || outputHolder.fromDate;
+        outputHolder.toDate = toDate || outputHolder.toDate;
+        await outputHolder.save();
+
+        return;
     }
 
     static approveOutputRequest = async ({ id, managerId }) => {
@@ -144,9 +212,13 @@ class OutputService {
         return;
     }
 
-    static assignOutputRequest = async ({ id, inventoryStaffId }) => {
-        if (!id || !inventoryStaffId)
+    static assignOutputRequest = async ({ id, fromDate, toDate, inventoryStaffIds }) => {
+        if (!id || !Array.isArray(inventoryStaffIds) || inventoryStaffIds.length === 0)
             throw new BadRequestError("Invalid input");
+        if (fromDate && toDate && fromDate > toDate)
+            throw new BadRequestError("Invalid date range");
+        if (fromDate && toDate && fromDate < new Date().getTime())
+            throw new BadRequestError("Invalid date range");
 
         const outputHolder = await outputModel.findOne({
             _id: id,
@@ -156,28 +228,31 @@ class OutputService {
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
-        const inventoryStaffHolder = await userModel.findOne({
-            _id: inventoryStaffId,
+        const inventoryStaffHolders = await userModel.find({
+            _id: { $in: inventoryStaffIds },
             role: USER_ROLES.INVENTORY_STAFF,
             isDeleted: false
-        }).lean();
-        if (!inventoryStaffHolder)
-            throw new NotFoundRequestError("Inventory staff not found");
+        })
+        if (!inventoryStaffHolders || inventoryStaffHolders.length === 0)
+            throw new NotFoundRequestError("Inventory staffs not found");
+
 
         outputHolder.status = "Assigned";
-        outputHolder.inventoryStaffId = inventoryStaffId;
+        outputHolder.inventoryStaffIds = inventoryStaffIds;
+        outputHolder.fromDate = fromDate;
+        outputHolder.toDate = toDate;
         await outputHolder.save();
 
         return;
     }
 
-    static completeOutputRequest = async ({ id }) => {
+    static completeOutputRequest = async ({ id, session }) => {
         if (!id)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
             _id: id,
-            status: "Delivering",
+            status: "Assigned",
             isDeleted: false
         })
         if (!outputHolder)
@@ -194,7 +269,8 @@ class OutputService {
                 warehouseId: outputDetail.warehouseId,
                 quantity: outputDetail.quantity,
                 transactionType: "Output",
-                description: `Output request ${outputHolder.batchNumber}`
+                description: `Output request ${outputHolder.batchNumber}`,
+                session: session
             })
         }
 

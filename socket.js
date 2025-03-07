@@ -46,7 +46,11 @@ const socket = (io) => {
         })
 
         eventEmitter.on("checkStockRequestDate", async (stockRequests) => {
-            socket.emit("stockRequests", stockRequests);
+            socket.emit("stockRequestsExceedDeadline", stockRequests);
+        })
+
+        eventEmitter.on("checkOutputRequestDate", async (outputRequests) => {
+            socket.emit("outputRequestsExceedDeadline", outputRequests);
         })
     });
 

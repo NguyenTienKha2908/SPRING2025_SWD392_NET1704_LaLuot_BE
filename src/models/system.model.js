@@ -26,6 +26,11 @@ var systemSchema = new mongoose.Schema({
         required: true,
         default: "*/1 * * * *",
     },
+    checkOutputRequestDateInterval: {
+        type: String,
+        required: true,
+        default: "*/1 * * * *",
+    },
     normalOutputPricePercentage: {
         type: Number,
         required: true,

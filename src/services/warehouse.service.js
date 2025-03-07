@@ -429,6 +429,24 @@ class WarehouseService {
         return stockRequests;
     }
 
+    static checkOutputRequestDate = async () => {
+        const outputHolders = await outputModel.find({ status: "Pending", isDeleted: false }).lean();
+        const currentDate = new Date();
+
+        const outputRequests = outputHolders.filter(output => output.toDate < currentDate);
+
+        for (const outputRequest of outputRequests) {
+            await outputModel.updateOne({ _id: outputRequest._id }, {
+                status: "Cancelled",
+                cancelReason: "Exceeding deadline"
+            })
+        }
+
+        eventEmitter.emit("checkOutputRequestDate", outputRequests);
+
+        return outputRequests;
+    }
+
     static updateStockCheckRequest = async ({ id, description, status, fromDate, toDate, cancelReason }) => {
         const stockCheckHolder = await stockCheckModel
             .findOne({
@@ -489,7 +507,7 @@ class WarehouseService {
 
     static updateStockCheckDetail = async ({ id, actualQuantity, description, status }) => {
         console.log(id, actualQuantity, description, status);
-        
+
         if (actualQuantity && actualQuantity < 0) {
             throw new BadRequestError("Quantity must be greater than 0");
         }

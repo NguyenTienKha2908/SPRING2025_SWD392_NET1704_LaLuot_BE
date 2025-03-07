@@ -28,6 +28,7 @@ var outputSchema = new mongoose.Schema(
         totalPrice: {
             type: Number,
             default: 0,
+            min: 0,
         },
         fromDate: {
             type: Date,
@@ -44,7 +45,7 @@ var outputSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
         },
-        inventoryStaffId: [{
+        inventoryStaffIds: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
         }],
