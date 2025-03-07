@@ -97,5 +97,8 @@ router.put("/check-expired-medicine",
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
     catchAsyncHandle(itemController.updateCheckExpiredMedicineInterval)
 )
-
+router.post("/create-disposal-request",
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    catchAsyncHandle(itemController.createDisposalRequest)
+)
 module.exports = router;

@@ -2,11 +2,10 @@ const { validFullName, validEmail, validPassword, validMongoObjectId } = require
 const { BadRequestError } = require("../../responses/error.response");
 
 class UpdateUserDto {
-    constructor(id, fullName, email, password, role) {
+    constructor(id, fullName, email, role) {
         this.id = id;
         this.fullName = fullName;
-        this.email = email;
-        this.password = password;
+        this.email = email;        
         this.role = role;
     }
     async validate() {
@@ -15,9 +14,7 @@ class UpdateUserDto {
             if (this.fullName)
                 await validFullName(this.fullName);
             if (this.email)
-                await validEmail(this.email);
-            if (this.password)
-                await validPassword(this.password);
+                await validEmail(this.email);            
             if (this.role) {
                 if (this.role < 0 || this.role > 2)
                     throw new BadRequestError("Invalid Role")

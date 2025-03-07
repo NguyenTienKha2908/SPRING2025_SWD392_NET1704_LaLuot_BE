@@ -5,6 +5,7 @@ const SELECT_INPUT = 'description cancelReason batchNumber status warehouseId su
 
 const SELECT_INPUT_DETAILS = 'inputId itemId quantity inputPrice status';
 
+
 const POPULATE_INPUT = [
     {
         path: 'supplierId',

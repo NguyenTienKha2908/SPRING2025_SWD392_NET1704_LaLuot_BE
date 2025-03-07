@@ -256,8 +256,6 @@ class WarehouseService {
                 break
 
             case "Output":
-
-
                 if (!outputId) {
                     throw new BadRequestError("Output id is required");
                 }
@@ -486,6 +484,8 @@ class WarehouseService {
     }
 
     static updateStockCheckDetail = async ({ id, actualQuantity, description, status }) => {
+        console.log(id, actualQuantity, description, status);
+        
         if (actualQuantity && actualQuantity < 0) {
             throw new BadRequestError("Quantity must be greater than 0");
         }

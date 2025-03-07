@@ -5,7 +5,7 @@ const validFullName = async (fullName) => {
   if (!fullName) throw new BadRequestError("Full name is required.");
   if (!validator.isLength(fullName, { min: 6, max: 50 }))
     throw new BadRequestError("Full name must be between 6 and 50 characters.");
-  const regex = /^[A-ZÀ-Ỹ][a-zà-ỹ]*(?:\s[A-ZÀ-Ỹa-zà-ỹ0-9]+)*(?:\s\d+)?$/;
+  const regex = /^[A-ZÀ-Ỹ][a-zà-ỹ]*(?:\s[A-ZÀ-Ỹa-zà-ỹ0-9]+)*\s\d+$/;
   if (!regex.test(fullName)) {
     throw new BadRequestError("Full name is not valid.");
   }
