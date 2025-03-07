@@ -256,8 +256,6 @@ class WarehouseService {
                 break
 
             case "Output":
-
-
                 if (!outputId) {
                     throw new BadRequestError("Output id is required");
                 }
