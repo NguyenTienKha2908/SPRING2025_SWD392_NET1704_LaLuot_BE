@@ -61,10 +61,7 @@ class UserService {
         const userHolder = await userModel.findById(id).lean();
         if (!userHolder) {
             throw new NotFoundRequestError("User not found");
-        }
-        if (await userModel.findOne({ email })) {
-            throw new BadRequestError("Email already exists");
-        }
+        }        
 
         await userModel.updateOne({ _id: id }, {
             fullName: fullName || userHolder.fullName,
