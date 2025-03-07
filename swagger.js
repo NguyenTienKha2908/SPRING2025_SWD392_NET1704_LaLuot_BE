@@ -361,7 +361,7 @@ const doc = {
       RejectInputRequest: {
         managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
       },
-      DeliverInputRequest: {
+      AssignInputRequest: {
         inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
       },
       CancelInputRequest: {

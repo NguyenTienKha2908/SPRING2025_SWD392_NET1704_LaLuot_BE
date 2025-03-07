@@ -3,7 +3,7 @@ const CreateItemDTO = require("../core/dtos/items/create.item.dto");
 const { BadRequestError } = require("../core/responses/error.response");
 const itemModel = require("../models/item.model");
 const systemModel = require("../models/system.model");
-const { checkExpiredMedicines, getAllItems } = require("../repositories/item.repo");
+const { checkExpiredMedicines, getAllItems, checkAlmostExpiredMedicines } = require("../repositories/item.repo");
 const { generateMedicineCode } = require("../utils/medicine.util");
 class ItemService {
     static getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
@@ -39,12 +39,14 @@ class ItemService {
         })
         return updatedItem;
     }
-    static checkExpiredMedicine = async () => {
+    static checkMedicinesCondition = async () => {
+        const almostExpiredMedicines = await checkAlmostExpiredMedicines()
         const expiredMedicines = await checkExpiredMedicines()
 
+        eventEmitter.emit("checkAlmostExpiredMedicine", almostExpiredMedicines);
         eventEmitter.emit("checkExpiredMedicine", expiredMedicines);
 
-        return expiredMedicines;
+        return { almostExpiredMedicines, expiredMedicines };
     }
 
     static updateExpiredMedicineInterval = async ({ job, interval }) => {

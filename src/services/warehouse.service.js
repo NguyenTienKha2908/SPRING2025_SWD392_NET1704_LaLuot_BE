@@ -200,7 +200,8 @@ class WarehouseService {
         itemId,
         quantity,
         transactionType,
-        description
+        description,
+        session
     }) => {
         const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean();
         if (!warehouseHolder) {
@@ -244,20 +245,18 @@ class WarehouseService {
                     throw new BadRequestError("Quantity not match input quantity");
                 }
 
-                await inputDetailModel.updateOne({ _id: inputDetailHolder._id }, { status: "Done" })
+                await inputDetailModel.updateOne({ _id: inputDetailHolder._id }, { status: "Done" }, { session: session })
 
                 await warehouseStorageModel.create({
                     warehouseId,
                     itemId,
                     quantity,
                     batchNumber: "INP-" + new Date().getTime().toString(),
-                })
+                }, { session: session })
 
                 break
 
             case "Output":
-
-
                 if (!outputId) {
                     throw new BadRequestError("Output id is required");
                 }
@@ -285,7 +284,7 @@ class WarehouseService {
                     throw new BadRequestError("Quantity not match output quantity");
                 }
 
-                await outputDetailModel.updateOne({ _id: outputDetailHolder._id }, { status: "Done" })
+                await outputDetailModel.updateOne({ _id: outputDetailHolder._id }, { status: "Done" }, { session: session })
 
                 const warehouseStorageHolder = await warehouseStorageModel.findOne({
                     warehouseId: warehouseId,
@@ -295,9 +294,12 @@ class WarehouseService {
                 if (!warehouseStorageHolder) {
                     throw new NotFoundRequestError("Warehouse storage not found");
                 }
-                warehouseStorageHolder.quantity -= quantity;
-                await warehouseStorageHolder.save();
 
+                warehouseStorageHolder.quantity -= quantity;
+                if (warehouseStorageHolder.quantity < 0) {
+                    throw new BadRequestError("Not enough quantity in warehouse storage");
+                }
+                await warehouseStorageHolder.save();
                 break;
             default:
                 throw new BadRequestError("Invalid transaction type");

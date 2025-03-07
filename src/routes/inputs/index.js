@@ -169,7 +169,7 @@ router.patch("/:id/complete",
         description: 'Input request id',
         type: 'string'
     } */
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(inputController.completeInputRequest)
 );
 

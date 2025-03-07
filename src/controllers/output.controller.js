@@ -65,20 +65,10 @@ class OutputController {
         }).send(res)
     }
 
-    rejectOutputRequest = async (req, res) => {
+    assignOutputRequest = async (req, res) => {
         new OK({
-            message: "Reject output request successfully",
-            metadata: await OutputService.rejectOutputRequest({
-                id: req.params.id,
-                ...req.body
-            })
-        }).send(res)
-    }
-
-    deliverOutputRequest = async (req, res) => {
-        new OK({
-            message: "Deliver output request successfully",
-            metadata: await OutputService.deliverOutputRequest({
+            message: "Assign output request successfully",
+            metadata: await OutputService.assignOutputRequest({
                 id: req.params.id,
                 ...req.body
             })
