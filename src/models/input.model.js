@@ -11,6 +11,11 @@ var inputSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    batchNumber: {
+      type: String,
+      trim: true,
+      unique: true,
+    },
     totalPrice: {
       type: Number,
       trim: true,
@@ -21,13 +26,19 @@ var inputSchema = new mongoose.Schema(
       trim: true,
       defaultValue: "none",
     },
+    fromDate: {
+      type: Date,
+    },
+    toDate: {
+      type: Date,
+    },
     status: {
       type: String,
       enum: [
         "Pending",
         "Approved",
-        "Rejected",
-        "Delivering",
+        // "Rejected",
+        "Assigned",
         "Cancelled",
         "Done",
       ],
@@ -45,10 +56,10 @@ var inputSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    inventoryStaffId: {
+    inventoryStaffId: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-    },
+    }],
     ...baseModelSchema.obj,
   },
   {

@@ -16,7 +16,7 @@ var itemSchema = new mongoose.Schema({
         ref: 'BaseItem',
         required: true,
     },
-    code:{
+    code: {
         type: String,
         required: true,
         trim: true,
@@ -28,11 +28,9 @@ var itemSchema = new mongoose.Schema({
     },
     manufactureDate: {
         type: Date,
-        required: true,
     },
     expiredDate: {
         type: Date,
-        required: true,
     },
     unit: {
         type: String,
