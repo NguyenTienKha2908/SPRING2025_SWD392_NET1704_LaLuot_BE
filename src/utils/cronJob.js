@@ -15,16 +15,17 @@ const CRON_INTERVAL = {
 
 const cronJobs = {
     checkExpiredMedicine: {
-        name: "Check expired medicine",
+        name: "Check medicines condition",
         interval: CRON_INTERVAL.HOURLY, // Every day at 00:00
         task: null,
         callback: async () => {
-            logger.info("🕒 Checking expired medicine...");
+            logger.info("🕒 Checking medicines condition...");
             try {
-                const expiredMedicines = await ItemService.checkExpiredMedicine();
-                logger.info(`🕒 Found ${expiredMedicines.length} expired medicines`);
+                const medicines = await ItemService.checkMedicinesCondition();
+                logger.info(`🕒 Found ${medicines.almostExpiredMedicines} almost expired medicines`);
+                logger.info(`🕒 Found ${medicines.expiredMedicines} expired medicines`);
             } catch (error) {
-                logger.error("❌ Error checking expired medicine", error);
+                logger.error("❌ Error checking medicines condition", error);
             }
         }
     },
@@ -52,8 +53,8 @@ const startCronJobs = () => {
         }
 
         const system = await systemModel.findOne();
-        if (cronJobs[job].name === "Check expired medicine")
-            cronJobs[job].interval = system.checkExpiredMedicineInterval;
+        if (cronJobs[job].name === "Check medicines condition")
+            cronJobs[job].interval = system.checkMedicinesConditionInterval;
         else if (cronJobs[job].name === "Check stock request date")
             cronJobs[job].interval = system.checkStockRequestDateInterval;
 

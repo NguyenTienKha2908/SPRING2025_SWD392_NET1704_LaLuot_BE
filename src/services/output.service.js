@@ -54,7 +54,7 @@ class OutputService {
         return outputDetailHolder;
     }
 
-    static createOuputRequest = async ({ reportStaffId, customerId, description, outputDetails, session }) => {
+    static createOuputRequest = async ({ reportStaffId, customerId, description, fromDate, toDate, outputDetails, session }) => {
         if (!reportStaffId || !customerId || !Array.isArray(outputDetails) || outputDetails.length === 0)
             throw new BadRequestError("Invalid input");
 
@@ -82,79 +82,36 @@ class OutputService {
             customerId: customerId,
             description: description || `Output request for ${customerHolder.name}`,
             status: "Pending",
-            batchNumber: new Date().getTime().toString() + "-OUP"
+            batchNumber: new Date().getTime().toString() + "-OUP",
+            fromDate: fromDate,
+            toDate: toDate
         }], { session: session });
 
-
-        const baseItemIds = outputDetails.map((outputDetail) => outputDetail.baseItemId);
-        const baseItemHolders = await baseItemModel.find({ _id: { $in: baseItemIds }, isDeleted: false }).lean();
-        const baseItemMap = new Map(baseItemHolders.map(baseItem => [baseItem._id.toString(), baseItem]));
-
         const outputDetailsToCreate = await Promise.all(outputDetails.map(async outputDetail => {
-            const { baseItemId, quantity, outputPrice } = outputDetail;
+            const { itemId, quantity, outputPrice } = outputDetail;
 
-            if (!baseItemMap.has(baseItemId))
-                throw new NotFoundRequestError(`Base item with id ${baseItemId} not found`);
+            const itemHolder = await itemModel.findOne({
+                _id: itemId,
+                status: ["Available", "Almost Expired"],
+                isDeleted: false
+            }).lean();
+            if (!itemHolder)
+                throw new NotFoundRequestError("Item not found");
 
-            const itemHolders = await itemModel
-                .find({
-                    baseItemId: baseItemId,
-                    status: "Available",
-                    isDeleted: false
-                })
-                .sort({ expiredDate: -1 })
-                .lean();
-
-
-            if (!itemHolders || itemHolders.length === 0)
-                throw new NotFoundRequestError(`Item with base item id ${baseItemId} not found`);
-
-            let itemQuantity = 0;
-            for (let item of itemHolders) {
-                const warehouseStorageHolder = await warehouseStorageModel.findOne({
-                    itemId: item._id,
-                    isDeleted: false
-                }).lean();
-
-                if (!warehouseStorageHolder) continue;
-                itemQuantity += warehouseStorageHolder.quantity;
+            const warehouseStorageHolder = await warehouseStorageModel.findOne({ itemId: itemId, isDeleted: false })
+            if (!warehouseStorageHolder)
+                throw new NotFoundRequestError("Warehouse storage not found");
+            
+            return {
+                outputId: newOutput[0]._id,
+                warehouseId: warehouseStorageHolder.warehouseId,
+                itemId: itemId,
+                quantity: quantity,
+                outputPrice: outputPrice,
             }
-
-            if (itemQuantity < quantity)
-                throw new BadRequestError(`Remaining quantity of item is ${itemQuantity} but requested quantity is ${quantity}`);
-
-            let remainingQuantity = quantity;
-            const results = [];
-            for (let item of itemHolders) {
-                const warehouseStorageHolder = await warehouseStorageModel.findOne({
-                    itemId: item._id,
-                    isDeleted: false
-                }).lean();
-                if (!warehouseStorageHolder) continue
-                if (warehouseStorageHolder.quantity >= remainingQuantity) {
-                    results.push({
-                        outputId: newOutput[0]._id,
-                        warehouseId: warehouseStorageHolder.warehouseId,
-                        itemId: item._id,
-                        quantity: remainingQuantity,
-                        outputPrice: outputPrice,
-                    });
-                    break;
-                } else {
-                    results.push({
-                        outputId: newOutput[0]._id,
-                        warehouseId: warehouseStorageHolder.warehouseId,
-                        itemId: item._id,
-                        quantity: warehouseStorageHolder.quantity,
-                        outputPrice: outputPrice,
-                    });
-                    remainingQuantity -= warehouseStorageHolder.quantity;
-                }
-            }
-            return results;
         }));
 
-        await outputDetailModel.insertMany(outputDetailsToCreate.flat());
+        await outputDetailModel.insertMany(outputDetailsToCreate.flat(), { session: session });
 
         return newOutput;
     }
@@ -187,35 +144,7 @@ class OutputService {
         return;
     }
 
-    static rejectOutputRequest = async ({ id, managerId }) => {
-        if (!id || !managerId)
-            throw new BadRequestError("Invalid input");
-
-        const outputHolder = await outputModel.findOne({
-            _id: id,
-            status: "Pending",
-            isDeleted: false
-        })
-
-        if (!outputHolder)
-            throw new NotFoundRequestError("Output request not found");
-
-        const managerHolder = await userModel.findOne({
-            _id: managerId,
-            role: USER_ROLES.MANAGER,
-            isDeleted: false
-        }).lean();
-        if (!managerHolder)
-            throw new NotFoundRequestError("Manager not found");
-
-        outputHolder.status = "Rejected";
-        outputHolder.managerId = managerId;
-        await outputHolder.save();
-
-        return;
-    }
-
-    static deliverOutputRequest = async ({ id, inventoryStaffId }) => {
+    static assignOutputRequest = async ({ id, inventoryStaffId }) => {
         if (!id || !inventoryStaffId)
             throw new BadRequestError("Invalid input");
 
@@ -235,7 +164,7 @@ class OutputService {
         if (!inventoryStaffHolder)
             throw new NotFoundRequestError("Inventory staff not found");
 
-        outputHolder.status = "Delivering";
+        outputHolder.status = "Assigned";
         outputHolder.inventoryStaffId = inventoryStaffId;
         await outputHolder.save();
 

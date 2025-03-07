@@ -138,10 +138,10 @@ router.patch("/:id/reject",
     catchAsyncHandle(outputController.rejectOutputRequest)
 )
 
-router.patch("/:id/deliver",
+router.patch("/:id/assign",
     /**
       * #swagger.tags = ['Output']
-      * #swagger.description='Deliver output request'
+      * #swagger.description='Assign output request'
       */
     /* #swagger.parameters['id'] = {
         in: 'path',

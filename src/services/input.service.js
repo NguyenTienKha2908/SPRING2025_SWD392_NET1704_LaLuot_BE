@@ -200,7 +200,7 @@ class InputService {
         return
     }
 
-    static completeInputRequest = async ({ id }) => {
+    static completeInputRequest = async ({ id, session }) => {
         if (!id) throw new BadRequestError("Invalid input");
 
         const inputHolder = await inputModel.findOne({
@@ -221,7 +221,8 @@ class InputService {
                 itemId: inputDetail.itemId,
                 quantity: inputDetail.quantity,
                 transactionType: "Input",
-                description: `Input request ${inputDetail._id} has been completed`
+                description: `Input request ${inputDetail._id} has been completed`,
+                session: session
             })
         }
 

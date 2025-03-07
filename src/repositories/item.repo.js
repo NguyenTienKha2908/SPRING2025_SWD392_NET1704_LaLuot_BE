@@ -1,5 +1,6 @@
 const { SELECT_BASEITEM } = require("../configs/baseitem.config");
-const itemModel = require("../models/item.model")
+const itemModel = require("../models/item.model");
+const systemModel = require("../models/system.model");
 
 const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
     const skip = (page - 1) * limit;
@@ -32,11 +33,13 @@ const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
 }
 
 const checkExpiredMedicines = async () => {
+    const expiredMedicineDate = await systemModel.findOne({}).select('expiredMedicineDate')
+
     let expiredMedicines = await itemModel.aggregate([
         {
             $match: {
-                expiredDate: { $lt: new Date() },
-                status: "Available"
+                expiredDate: { $lt: new Date(new Date().getTime() + expiredMedicineDate) },
+                status: ["Available", "Almost Expired"]
             }
         },
         {
@@ -62,9 +65,47 @@ const checkExpiredMedicines = async () => {
 
     for (let medicine of expiredMedicines) {
         medicine.status = "Expired"
-        delete medicine.baseItemId
     }
+
     return expiredMedicines
 }
 
-module.exports = { getAllItems, checkExpiredMedicines }
+const checkAlmostExpiredMedicines = async () => {
+    const almostExpiredMedicineDate = await systemModel.findOne({}).select('almostExpiredMedicineDate')
+
+    let almostExpiredMedicines = await itemModel.aggregate([
+        {
+            $match: {
+                expiredDate: { $lt: new Date(new Date().getTime() + almostExpiredMedicineDate) },
+                status: "Available"
+            }
+        },
+        {
+            $lookup: {
+                from: 'BaseItems',
+                localField: 'baseItemId',
+                foreignField: '_id',
+                as: 'baseItem'
+            }
+        },
+        {
+            $unwind: '$baseItem'
+        }, {
+            $match: {
+                'baseItem.category': 'Medicine'
+            }
+        }
+    ])
+
+    await itemModel.updateMany({ _id: { $in: expiredMedicines.map(medicine => medicine._id) } },
+        { status: "Almost Expired" })
+
+
+    for (let medicine of almostExpiredMedicines) {
+        medicine.status = "Almost Expired"
+    }
+
+    return almostExpiredMedicines
+}
+
+module.exports = { getAllItems, checkExpiredMedicines, checkAlmostExpiredMedicines };
