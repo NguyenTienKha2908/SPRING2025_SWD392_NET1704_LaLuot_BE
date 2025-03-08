@@ -367,10 +367,6 @@ const doc = {
           {
             $baseItemId: "60e0b3f0b3f0b3f0b3f0b3f0",
             $quantity: 10,
-            $inputPrice: 1000,
-            $manufactureDate: "2021-07-01T00:00:00.000Z",
-            $expiredDate: "2022-07-01T00:00:00.000Z",
-            $unit: "Box",
           },
         ],
       },
