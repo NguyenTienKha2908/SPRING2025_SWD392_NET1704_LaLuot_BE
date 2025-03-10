@@ -18,10 +18,10 @@ var notifySchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        type:{
+        type: {
             type: String,
             required: true,
-            enum:["success","info","warning","error"]
+            enum: ["success", "info", "warning", "error"]
         },
         isRead: {
             type: Boolean,

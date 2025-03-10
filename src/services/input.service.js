@@ -48,10 +48,9 @@ class InputService {
       .lean();
 
     if (!inputHolder) throw new NotFoundRequestError("Input request not found");
-
     const inputDetailHolders = await inputDetailModel
       .find({ inputId: id })
-      .populate([POPULATE_INPUT_DETAILS[1]])
+      .populate(POPULATE_INPUT_DETAILS)
       .lean();
     if (!inputDetailHolders || inputDetailHolders.length === 0)
       throw new NotFoundRequestError("Input details not found");
