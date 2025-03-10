@@ -24,9 +24,11 @@ var outputDetailSchema = new mongoose.Schema(
         quantity: {
             type: Number,
             required: true,
+            min: 0,
         },
         outputPrice: {
             type: Number,
+            min: 0,
         },
         status: {
             type: String,

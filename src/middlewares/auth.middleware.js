@@ -10,12 +10,12 @@ const AuthMiddleware = async (req, res, next) => {
     if (!authorization) {
       throw new UnauthorizedRequestError("Authorization header is required");
     }
-    logger.info(`Authorization: ${authorization}`);
+    // logger.info(`Authorization: ${authorization}`);
 
     const token = authorization.split(" ")[1];
     const { _id, role } = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    logger.info(`User ID: ${_id}`);
-    logger.info(`Role: ${role}`);
+    // logger.info(`User ID: ${_id}`);
+    // logger.info(`Role: ${role}`);
 
     req.userId = _id;
     req.role = role;

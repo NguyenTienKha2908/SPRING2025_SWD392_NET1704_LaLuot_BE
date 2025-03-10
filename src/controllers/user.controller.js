@@ -7,7 +7,7 @@ class UserController {
         new OK({
             message: "Get all users successfully",
             metadata: await UserService.getAllUsers({
-                limit: req.query.limit || 10,
+                limit: req.query.limit || 1000,
                 sort: req.query.sort || 'ctime',
                 page: req.query.page || 1,
                 filter: req.query.filter ? JSON.parse(req.query.filter) : FILTER_USER.NORMAL_USER, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}

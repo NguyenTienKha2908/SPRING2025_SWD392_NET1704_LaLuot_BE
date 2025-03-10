@@ -88,7 +88,7 @@ const { startCronJobs } = require("./utils/cronJob");
 startCronJobs();
 
 // request logger
-app.use(handleApiRequest);
+// app.use(handleApiRequest);
 
 // init routes
 app.use("/api/v1", require("./routes"));

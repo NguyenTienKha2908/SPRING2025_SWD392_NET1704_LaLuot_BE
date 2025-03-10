@@ -65,7 +65,7 @@ const getAllBaseItem = async ({
   select,
   expand,
 }) => {
-  const skip = (page - 1) * limit;
+  const skip = (page - 1) * Number(limit);
   const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
 
   const populateOptions = {
@@ -89,18 +89,6 @@ const getAllBaseItem = async ({
     .select(`${select}`)
     .populate(populateFields)
     .lean();
-
-  for (let baseItem of baseItems) {
-    if (expand && expand.includes("avgInputPrice"))
-      baseItem.avgInputPrice = await getAvgInputPriceOfBaseItem({
-        id: baseItem._id,
-      });
-
-    if (expand && expand.includes("totalQuantity"))
-      baseItem.totalQuantity = await getStorageQuantityOfBaseItem({
-        id: baseItem._id
-      })
-  }
 
   const totalBaseItems = await baseItemModel.countDocuments(filter);
   const totalPages = Math.ceil(totalBaseItems / limit);

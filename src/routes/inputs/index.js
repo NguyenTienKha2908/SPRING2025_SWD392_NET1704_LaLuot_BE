@@ -39,6 +39,30 @@ router.get("/details/:id",
     catchAsyncHandle(inputController.getInputDetail)
 );
 
+router.put("/details/:id",
+    /**
+      * #swagger.tags = ['Input']
+      * #swagger.description='Update input detail'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Input detail id',
+        type: 'string'
+    } */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateInputDetail"
+                }  
+            }
+        }
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    catchAsyncHandle(inputController.updateInputDetail)
+)
+
 router.get("/",
     /**
       * #swagger.tags = ['Input']
@@ -86,6 +110,30 @@ router.post("/",
     catchAsyncHandle(inputController.createInputRequest)
 );
 
+router.put("/:id",
+    /**
+      * #swagger.tags = ['Input']
+      * #swagger.description='Update input request'
+      */
+    /* #swagger.parameters['id'] = {
+        in: 'path',
+        required: true,
+        description: 'Input request id',
+        type: 'string'
+    } */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/UpdateInputRequest"
+                }  
+            }
+        }
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.REPORT_STAFF] }),
+    catchAsyncHandle(inputController.updateInputRequest)
+);
+
 router.patch("/:id/approve",
     /**
       * #swagger.tags = ['Input']
@@ -110,10 +158,10 @@ router.patch("/:id/approve",
     catchAsyncHandle(inputController.approveInputRequest)
 );
 
-router.patch("/:id/reject",
+router.patch("/:id/assign",
     /**
       * #swagger.tags = ['Input']
-      * #swagger.description='Reject input request'
+      * #swagger.description='Assign input request'
       */
     /* #swagger.parameters['id'] = {
         in: 'path',
@@ -125,37 +173,13 @@ router.patch("/:id/reject",
         content: {
             "application/json": {
                 schema: {
-                    $ref: "#/components/schemas/RejectInputRequest"
+                    $ref: "#/components/schemas/AssignInputRequest"
                 }  
             }
         }
     } */
     checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
-    catchAsyncHandle(inputController.rejectInputRequest)
-);
-
-router.patch("/:id/deliver",
-    /**
-      * #swagger.tags = ['Input']
-      * #swagger.description='Deliver input request'
-      */
-    /* #swagger.parameters['id'] = {
-        in: 'path',
-        required: true,
-        description: 'Input request id',
-        type: 'string'
-    } */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/DeliverInputRequest"
-                }  
-            }
-        }
-    } */
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
-    catchAsyncHandle(inputController.deliverInputRequest)
+    catchAsyncHandle(inputController.assignInputRequest)
 );
 
 router.patch("/:id/complete",

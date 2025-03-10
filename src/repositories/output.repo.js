@@ -1,6 +1,6 @@
 const { SELECT_BASEITEM } = require("../configs/baseitem.config");
 const { SELECT_ITEM } = require("../configs/item.config");
-const { SELECT_OUTPUT } = require("../configs/output.config");
+const { SELECT_OUTPUT, POPULATE_OUTPUT } = require("../configs/output.config");
 const { SELECT_USER } = require("../configs/user.config");
 const { SELECT_WAREHOUSE } = require("../configs/warehouse.config");
 const outputModel = require("../models/output.model");
@@ -20,15 +20,15 @@ const getAllOutputRequests = async ({
   const populateOptions = {
     customer: { path: "customerId", select: SELECT_USER.DEFAULT },
     manager: { path: "managerId", select: SELECT_USER.DEFAULT },
-    inventoryStaff: { path: "inventoryStaffId", select: SELECT_USER.DEFAULT },
+    inventoryStaffs: { path: "inventoryStaffIds", select: SELECT_USER.DEFAULT },
     reportStaff: { path: "reportStaffId", select: SELECT_USER.DEFAULT },
   };
 
   const populateFields = expand
     ? expand
-        .split(" ")
-        .map((field) => populateOptions[field])
-        .filter(Boolean)
+      .split(" ")
+      .map((field) => populateOptions[field])
+      .filter(Boolean)
     : [];
 
   const outputs = await outputModel
@@ -64,24 +64,7 @@ const getAllOutputDetails = async ({
     output: {
       path: "outputId",
       select: SELECT_OUTPUT,
-      populate: [
-        {
-          path: "warehouseId",
-          select: SELECT_WAREHOUSE.DEFAULT,
-        },
-        {
-          path: "customerId",
-          select: SELECT_USER.DEFAULT,
-        },
-        {
-          path: "managerId",
-          select: SELECT_USER.DEFAULT,
-        },
-        {
-          path: "inventoryStaffId",
-          select: SELECT_USER.DEFAULT,
-        },
-      ],
+      populate: POPULATE_OUTPUT,
     },
     item: {
       path: "itemId",
@@ -92,9 +75,9 @@ const getAllOutputDetails = async ({
 
   const populateFields = expand
     ? expand
-        .split(" ")
-        .map((field) => populateOptions[field])
-        .filter(Boolean)
+      .split(" ")
+      .map((field) => populateOptions[field])
+      .filter(Boolean)
     : [];
 
   const outputDetails = await outputDetailModel

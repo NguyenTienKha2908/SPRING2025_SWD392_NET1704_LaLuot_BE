@@ -1,3 +1,4 @@
+const { notifyUser } = require("../../socket");
 const { POPULATE_OUTPUT_DETAILS, POPULATE_OUTPUT } = require("../configs/output.config");
 const { USER_ROLES } = require("../configs/user.config");
 const { NotFoundRequestError, BadRequestError } = require("../core/responses/error.response");
@@ -54,17 +55,47 @@ class OutputService {
         return outputDetailHolder;
     }
 
+    static updateOutputDetail = async ({ id, quantity, outputPrice, status, requesterId }) => {
+        const outputDetailHolder = await outputDetailModel.findOne({
+            _id: id,
+        })
+        if (!outputDetailHolder)
+            throw new NotFoundRequestError("Output detail not found");
+        if (quantity && quantity < 0)
+            throw new BadRequestError("Invalid quantity");
+        if (outputPrice && outputPrice < 0)
+            throw new BadRequestError("Invalid output price");
+        if (status && !["Pending", "Done"].includes(status))
+            throw new BadRequestError("Invalid status");
+        if (requesterId) {
+            const requesterHolder = await userModel.findOne({
+                _id: requesterId,
+                isDeleted: false
+            }).lean();
+            if (!requesterHolder)
+                throw new NotFoundRequestError("Requester not found");
+        }
+
+        outputDetailHolder.quantity = quantity || outputDetailHolder.quantity;
+        outputDetailHolder.outputPrice = outputPrice || outputDetailHolder.outputPrice;
+        outputDetailHolder.status = status || outputDetailHolder.status;
+        outputDetailHolder.updatedBy = requesterId || outputDetailHolder.updatedBy;
+        await outputDetailHolder.save();
+
+        return;
+    }
+
     static createOuputRequest = async ({ reportStaffId, customerId, description, outputDetails, session }) => {
         if (!reportStaffId || !customerId || !Array.isArray(outputDetails) || outputDetails.length === 0)
             throw new BadRequestError("Invalid input");
 
-        const inventoryStaffHolder = await userModel.findOne({
+        const reportStaffHolder = await userModel.findOne({
             _id: reportStaffId,
             role: USER_ROLES.REPORT_STAFF,
             isDeleted: false
         }).lean();
-        if (!inventoryStaffHolder)
-            throw new NotFoundRequestError("Inventory staff not found");
+        if (!reportStaffHolder)
+            throw new NotFoundRequestError("Report staff not found");
 
         // Kiểm tra customer
         const customerHolder = await userModel.findOne({
@@ -72,7 +103,6 @@ class OutputService {
             role: USER_ROLES.CUSTOMER,
             isDeleted: false
         }).lean();
-
         if (!customerHolder)
             throw new NotFoundRequestError("Customer not found");
 
@@ -82,81 +112,91 @@ class OutputService {
             customerId: customerId,
             description: description || `Output request for ${customerHolder.name}`,
             status: "Pending",
-            batchNumber: new Date().getTime().toString() + "-OUP"
+            batchNumber: new Date().getTime().toString() + "-OUP",
         }], { session: session });
 
-
-        const baseItemIds = outputDetails.map((outputDetail) => outputDetail.baseItemId);
-        const baseItemHolders = await baseItemModel.find({ _id: { $in: baseItemIds }, isDeleted: false }).lean();
-        const baseItemMap = new Map(baseItemHolders.map(baseItem => [baseItem._id.toString(), baseItem]));
-
         const outputDetailsToCreate = await Promise.all(outputDetails.map(async outputDetail => {
-            const { baseItemId, quantity, outputPrice } = outputDetail;
+            const { itemId, quantity, outputPrice } = outputDetail;
 
-            if (!baseItemMap.has(baseItemId))
-                throw new NotFoundRequestError(`Base item with id ${baseItemId} not found`);
+            const itemHolder = await itemModel.findOne({
+                _id: itemId,
+                status: ["Available", "Almost Expired"],
+                isDeleted: false
+            }).lean();
+            if (!itemHolder)
+                throw new NotFoundRequestError("Item not found");
 
-            const itemHolders = await itemModel
-                .find({
-                    baseItemId: baseItemId,
-                    status: "Available",
-                    isDeleted: false
-                })
-                .sort({ expiredDate: -1 })
-                .lean();
+            const warehouseStorageHolder = await warehouseStorageModel.findOne({ itemId: itemId, isDeleted: false })
+            if (!warehouseStorageHolder)
+                throw new NotFoundRequestError("Warehouse storage not found");
 
+            if (warehouseStorageHolder.quantity < quantity)
+                throw new BadRequestError("Not enough quantity in warehouse");
 
-            if (!itemHolders || itemHolders.length === 0)
-                throw new NotFoundRequestError(`Item with base item id ${baseItemId} not found`);
+            newOutput[0].totalPrice += outputPrice * quantity;
 
-            let itemQuantity = 0;
-            for (let item of itemHolders) {
-                const warehouseStorageHolder = await warehouseStorageModel.findOne({
-                    itemId: item._id,
-                    isDeleted: false
-                }).lean();
-
-                if (!warehouseStorageHolder) continue;
-                itemQuantity += warehouseStorageHolder.quantity;
+            return {
+                outputId: newOutput[0]._id,
+                warehouseId: warehouseStorageHolder.warehouseId,
+                itemId: itemId,
+                quantity: quantity,
+                outputPrice: outputPrice,
             }
-
-            if (itemQuantity < quantity)
-                throw new BadRequestError(`Remaining quantity of item is ${itemQuantity} but requested quantity is ${quantity}`);
-
-            let remainingQuantity = quantity;
-            const results = [];
-            for (let item of itemHolders) {
-                const warehouseStorageHolder = await warehouseStorageModel.findOne({
-                    itemId: item._id,
-                    isDeleted: false
-                }).lean();
-                if (!warehouseStorageHolder) continue
-                if (warehouseStorageHolder.quantity >= remainingQuantity) {
-                    results.push({
-                        outputId: newOutput[0]._id,
-                        warehouseId: warehouseStorageHolder.warehouseId,
-                        itemId: item._id,
-                        quantity: remainingQuantity,
-                        outputPrice: outputPrice,
-                    });
-                    break;
-                } else {
-                    results.push({
-                        outputId: newOutput[0]._id,
-                        warehouseId: warehouseStorageHolder.warehouseId,
-                        itemId: item._id,
-                        quantity: warehouseStorageHolder.quantity,
-                        outputPrice: outputPrice,
-                    });
-                    remainingQuantity -= warehouseStorageHolder.quantity;
-                }
-            }
-            return results;
         }));
+        await newOutput[0].save({ session: session });
+        await outputDetailModel.insertMany(outputDetailsToCreate.flat(), { session: session });
+        await notifyUser({ userId: customerId, task: `Your output request has been created`, navigatePage: "inventoryrequestcustomer", type: "info" });
+        await notifyUser({ userId: reportStaffId, task: `You have created a new output request`, navigatePage: "reportstaffoutputrequest", type: "success" });
+        const managerHolder = await userModel.findOne({ role: USER_ROLES.MANAGER, isDeleted: false }).lean();
+        await notifyUser({ userId: managerHolder._id, task: `You have a new output request`, navigatePage: "listOutputRequestManager", type: "info" });
+        return newOutput[0];
+    }
 
-        await outputDetailModel.insertMany(outputDetailsToCreate.flat());
+    static updateOutputRequest = async ({ id, description, fromDate, toDate, inventoryStaffIds }) => {
+        if (!id || (inventoryStaffIds && (!Array.isArray(inventoryStaffIds) || inventoryStaffIds.length === 0)))
+            throw new BadRequestError("Invalid input");
 
-        return newOutput;
+        const outputHolder = await outputModel.findOne({
+            _id: id,
+            status: ["Pending", "Approved", "Assigned"],
+            isDeleted: false
+        })
+        if (!outputHolder)
+            throw new NotFoundRequestError("Output request not found");
+
+        if (fromDate && toDate && fromDate > toDate)
+            throw new BadRequestError("Invalid date range");
+
+        if (fromDate && toDate && fromDate < new Date().getTime())
+            throw new BadRequestError("Invalid date range");
+
+        if (inventoryStaffIds) {
+            const inventoryStaffHolders = await userModel.find({
+                _id: { $in: inventoryStaffIds },
+                role: USER_ROLES.INVENTORY_STAFF,
+                isDeleted: false
+            })
+            if (!inventoryStaffHolders || inventoryStaffHolders.length === 0)
+                throw new NotFoundRequestError("Inventory staffs not found");
+            outputHolder.inventoryStaffIds = inventoryStaffIds
+        }
+
+        outputHolder.description = description || outputHolder.description;
+        outputHolder.fromDate = fromDate || outputHolder.fromDate;
+        outputHolder.toDate = toDate || outputHolder.toDate;
+        await outputHolder.save();
+
+        if (inventoryStaffIds)
+            for (let inventoryStaffId of outputHolder.inventoryStaffIds) {
+                await notifyUser({
+                    userId: inventoryStaffId,
+                    task: `You have assigned to an output request`,
+                    navigatePage: "outputitemcheck",
+                    type: "info"
+                });
+            }
+
+        return;
     }
 
     static approveOutputRequest = async ({ id, managerId }) => {
@@ -184,40 +224,23 @@ class OutputService {
         outputHolder.managerId = managerId;
         await outputHolder.save();
 
-        return;
-    }
-
-    static rejectOutputRequest = async ({ id, managerId }) => {
-        if (!id || !managerId)
-            throw new BadRequestError("Invalid input");
-
-        const outputHolder = await outputModel.findOne({
-            _id: id,
-            status: "Pending",
-            isDeleted: false
+        await notifyUser({
+            userId: outputHolder.customerId,
+            task: `Your output request has been approved`,
+            navigatePage: "inventoryrequestcustomer",
+            type: "success"
         })
 
-        if (!outputHolder)
-            throw new NotFoundRequestError("Output request not found");
-
-        const managerHolder = await userModel.findOne({
-            _id: managerId,
-            role: USER_ROLES.MANAGER,
-            isDeleted: false
-        }).lean();
-        if (!managerHolder)
-            throw new NotFoundRequestError("Manager not found");
-
-        outputHolder.status = "Rejected";
-        outputHolder.managerId = managerId;
-        await outputHolder.save();
-
         return;
     }
 
-    static deliverOutputRequest = async ({ id, inventoryStaffId }) => {
-        if (!id || !inventoryStaffId)
+    static assignOutputRequest = async ({ id, fromDate, toDate, inventoryStaffIds }) => {
+        if (!id || !Array.isArray(inventoryStaffIds) || inventoryStaffIds.length === 0)
             throw new BadRequestError("Invalid input");
+        if (fromDate && toDate && fromDate > toDate)
+            throw new BadRequestError("Invalid date range");
+        if (fromDate && toDate && fromDate < new Date().getTime())
+            throw new BadRequestError("Invalid date range");
 
         const outputHolder = await outputModel.findOne({
             _id: id,
@@ -227,28 +250,39 @@ class OutputService {
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
-        const inventoryStaffHolder = await userModel.findOne({
-            _id: inventoryStaffId,
+        const inventoryStaffHolders = await userModel.find({
+            _id: { $in: inventoryStaffIds },
             role: USER_ROLES.INVENTORY_STAFF,
             isDeleted: false
-        }).lean();
-        if (!inventoryStaffHolder)
-            throw new NotFoundRequestError("Inventory staff not found");
+        })
+        if (!inventoryStaffHolders || inventoryStaffHolders.length === 0)
+            throw new NotFoundRequestError("Inventory staffs not found");
 
-        outputHolder.status = "Delivering";
-        outputHolder.inventoryStaffId = inventoryStaffId;
+
+        outputHolder.status = "Assigned";
+        outputHolder.inventoryStaffIds = inventoryStaffIds;
+        outputHolder.fromDate = fromDate;
+        outputHolder.toDate = toDate;
         await outputHolder.save();
 
+        for (let inventoryStaffId of inventoryStaffIds) {
+            await notifyUser({
+                userId: inventoryStaffId,
+                task: `You have assigned to an output request`,
+                navigatePage: "outputitemcheck",
+                type: "info"
+            });
+        }
         return;
     }
 
-    static completeOutputRequest = async ({ id }) => {
+    static completeOutputRequest = async ({ id, session }) => {
         if (!id)
             throw new BadRequestError("Invalid input");
 
         const outputHolder = await outputModel.findOne({
             _id: id,
-            status: "Delivering",
+            status: "Assigned",
             isDeleted: false
         })
         if (!outputHolder)
@@ -265,12 +299,20 @@ class OutputService {
                 warehouseId: outputDetail.warehouseId,
                 quantity: outputDetail.quantity,
                 transactionType: "Output",
-                description: `Output request ${outputHolder.batchNumber}`
+                description: `Output request ${outputHolder.batchNumber}`,
+                session: session
             })
         }
 
         outputHolder.status = "Done";
         await outputHolder.save();
+
+        await notifyUser({
+            userId: outputHolder.customerId,
+            task: `Your output request has been completed`,
+            navigatePage: "inventoryrequestcustomer",
+            type: "success"
+        })
         return;
     }
 
@@ -290,8 +332,51 @@ class OutputService {
         outputHolder.cancelReason = cancelReason;
         await outputHolder.save();
 
+        await notifyUser({
+            userId: outputHolder.customerId,
+            task: `Your output request has been cancelled`,
+            navigatePage: "inventoryrequestcustomer",
+            type: "error"
+        })
+
         return;
     }
+
+    static checkOutputRequestDate = async () => {
+        const outputHolders = await outputModel.find({ status: "Pending", isDeleted: false })
+        const currentDate = new Date();
+
+        const outputRequests = outputHolders.filter(output => output.toDate < currentDate);
+        if (outputRequests.length === 0)
+            return outputRequests;
+
+        for (const outputRequest of outputRequests) {
+            await outputModel.updateOne({ _id: outputRequest._id }, {
+                status: "Cancelled",
+                cancelReason: "Exceeding deadline"
+            })
+            await notifyUser({
+                userId: outputHolders.customerId,
+                task: `Your output request has been cancelled`,
+                navigatePage: "inventoryrequestcustomer",
+                type: "error"
+            })
+        }
+
+        if (outputRequests.length > 0) {
+            const managerHolder = await userModel.findOne({ role: USER_ROLES.MANAGER, isDeleted: false }).lean();
+            await notifyUser({
+                userId: managerHolder._id,
+                task: `You have output requests not done exceeding the deadline`,
+                navigatePage: "listOutputRequestManager",
+                type: "error"
+            })
+        }
+
+        return outputRequests;
+    }
 }
+
+
 
 module.exports = OutputService;

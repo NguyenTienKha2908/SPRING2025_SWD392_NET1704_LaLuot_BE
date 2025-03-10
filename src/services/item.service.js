@@ -1,9 +1,11 @@
-const { eventEmitter } = require("../../socket");
+const { eventEmitter, notifyUser } = require("../../socket");
+const { USER_ROLES } = require("../configs/user.config");
 const CreateItemDTO = require("../core/dtos/items/create.item.dto");
 const { BadRequestError } = require("../core/responses/error.response");
 const itemModel = require("../models/item.model");
 const systemModel = require("../models/system.model");
-const { checkExpiredMedicines, getAllItems } = require("../repositories/item.repo");
+const userModel = require("../models/user.model");
+const { checkExpiredMedicines, getAllItems, checkAlmostExpiredMedicines } = require("../repositories/item.repo");
 const { generateMedicineCode } = require("../utils/medicine.util");
 class ItemService {
     static getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
@@ -39,12 +41,17 @@ class ItemService {
         })
         return updatedItem;
     }
-    static checkExpiredMedicine = async () => {
+    static checkMedicinesCondition = async () => {
+        const almostExpiredMedicines = await checkAlmostExpiredMedicines()
         const expiredMedicines = await checkExpiredMedicines()
 
-        eventEmitter.emit("checkExpiredMedicine", expiredMedicines);
+        const managerHolder = await userModel.findOne({ role: USER_ROLES.MANAGER })
+        if (almostExpiredMedicines.length > 0)
+            await notifyUser({ userId: managerHolder._id, task: `${almostExpiredMedicines.length} medicines are almost expired`, type: "warning" })
+        if (expiredMedicines.length > 0)
+            await notifyUser({ userId: managerHolder._id, task: `${expiredMedicines.length} medicines are expired`, type: "error" })
 
-        return expiredMedicines;
+        return { almostExpiredMedicines, expiredMedicines };
     }
 
     static updateExpiredMedicineInterval = async ({ job, interval }) => {
@@ -61,9 +68,9 @@ class ItemService {
 
         return
     }
-    static createDisposalRequest = async ({request}) => {
-        
-        return        
+    static createDisposalRequest = async ({ request }) => {
+
+        return
     }
 }
 
