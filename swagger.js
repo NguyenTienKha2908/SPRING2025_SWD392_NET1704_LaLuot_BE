@@ -347,7 +347,7 @@ const doc = {
           isDeleted: false,
         },
         select: SELECT_INPUT,
-        expand: "warehouse supplier reportStaff manager inventoryStaff",
+        expand: "supplier reportStaff manager inventoryStaffs",
       },
       GetAllInputDetails: {
         limit: 10,

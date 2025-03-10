@@ -18,10 +18,9 @@ const getAllInputRequests = async ({
   const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
 
   const populateOptions = {
-    warehouse: { path: "warehouseId", select: "name location" },
     supplier: { path: "supplierId", select: SELECT_USER.DEFAULT },
     manager: { path: "managerId", select: SELECT_USER.DEFAULT },
-    inventoryStaff: { path: "inventoryStaffId", select: SELECT_USER.DEFAULT },
+    inventoryStaffs: { path: "inventoryStaffIds", select: SELECT_USER.DEFAULT },
     reportStaff: { path: "reportStaffId", select: SELECT_USER.DEFAULT },
   };
 

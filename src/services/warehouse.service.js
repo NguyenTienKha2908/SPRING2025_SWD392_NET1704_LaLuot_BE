@@ -438,12 +438,13 @@ class WarehouseService {
             isDeleted: false
         })
 
-        await notifyUser({
-            userId: managerHolder._id,
-            task: `Found ${stockRequests.length} stock check requests not done exceeding the deadline`,
-            navigatePage: "/stock-check",
-            type: "error"
-        })
+        if (stockRequests.length > 0)
+            await notifyUser({
+                userId: managerHolder._id,
+                task: `Found ${stockRequests.length} stock check requests not done exceeding the deadline`,
+                navigatePage: "/stock-check",
+                type: "error"
+            })
 
         return stockRequests;
     }
