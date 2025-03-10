@@ -1,9 +1,10 @@
 const { SELECT_BASEITEM } = require("./baseitem.config");
 const { SELECT_USER } = require("./user.config");
+const { SELECT_WAREHOUSE } = require("./warehouse.config");
 
-const SELECT_INPUT = 'description cancelReason batchNumber status warehouseId supplierId reportStaffId managerId inventoryStaffId';
+const SELECT_INPUT = 'description cancelReason batchNumber totalPrice fromDate toDate status supplierId reportStaffId managerId inventoryStaffIds';
 
-const SELECT_INPUT_DETAILS = 'inputId itemId quantity inputPrice status';
+const SELECT_INPUT_DETAILS = 'warehouseId inputId itemId requestQuantity actualQuantity suggestedOutputPrice inputPrice status updatedBy';
 
 
 const POPULATE_INPUT = [
@@ -14,7 +15,11 @@ const POPULATE_INPUT = [
     {
         path: 'managerId',
         select: SELECT_USER.DEFAULT
-    },    
+    },
+    {
+        path: 'inventoryStaffIds',
+        select: SELECT_USER.DEFAULT
+    },
     {
         path: 'reportStaffId',
         select: SELECT_USER.DEFAULT
@@ -31,6 +36,14 @@ const POPULATE_INPUT_DETAILS = [
         path: 'itemId',
         select: 'baseItemId status',
         populate: { path: 'baseItemId', select: SELECT_BASEITEM.DEFAULT }
+    },
+    {
+        path: 'warehouseId',
+        select: SELECT_WAREHOUSE.DEFAULT
+    },
+    {
+        path: 'updatedBy',
+        select: SELECT_USER.DEFAULT
     }
 ];
 

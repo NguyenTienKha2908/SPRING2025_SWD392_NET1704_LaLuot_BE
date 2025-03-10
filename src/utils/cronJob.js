@@ -38,7 +38,8 @@ const cronJobs = {
         callback: async () => {
             try {
                 const stockRequests = await WarehouseService.checkStockRequestDate();
-                logger.info(`🕒 Found ${stockRequests.length} stock requests not done exceeding the deadline`);
+                if (stockRequests.length > 0)
+                    logger.info(`🕒 Found ${stockRequests.length} stock requests not done exceeding the deadline`);
             } catch (error) {
                 logger.error("❌ Error checking stock request date", error);
             }
@@ -52,7 +53,8 @@ const cronJobs = {
             logger.info("🕒 Checking output request date...");
             try {
                 const outputRequests = await OutputService.checkOutputRequestDate();
-                logger.info(`🕒 Found ${outputRequests?.length} output requests not done exceeding the deadline`);
+                if (outputRequests?.length > 0)
+                    logger.info(`🕒 Found ${outputRequests?.length} output requests not done exceeding the deadline`);
             } catch (error) {
                 logger.error("❌ Error checking output request date", error);
             }
