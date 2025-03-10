@@ -25,10 +25,20 @@ class InputController {
         }).send(res);
     }
 
-    createInputRequest = async (req, res) => {
+    createInputRequest = async (req, res, next, session) => {
         new CREATED({
             message: "Create input request successfully",
-            metadata: await InputService.createInputRequest(req.body)
+            metadata: await InputService.createInputRequest({ session: session, ...req.body })
+        }).send(res);
+    }
+
+    updateInputRequest = async (req, res) => {
+        new OK({
+            message: "Update input request successfully",
+            metadata: await InputService.updateInputRequest({
+                id: req.params.id,
+                ...req.body
+            })
         }).send(res);
     }
 
@@ -55,6 +65,17 @@ class InputController {
         }).send(res);
     }
 
+    updateInputDetail = async (req, res) => {
+        new OK({
+            message: "Update input detail successfully",
+            metadata: await InputService.updateInputDetail({
+                id: req.params.id,
+                requesterId: req.userId,
+                ...req.body
+            })
+        }).send(res);
+    }
+
     approveInputRequest = async (req, res) => {
         new OK({
             message: "Approve input request successfully",
@@ -65,20 +86,10 @@ class InputController {
         }).send(res);
     }
 
-    rejectInputRequest = async (req, res) => {
-        new OK({
-            message: "Reject input request successfully",
-            metadata: await InputService.rejectInputRequest({
-                id: req.params.id,
-                ...req.body
-            })
-        }).send(res);
-    }
-
-    deliverInputRequest = async (req, res) => {
+    assignInputRequest = async (req, res) => {
         new OK({
             message: "Receive input request successfully",
-            metadata: await InputService.deliverInputRequest({
+            metadata: await InputService.assignInputRequest({
                 id: req.params.id,
                 ...req.body
             })
@@ -90,8 +101,7 @@ class InputController {
             message: "Complete input request successfully",
             metadata: await InputService.completeInputRequest({
                 id: req.params.id,
-                ...req.body,
-                session: session
+                session: session,
             })
         }).send(res);
     }

@@ -24,7 +24,7 @@ const {
     POPULATE_WAREHOUSE_CHECK
 } = require("../configs/warehouse.config");
 const { USER_ROLES } = require("../configs/user.config");
-const { eventEmitter } = require("../../socket");
+const { eventEmitter, notifyUser } = require("../../socket");
 
 class WarehouseService {
     static getAllWarehouses = async ({ limit, sort, page, filter, select }) => {
@@ -231,28 +231,31 @@ class WarehouseService {
                     inputId: inputHolder._id,
                     isDeleted: false
                 }).lean();
+
                 const inputItemIds = inputDetailHolders.map(inputDetail => inputDetail.itemId.toString());
 
                 if (!inputItemIds.includes(itemId.toString())) {
                     throw new BadRequestError("Item not found in input");
                 }
 
-                const inputDetailHolder = inputDetailHolders.find(inputDetail => inputDetail.itemId.toString() === itemId.toString());
-                if (inputDetailHolder.status === "Done") {
-                    throw new BadRequestError("Input detail already done");
+                for (let inputDetail of inputDetailHolders) {
+                    inputHolder.totalPrice += inputDetail.inputPrice
                 }
-                if (inputDetailHolder.quantity !== quantity) {
+
+                const inputDetailHolder = inputDetailHolders.find(inputDetail => inputDetail.itemId.toString() === itemId.toString());
+
+                if (!inputDetailHolder.actualQuantity || inputDetailHolder.actualQuantity !== quantity) {
                     throw new BadRequestError("Quantity not match input quantity");
                 }
 
                 await inputDetailModel.updateOne({ _id: inputDetailHolder._id }, { status: "Done" }, { session: session })
 
-                await warehouseStorageModel.create({
+                await warehouseStorageModel.create([{
                     warehouseId,
                     itemId,
                     quantity,
                     batchNumber: "INP-" + new Date().getTime().toString(),
-                }, { session: session })
+                }], { session: session })
 
                 break
 
@@ -412,7 +415,7 @@ class WarehouseService {
     }
 
     static checkStockRequestDate = async () => {
-        const stockCheckHolders = await stockCheckModel.find({ status: "Pending", isDeleted: false }).lean();
+        const stockCheckHolders = await stockCheckModel.find({ status: "Pending", isDeleted: false })
         const currentDate = new Date();
 
         const stockRequests = stockCheckHolders.filter(stockCheck => stockCheck.toDate < currentDate);
@@ -422,29 +425,27 @@ class WarehouseService {
                 status: "Cancelled",
                 cancelReason: "Exceeding deadline"
             })
-        }
-
-        eventEmitter.emit("checkStockRequestDate", stockRequests);
-
-        return stockRequests;
-    }
-
-    static checkOutputRequestDate = async () => {
-        const outputHolders = await outputModel.find({ status: "Pending", isDeleted: false }).lean();
-        const currentDate = new Date();
-
-        const outputRequests = outputHolders.filter(output => output.toDate < currentDate);
-
-        for (const outputRequest of outputRequests) {
-            await outputModel.updateOne({ _id: outputRequest._id }, {
-                status: "Cancelled",
-                cancelReason: "Exceeding deadline"
+            await notifyUser({
+                userId: stockRequest.inventoryStaffId,
+                task: "Your stock check request has been cancelled due to exceeding deadline",
+                navigatePage: "/",
+                type: "error"
             })
         }
 
-        eventEmitter.emit("checkOutputRequestDate", outputRequests);
+        const managerHolder = await userModel.findOne({
+            role: USER_ROLES.MANAGER,
+            isDeleted: false
+        })
 
-        return outputRequests;
+        await notifyUser({
+            userId: managerHolder._id,
+            task: `Found ${stockRequests.length} stock check requests not done exceeding the deadline`,
+            navigatePage: "/stock-check",
+            type: "error"
+        })
+
+        return stockRequests;
     }
 
     static updateStockCheckRequest = async ({ id, description, status, fromDate, toDate, cancelReason }) => {
