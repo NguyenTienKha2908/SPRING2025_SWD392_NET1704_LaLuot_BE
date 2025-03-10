@@ -5,6 +5,7 @@ const { SELECT_USER } = require("../configs/user.config");
 const { SELECT_WAREHOUSE } = require("../configs/warehouse.config");
 const inputModel = require("../models/input.model");
 const inputDetailModel = require("../models/inputDetail.model");
+const itemModel = require("../models/item.model");
 
 const getAllInputRequests = async ({
   limit,
@@ -26,9 +27,9 @@ const getAllInputRequests = async ({
 
   const populateFields = expand
     ? expand
-        .split(" ")
-        .map((field) => populateOptions[field])
-        .filter(Boolean)
+      .split(" ")
+      .map((field) => populateOptions[field])
+      .filter(Boolean)
     : [];
 
   const inputs = await inputModel
@@ -61,29 +62,26 @@ const getAllInputDetails = async ({
   const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
 
   const populateOptions = {
-    input: {
-      path: "inputId",
-      select: SELECT_INPUT,
-      populate: [
-        { path: "warehouseId", select: "name location" },
-        { path: "supplierId", select: SELECT_USER.DEFAULT },
-        { path: "managerId", select: SELECT_USER.DEFAULT },
-        { path: "inventoryStaffId", select: SELECT_USER.DEFAULT },
-        { path: "reportStaffId", select: SELECT_USER.DEFAULT },
-      ],
+    warehouse: {
+      path: "warehouseId",
+      select: SELECT_WAREHOUSE.DEFAULT,
     },
     item: {
       path: "itemId",
       select: SELECT_ITEM,
       populate: { path: "baseItemId", select: SELECT_BASEITEM.DEFAULT },
     },
+    updatedBy: {
+      path: 'updatedBy',
+      select: SELECT_USER.DEFAULT
+    }
   };
 
   const populateFields = expand
     ? expand
-        .split(" ")
-        .map((field) => populateOptions[field])
-        .filter(Boolean)
+      .split(" ")
+      .map((field) => populateOptions[field])
+      .filter(Boolean)
     : [];
 
   const inputDetails = await inputDetailModel
@@ -92,7 +90,17 @@ const getAllInputDetails = async ({
     .skip(skip)
     .limit(limit)
     .select(select)
-    .populate(populateFields);
+    .populate(populateFields).lean();
+
+  const itemIds = inputDetails.map((inputDetail) => inputDetail.itemId);
+  const items = await itemModel.find({ _id: { $in: itemIds } });
+  for (let inputDetail of inputDetails) {
+    for (let item of items) {
+      if (inputDetail.itemId.toString() === item._id.toString()) {
+        inputDetail.item = item;
+      }
+    }
+  }
 
   const totalInputDetails = await inputModel.countDocuments(filter);
   const totalPages = Math.ceil(totalInputDetails / limit);

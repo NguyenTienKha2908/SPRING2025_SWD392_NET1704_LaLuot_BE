@@ -1,9 +1,9 @@
 const express = require("express");
-const { catchAsyncHandle } = require("../../middlewares/error.middleware");
-const AuthMiddleware = require("../../middlewares/auth.middleware");
-const outputController = require("../../controllers/output.controller");
-const checkRoles = require("../../middlewares/role.middleware");
-const { USER_ROLES } = require("../../configs/user.config");
+const { catchAsyncHandle } = require("../middlewares/error.middleware");
+const AuthMiddleware = require("../middlewares/auth.middleware");
+const outputController = require("../controllers/output.controller");
+const checkRoles = require("../middlewares/role.middleware");
+const { USER_ROLES } = require("../configs/user.config");
 
 const router = express.Router();
 
