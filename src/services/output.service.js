@@ -1,3 +1,4 @@
+const { notifyUser } = require("../../socket");
 const { POPULATE_OUTPUT_DETAILS, POPULATE_OUTPUT } = require("../configs/output.config");
 const { USER_ROLES } = require("../configs/user.config");
 const { NotFoundRequestError, BadRequestError } = require("../core/responses/error.response");
@@ -60,16 +61,12 @@ class OutputService {
         })
         if (!outputDetailHolder)
             throw new NotFoundRequestError("Output detail not found");
-
         if (quantity && quantity < 0)
             throw new BadRequestError("Invalid quantity");
-
         if (outputPrice && outputPrice < 0)
             throw new BadRequestError("Invalid output price");
-
         if (status && !["Pending", "Done"].includes(status))
             throw new BadRequestError("Invalid status");
-
         if (requesterId) {
             const requesterHolder = await userModel.findOne({
                 _id: requesterId,
@@ -106,7 +103,6 @@ class OutputService {
             role: USER_ROLES.CUSTOMER,
             isDeleted: false
         }).lean();
-
         if (!customerHolder)
             throw new NotFoundRequestError("Customer not found");
 
@@ -149,8 +145,11 @@ class OutputService {
         }));
         await newOutput[0].save({ session: session });
         await outputDetailModel.insertMany(outputDetailsToCreate.flat(), { session: session });
-
-        return newOutput;
+        await notifyUser({ userId: customerId, task: `Your output request has been created`, navigatePage: "inventoryrequestcustomer", type: "info" });
+        await notifyUser({ userId: reportStaffId, task: `You have created a new output request`, navigatePage: "reportstaffoutputrequest", type: "success" });
+        const managerHolder = await userModel.findOne({ role: USER_ROLES.MANAGER, isDeleted: false }).lean();
+        await notifyUser({ userId: managerHolder._id, task: `You have a new output request`, navigatePage: "listOutputRequestManager", type: "info" });
+        return newOutput[0];
     }
 
     static updateOutputRequest = async ({ id, description, fromDate, toDate, inventoryStaffIds }) => {
@@ -165,6 +164,12 @@ class OutputService {
         if (!outputHolder)
             throw new NotFoundRequestError("Output request not found");
 
+        if (fromDate && toDate && fromDate > toDate)
+            throw new BadRequestError("Invalid date range");
+
+        if (fromDate && toDate && fromDate < new Date().getTime())
+            throw new BadRequestError("Invalid date range");
+
         if (inventoryStaffIds) {
             const inventoryStaffHolders = await userModel.find({
                 _id: { $in: inventoryStaffIds },
@@ -173,7 +178,7 @@ class OutputService {
             })
             if (!inventoryStaffHolders || inventoryStaffHolders.length === 0)
                 throw new NotFoundRequestError("Inventory staffs not found");
-            outputHolder.inventoryStaffIds = inventoryStaffIds || outputHolder.inventoryStaffIds;
+            outputHolder.inventoryStaffIds = inventoryStaffIds
         }
 
         outputHolder.description = description || outputHolder.description;
@@ -181,6 +186,16 @@ class OutputService {
         outputHolder.toDate = toDate || outputHolder.toDate;
         await outputHolder.save();
 
+        if (inventoryStaffIds)
+            for (let inventoryStaffId of outputHolder.inventoryStaffIds) {
+                await notifyUser({
+                    userId: inventoryStaffId,
+                    task: `You have assigned to an output request`,
+                    navigatePage: "outputitemcheck",
+                    type: "info"
+                });
+            }
+            
         return;
     }
 
@@ -208,6 +223,13 @@ class OutputService {
         outputHolder.status = "Approved";
         outputHolder.managerId = managerId;
         await outputHolder.save();
+
+        await notifyUser({
+            userId: outputHolder.customerId,
+            task: `Your output request has been approved`,
+            navigatePage: "inventoryrequestcustomer",
+            type: "success"
+        })
 
         return;
     }
@@ -243,6 +265,14 @@ class OutputService {
         outputHolder.toDate = toDate;
         await outputHolder.save();
 
+        for (let inventoryStaffId of inventoryStaffIds) {
+            await notifyUser({
+                userId: inventoryStaffId,
+                task: `You have assigned to an output request`,
+                navigatePage: "outputitemcheck",
+                type: "info"
+            });
+        }
         return;
     }
 
@@ -276,6 +306,13 @@ class OutputService {
 
         outputHolder.status = "Done";
         await outputHolder.save();
+
+        await notifyUser({
+            userId: outputHolder.customerId,
+            task: `Your output request has been completed`,
+            navigatePage: "inventoryrequestcustomer",
+            type: "success"
+        })
         return;
     }
 
@@ -295,8 +332,49 @@ class OutputService {
         outputHolder.cancelReason = cancelReason;
         await outputHolder.save();
 
+        await notifyUser({
+            userId: outputHolder.customerId,
+            task: `Your output request has been cancelled`,
+            navigatePage: "inventoryrequestcustomer",
+            type: "error"
+        })
+
         return;
     }
+
+    static checkOutputRequestDate = async () => {
+        const outputHolders = await outputModel.find({ status: "Pending", isDeleted: false })
+        const currentDate = new Date();
+
+        const outputRequests = outputHolders.filter(output => output.toDate < currentDate);
+        if (outputRequests.length === 0)
+            return outputRequests;
+
+        for (const outputRequest of outputRequests) {
+            await outputModel.updateOne({ _id: outputRequest._id }, {
+                status: "Cancelled",
+                cancelReason: "Exceeding deadline"
+            })
+            await notifyUser({
+                userId: outputHolders.customerId,
+                task: `Your output request has been cancelled`,
+                navigatePage: "inventoryrequestcustomer",
+                type: "error"
+            })
+        }
+
+        const managerHolder = await userModel.findOne({ role: USER_ROLES.MANAGER, isDeleted: false }).lean();
+        await notifyUser({
+            userId: managerHolder._id,
+            task: `You have output requests not done exceeding the deadline`,
+            navigatePage: "listOutputRequestManager",
+            type: "error"
+        })
+
+        return outputRequests;
+    }
 }
+
+
 
 module.exports = OutputService;

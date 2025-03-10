@@ -65,7 +65,7 @@ const getAllBaseItem = async ({
   select,
   expand,
 }) => {
-  const skip = (page - 1) * limit;
+  const skip = (page - 1) * Number(limit);
   const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
 
   const populateOptions = {

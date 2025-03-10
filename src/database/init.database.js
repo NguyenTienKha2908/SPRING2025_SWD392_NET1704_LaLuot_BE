@@ -15,10 +15,10 @@ class Database {
 
   connect(type = "mongodb") {
     if (process.env.NODE_ENV === "dev") {
-      mongoose.set("debug", (collectionName, method, query, doc) => {
-        logger.info(`${chalk.blueBright(collectionName)}.${chalk.yellow(method)}(Query: ${JSON.stringify(query)} ${Object.keys(doc)})`);
+      // mongoose.set("debug", (collectionName, method, query, doc) => {
+      //   logger.info(`${chalk.blueBright(collectionName)}.${chalk.yellow(method)}(Query: ${JSON.stringify(query)} ${Object.keys(doc)})`);
 
-      });
+      // });
 
     }
 

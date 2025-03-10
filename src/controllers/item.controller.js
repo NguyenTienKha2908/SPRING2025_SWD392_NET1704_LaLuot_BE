@@ -6,7 +6,7 @@ class ItemController {
         new OK({
             message: "Get all items successfully",
             metadata: await ItemService.getAllItems({
-                limit: req.query.limit || 6,
+                limit: req.query.limit || 1000,
                 sort: req.query.sort || 'ctime',
                 page: req.query.page || 1,
                 filter: req.query.filter ? JSON.parse(req.query.filter) : { isDeleted: false }, // http://localhost:8386/api/v1/users?filter={"isDeleted":false}

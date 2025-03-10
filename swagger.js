@@ -296,7 +296,7 @@ const doc = {
         select: SELECT_OUTPUT_DETAILS,
         expand: "output item",
       },
-      UpdateOutputDetails:{
+      UpdateOutputDetails: {
         quantity: 10,
         outputPrice: 1000,
         status: "Done",
@@ -359,29 +359,44 @@ const doc = {
         select: SELECT_INPUT_DETAILS,
         expand: "input item",
       },
+      UpdateInputDetail: {
+        actualQuantity: 10,
+        inputPrice: 1000,
+        manufactureDate: "2021-07-01T00:00:00.000Z",
+        expiredDate: "2022-07-01T00:00:00.000Z",
+        status: "Done",
+      },
       CreateInputRequest: {
         $reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
         $supplierId: "60e0b3f0b3f0b3f0b3f0b3f0",
         description: "Input request for warehouse 1",
+        oldInputId: "60e0b3f0b3f0b3f0b3f0b3f0",
         inputDetails: [
           {
             $baseItemId: "60e0b3f0b3f0b3f0b3f0b3f0",
             $quantity: 10,
-            $inputPrice: 1000,
-            $manufactureDate: "2021-07-01T00:00:00.000Z",
-            $expiredDate: "2022-07-01T00:00:00.000Z",
-            $unit: "Box",
           },
         ],
+      },
+      UpdateInputRequest: {
+        description: "Input request for warehouse 1",
+        fromDate: "2025-02-19T08:37:54.729+00:00",
+        toDate: "2025-02-19T08:37:54.729+00:00",
+        inventoryStaffIds: [
+          "60e0b3f0b3f0b3f0b3f0b3f0",
+          "60e0b3f0b3f0b3f0b3f0b3f0"
+        ]
       },
       ApproveInputRequest: {
         managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
       },
-      RejectInputRequest: {
-        managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
-      },
       AssignInputRequest: {
-        inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
+        inventoryStaffIds: [
+          "60e0b3f0b3f0b3f0b3f0b3f0",
+          "60e0b3f0b3f0b3f0b3f0b3f0",
+        ],
+        fromDate: "2025-02-19T08:37:54.729+00:00",
+        toDate: "2025-02-19T08:37:54.729+00:00",
       },
       CancelInputRequest: {
         $cancelReason: "Supplier delay",
@@ -403,6 +418,7 @@ root file where the route starts, such as index.js, app.js, routes.js, etc ... *
 
 const chalk = require("chalk");
 const getLogger = require("./src/utils/logger");
+const { getAvgInputPriceOfBaseItem } = require("./src/repositories/baseItem.repo.js");
 
 const logger = getLogger("SWAGGER");
 swaggerAutogen(outputFile, routes, doc).then(() => {
