@@ -37,7 +37,6 @@ var inputSchema = new mongoose.Schema(
       enum: [
         "Pending",
         "Approved",
-        // "Rejected",
         "Assigned",
         "Cancelled",
         "Done",
@@ -56,7 +55,7 @@ var inputSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    inventoryStaffId: [{
+    inventoryStaffIds: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     }],

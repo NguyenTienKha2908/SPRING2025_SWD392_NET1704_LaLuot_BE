@@ -19,6 +19,8 @@ const {
 } = require("../repositories/input.repo");
 const WarehouseService = require("./warehouse.service");
 const { generateMedicineCode } = require("../utils/medicine.util");
+const { notifyUser } = require("../../socket");
+const systemModel = require("../models/system.model");
 
 class InputService {
   static getAllInputRequests = async ({
@@ -87,94 +89,54 @@ class InputService {
     return inputDetailHolder;
   };
 
-  //   static createInputRequest = async ({
-  //     reportStaffId,
-  //     supplierId,
-  //     description,
-  //     inputDetails,
-  //     session,
-  //   }) => {
-  //     if (
-  //       !reportStaffId ||
-  //       !supplierId ||
-  //       !Array.isArray(inputDetails) ||
-  //       inputDetails.length === 0
-  //     )
-  //       throw new BadRequestError("Invalid input");
+  static updateInputDetail = async ({ id, actualQuantity, inputPrice, manufactureDate, expiredDate, status, requesterId }) => {
+    const inputDetailHolder = await inputDetailModel.findOne({
+      _id: id,
+    })
+    if (!inputDetailHolder) throw new NotFoundRequestError("Input detail not found");
 
-  //     const supplierHolder = await userModel
-  //       .findOne({
-  //         _id: supplierId,
-  //         role: USER_ROLES.SUPPLIER,
-  //         isDeleted: false,
-  //       })
-  //       .lean();
-  //     if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
+    if (actualQuantity && actualQuantity < 0)
+      throw new BadRequestError("Invalid actual quantity");
+    if (inputPrice && inputPrice < 0)
+      throw new BadRequestError("Invalid input price");
+    if (status && !["Pending", "Done"].includes(status))
+      throw new BadRequestError("Invalid status");
+    if (requesterId) {
+      const requesterHolder = await userModel.findOne({
+        _id: requesterId,
+        isDeleted: false
+      })
+      if (!requesterHolder) throw new NotFoundRequestError("Requester not found");
+    }
 
-  //     const reportStaffHolder = await userModel
-  //       .findOne({
-  //         _id: reportStaffId,
-  //         role: USER_ROLES.REPORT_STAFF,
-  //         isDeleted: false,
-  //       })
-  //       .lean();
-  //     if (!reportStaffHolder)
-  //       throw new NotFoundRequestError("Report staff not found");
+    if (inputPrice) {
+      const systemHolder = await systemModel.findOne({});
+      inputDetailHolder.suggestedOutputPrice = inputPrice * (1 + systemHolder.normalOutputPricePercentage)
+    }
 
-  //     const newInput = await inputModel.create(
-  //       [
-  //         {
-  //           reportStaffId,
-  //           supplierId,
-  //           description,
-  //           status: "Pending",
-  //           batchNumber: new Date().getTime().toString() + "-INP",
-  //         },
-  //       ],
-  //       { session }
-  //     );
+    if (manufactureDate || expiredDate) {
+      const itemHolder = await itemModel.findOne({
+        _id: inputDetailHolder.itemId
+      })
+      if (!itemHolder) throw new NotFoundRequestError("Item not found");
 
-  //     const baseItemIds = inputDetails.map(
-  //       (inputDetail) => inputDetail.baseItemId
-  //     );
-  //     const baseItemHolders = await baseItemModel
-  //       .find({ _id: { $in: baseItemIds }, isDeleted: false })
-  //       .lean();
-  //     const baseItemMap = new Map(
-  //       baseItemHolders.map((baseItem) => [baseItem._id.toString(), baseItem])
-  //     );
+      if (manufactureDate && expiredDate && new Date(manufactureDate) >= new Date(expiredDate))
+        throw new BadRequestError("Invalid date range");
+      if (manufactureDate) inputDetailHolder.manufactureDate = manufactureDate;
+      if (expiredDate) inputDetailHolder.expiredDate = expiredDate;
+      await itemHolder.save();
+    }
 
-  //     for (let inputDetail of inputDetails) {
-  //       const { baseItemId, quantity } = inputDetail;
 
-  //       if (!baseItemMap.has(baseItemId))
-  //         throw new NotFoundRequestError("Base item not found");
+    inputDetailHolder.actualQuantity = actualQuantity || inputDetailHolder.actualQuantity;
+    inputDetailHolder.inputPrice = inputPrice || inputDetailHolder.inputPrice;
+    inputDetailHolder.status = status || inputDetailHolder.status;
+    inputDetailHolder.updatedBy = requesterId || inputDetailHolder.updatedBy;
+    await inputDetailHolder.save();
 
-  //       const newItem = await itemModel.create(
-  //         [
-  //           {
-  //             baseItemId: baseItemId,
-  //             code: generateMedicineCode(baseItemId),
-  //             status: "Available",
-  //           },
-  //         ],
-  //         { session }
-  //       );
+    return;
+  }
 
-  //       await inputDetailModel.create(
-  //         [
-  //           {
-  //             inputId: newInput[0]._id,
-  //             itemId: newItem[0]._id,
-  //             quantity,
-  //           },
-  //         ],
-  //         { session }
-  //       );
-  //     }
-
-  //     return newInput[0];
-  //   };
   static createInputRequest = async ({
     reportStaffId,
     supplierId,
@@ -183,7 +145,7 @@ class InputService {
     oldInputId, // field clone old input
     session,
   }) => {
-    if (!reportStaffId || !supplierId) {
+    if (!reportStaffId || !supplierId || !Array.isArray(inputDetails) || inputDetails.length === 0) {
       throw new BadRequestError("Invalid input");
     }
 
@@ -197,6 +159,15 @@ class InputService {
     if (!reportStaffHolder)
       throw new NotFoundRequestError("Report staff not found");
 
+    const supplierHolder = await userModel
+      .findOne({
+        _id: supplierId,
+        role: USER_ROLES.SUPPLIER,
+        isDeleted: false,
+      })
+      .lean();
+    if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
+
     let newInput;
     let clonedInputDetails = [];
 
@@ -207,7 +178,7 @@ class InputService {
       if (!oldInput)
         throw new NotFoundRequestError("Old input request not found");
 
-      supplierId = oldInput.supplierId; 
+      supplierId = oldInput.supplierId;
       description = oldInput.description + " (Cloned)";
 
       newInput = await inputModel.create(
@@ -256,6 +227,10 @@ class InputService {
         .lean();
       if (!baseItem) throw new NotFoundRequestError("Base item not found");
 
+      const warehouseHolder = await warehouseModel.findOne({
+        category: baseItem.storageType,
+      })
+
       const newItem = await itemModel.create(
         [
           {
@@ -270,14 +245,16 @@ class InputService {
       await inputDetailModel.create(
         [
           {
+            warehouseId: warehouseHolder._id,
             inputId: newInput[0]._id,
             itemId: newItem[0]._id,
-            quantity,
+            requestQuantity: quantity,
           },
         ],
         { session }
       );
     }
+
 
     return newInput[0];
   };
@@ -305,37 +282,68 @@ class InputService {
     inputHolder.managerId = managerId;
     await inputHolder.save();
 
+    await notifyUser({
+      userId: inputHolder.supplierId,
+      task: `Your input request has been approved`,
+      navigatePage: "inventoryrequestsuppier",
+      type: "success",
+    })
+
     return;
   };
 
-  static rejectInputRequest = async ({ id, managerId }) => {
-    if (!id || !managerId) throw new BadRequestError("Invalid input");
+  static updateInputRequest = async ({ id, description, fromDate, toDate, inventoryStaffIds }) => {
+    if (!id || (inventoryStaffIds && (!Array.isArray(inventoryStaffIds) || inventoryStaffIds.length === 0)))
+      throw new BadRequestError("Invalid input");
 
     const inputHolder = await inputModel.findOne({
       _id: id,
-      status: "Pending",
-      isDeleted: false,
-    });
+      status: ["Pending", "Approved", "Assigned"],
+      isDeleted: false
+    })
     if (!inputHolder) throw new NotFoundRequestError("Input request not found");
 
-    const managerHolder = await userModel
-      .findOne({
-        _id: managerId,
-        role: USER_ROLES.MANAGER,
-        isDeleted: false,
-      })
-      .lean();
-    if (!managerHolder) throw new NotFoundRequestError("Manager not found");
+    if (fromDate && toDate && fromDate > toDate)
+      throw new BadRequestError("Invalid date range");
 
-    inputHolder.status = "Rejected";
-    inputHolder.managerId = managerId;
+    if (fromDate && toDate && fromDate < new Date().getTime())
+      throw new BadRequestError("Invalid date range");
+
+    if (inventoryStaffIds) {
+      const inventoryStaffHolders = await userModel.find({
+        _id: { $in: inventoryStaffIds },
+        role: USER_ROLES.INVENTORY_STAFF,
+        isDeleted: false
+      })
+      if (!inventoryStaffHolders || inventoryStaffHolders.length === 0)
+        throw new NotFoundRequestError("Inventory staffs not found");
+
+      inputHolder.inventoryStaffIds = inventoryStaffIds;
+    }
+
+    inputHolder.description = description || inputHolder.description;
+    inputHolder.fromDate = fromDate || inputHolder.fromDate;
+    inputHolder.toDate = toDate || inputHolder.toDate;
     await inputHolder.save();
 
+    for (let inventoryStaffId of inputHolder.inventoryStaffIds) {
+      await notifyUser({
+        userId: inventoryStaffId,
+        task: 'You have assigned to an input request',
+        navigatePage: "inputitemcheck",
+        type: "info"
+      })
+    }
     return;
-  };
+  }
 
-  static deliverInputRequest = async ({ id, inventoryStaffId }) => {
-    if (!id || !inventoryStaffId) throw new BadRequestError("Invalid input");
+  static assignInputRequest = async ({ id, fromDate, toDate, inventoryStaffIds }) => {
+    if (!id || !Array.isArray(inventoryStaffIds) || inventoryStaffIds.length === 0)
+      throw new BadRequestError("Invalid input");
+    if (fromDate && toDate && fromDate > toDate)
+      throw new BadRequestError("Invalid date range");
+    if (fromDate && toDate && fromDate < new Date().getTime())
+      throw new BadRequestError("Invalid date range");
 
     const inputHolder = await inputModel.findOne({
       _id: id,
@@ -344,24 +352,32 @@ class InputService {
     });
     if (!inputHolder) throw new NotFoundRequestError("Input request not found");
 
-    const inventoryStaffHolder = await userModel
-      .findOne({
-        _id: inventoryStaffId,
-        role: USER_ROLES.INVENTORY_STAFF,
-        isDeleted: false,
-      })
-      .lean();
-    if (!inventoryStaffHolder)
-      throw new NotFoundRequestError("Inventory staff not found");
+    const inventoryStaffHolders = await userModel.find({
+      _id: { $in: inventoryStaffIds },
+      role: USER_ROLES.INVENTORY_STAFF,
+      isDeleted: false
+    })
+    if (!inventoryStaffHolders || inventoryStaffHolders.length === 0)
+      throw new NotFoundRequestError("Inventory staffs not found");
 
     inputHolder.status = "Assigned";
-    inputHolder.inventoryStaffId = inventoryStaffId;
+    inputHolder.inventoryStaffIds = inventoryStaffIds;
+    inputHolder.fromDate = fromDate;
+    inputHolder.toDate = toDate;
     await inputHolder.save();
 
+    for (let inventoryStaffId of inventoryStaffIds) {
+      await notifyUser({
+        userId: inventoryStaffId,
+        task: 'You have assigned to an input request',
+        navigatePage: "inputitemcheck",
+        type: "info"
+      })
+    }
     return;
   };
 
-  static completeInputRequest = async ({ id, session, inputDetails }) => {
+  static completeInputRequest = async ({ id, session }) => {
     if (!id) throw new BadRequestError("Invalid input");
 
     const inputHolder = await inputModel.findOne({
@@ -371,102 +387,31 @@ class InputService {
     });
 
     if (!inputHolder) throw new NotFoundRequestError("Input request not found");
+    const inputDetailHolders = await inputDetailModel.find({ inputId: id });
+    if (!inputDetailHolders || inputDetailHolders.length === 0)
+      throw new NotFoundRequestError("Input details not found");
 
-    for (let inputDetail of inputDetails) {
-      const {
-        inputDetailId,
-        warehouseId,
-        itemId,
-        quantityCheck,
-        inputPrice,
-        manufactureDate,
-        expiryDate,
-      } = inputDetail;
-
-      if (
-        !warehouseId ||
-        !itemId ||
-        !quantityCheck ||
-        !inputPrice ||
-        !manufactureDate ||
-        !expiryDate
-      ) {
-        throw new BadRequestError("Missing required fields in input details");
-      }
-
-      if (new Date(manufactureDate) >= new Date(expiryDate)) {
-        throw new BadRequestError(
-          "Manufacture date must be before expiry date"
-        );
-      }
-
-      const inputDetailHolder = await inputDetailModel.findOne({
-        _id: inputDetailId,
-        inputId: id,
-      });
-      if (!inputDetailHolder) {
-        throw new NotFoundRequestError(
-          `Input detail ${inputDetailId} not found`
-        );
-      }
-
-      if (quantityCheck > inputDetailHolder.quantity) {
-        throw new BadRequestError(
-          `Quantity check (${quantityCheck}) exceeds requested quantity (${inputDetailHolder.quantity})`
-        );
-      }
-
-      const warehouse = await warehouseModel.findOne({
-        _id: warehouseId,
-        isDeleted: false,
-      });
-      if (!warehouse) {
-        throw new NotFoundRequestError(`Warehouse ${warehouseId} not found`);
-      }
-
-      const item = await itemModel.findOne({ _id: itemId, isDeleted: false });
-      if (!item) {
-        throw new NotFoundRequestError(`Item ${itemId} not found`);
-      }
-
-      const baseItem = await baseItemModel.findOne({ _id: item.baseItemId });
-      if (!baseItem) {
-        throw new NotFoundRequestError(`BaseItem ${item.baseItemId} not found`);
-      }
-
-      if (
-        (warehouse.category === "Cold" && baseItem.storageType !== "Cold") ||
-        (warehouse.category === "Normal" &&
-          baseItem.storageType !== "Normal") ||
-        (warehouse.category === "Disposal" && baseItem.storageType !== "Other")
-      ) {
-        throw new BadRequestError(
-          `Warehouse category (${warehouse.category}) is not suitable for item storage type (${baseItem.storageType})`
-        );
-      }
-
+    for (let inputDetail of inputDetailHolders) {
       await WarehouseService.handleStorageTransaction({
         inputId: inputHolder._id,
-        warehouseId: warehouseId,
-        itemId: itemId,
-        quantity: quantityCheck,
+        warehouseId: inputDetail.warehouseId,
+        itemId: inputDetail.itemId,
+        quantity: inputDetail.actualQuantity,
         transactionType: "Input",
-        description: `Input request ${inputDetailId} completed`,
-        inputPrice: inputPrice,
-        manufactureDate: manufactureDate,
-        expiryDate: expiryDate,
+        description: `Input request ${inputDetail._id} has been completed`,
         session: session,
-      });
-      inputDetailHolder.status = "Completed";
-      inputDetailHolder.manufactureDate = manufactureDate;
-      inputDetailHolder.expiryDate = expiryDate;
-      inputDetailHolder.inputPrice = inputPrice;
-      inputDetailHolder.quantityChecked = quantityCheck;
-      await inputDetailHolder.save();
+      })
     }
 
     inputHolder.status = "Done";
     await inputHolder.save();
+
+    await notifyUser({
+      userId: inputHolder.supplierId,
+      task: `Your input request has been completed`,
+      navigatePage: "inventoryrequestsuppier",
+      type: "success",
+    })
 
     return;
   };
@@ -484,6 +429,13 @@ class InputService {
     inputHolder.status = "Cancelled";
     inputHolder.cancelReason = cancelReason;
     await inputHolder.save();
+
+    await notifyUser({
+      userId: inputHolder.supplierId,
+      task: `Your input request has been cancelled`,
+      navigatePage: "inventoryrequestsuppier",
+      type: "error",
+    })
 
     return;
   };

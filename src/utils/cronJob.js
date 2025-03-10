@@ -3,6 +3,7 @@ const getLogger = require("../utils/logger");
 const ItemService = require("../services/item.service");
 const systemModel = require("../models/system.model");
 const WarehouseService = require("../services/warehouse.service");
+const OutputService = require("../services/output.service");
 const logger = getLogger("CRON_JOB");
 
 const CRON_INTERVAL = {
@@ -19,11 +20,12 @@ const cronJobs = {
         interval: CRON_INTERVAL.HOURLY, // Every day at 00:00
         task: null,
         callback: async () => {
-            logger.info("🕒 Checking medicines condition...");
             try {
                 const medicines = await ItemService.checkMedicinesCondition();
-                logger.info(`🕒 Found ${medicines.almostExpiredMedicines} almost expired medicines`);
-                logger.info(`🕒 Found ${medicines.expiredMedicines} expired medicines`);
+                if (medicines.almostExpiredMedicines > 0)
+                    logger.info(`🕒 Found ${medicines.almostExpiredMedicines} almost expired medicines`);
+                if (medicines.expiredMedicines > 0)
+                    logger.info(`🕒 Found ${medicines.expiredMedicines} expired medicines`);
             } catch (error) {
                 logger.error("❌ Error checking medicines condition", error);
             }
@@ -34,7 +36,6 @@ const cronJobs = {
         interval: CRON_INTERVAL.HOURLY, // Every day at 00:00
         task: null,
         callback: async () => {
-            logger.info("🕒 Checking stock request date...");
             try {
                 const stockRequests = await WarehouseService.checkStockRequestDate();
                 logger.info(`🕒 Found ${stockRequests.length} stock requests not done exceeding the deadline`);
@@ -50,7 +51,7 @@ const cronJobs = {
         callback: async () => {
             logger.info("🕒 Checking output request date...");
             try {
-                const outputRequests = await WarehouseService.checkOutputRequestDate();
+                const outputRequests = await OutputService.checkOutputRequestDate();
                 logger.info(`🕒 Found ${outputRequests?.length} output requests not done exceeding the deadline`);
             } catch (error) {
                 logger.error("❌ Error checking output request date", error);

@@ -1,8 +1,10 @@
-const { eventEmitter } = require("../../socket");
+const { eventEmitter, notifyUser } = require("../../socket");
+const { USER_ROLES } = require("../configs/user.config");
 const CreateItemDTO = require("../core/dtos/items/create.item.dto");
 const { BadRequestError } = require("../core/responses/error.response");
 const itemModel = require("../models/item.model");
 const systemModel = require("../models/system.model");
+const userModel = require("../models/user.model");
 const { checkExpiredMedicines, getAllItems, checkAlmostExpiredMedicines } = require("../repositories/item.repo");
 const { generateMedicineCode } = require("../utils/medicine.util");
 class ItemService {
@@ -43,8 +45,11 @@ class ItemService {
         const almostExpiredMedicines = await checkAlmostExpiredMedicines()
         const expiredMedicines = await checkExpiredMedicines()
 
-        eventEmitter.emit("checkAlmostExpiredMedicine", almostExpiredMedicines);
-        eventEmitter.emit("checkExpiredMedicine", expiredMedicines);
+        const managerHolder = await userModel.findOne({ role: USER_ROLES.MANAGER })
+        if (almostExpiredMedicines.length > 0)
+            await notifyUser({ userId: managerHolder._id, task: `${almostExpiredMedicines.length} medicines are almost expired`, type: "warning" })
+        if (expiredMedicines.length > 0)
+            await notifyUser({ userId: managerHolder._id, task: `${expiredMedicines.length} medicines are expired`, type: "error" })
 
         return { almostExpiredMedicines, expiredMedicines };
     }
@@ -63,9 +68,9 @@ class ItemService {
 
         return
     }
-    static createDisposalRequest = async ({request}) => {
-        
-        return        
+    static createDisposalRequest = async ({ request }) => {
+
+        return
     }
 }
 
