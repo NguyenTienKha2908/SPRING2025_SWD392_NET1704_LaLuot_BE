@@ -14,11 +14,7 @@ const POPULATE_INPUT = [
     {
         path: 'managerId',
         select: SELECT_USER.DEFAULT
-    },
-    {
-        path: 'inventoryStaffId',
-        select: SELECT_USER.DEFAULT
-    },
+    },    
     {
         path: 'reportStaffId',
         select: SELECT_USER.DEFAULT
