@@ -195,7 +195,7 @@ class OutputService {
                     type: "info"
                 });
             }
-            
+
         return;
     }
 
@@ -363,13 +363,15 @@ class OutputService {
             })
         }
 
-        const managerHolder = await userModel.findOne({ role: USER_ROLES.MANAGER, isDeleted: false }).lean();
-        await notifyUser({
-            userId: managerHolder._id,
-            task: `You have output requests not done exceeding the deadline`,
-            navigatePage: "listOutputRequestManager",
-            type: "error"
-        })
+        if (outputRequests.length > 0) {
+            const managerHolder = await userModel.findOne({ role: USER_ROLES.MANAGER, isDeleted: false }).lean();
+            await notifyUser({
+                userId: managerHolder._id,
+                task: `You have output requests not done exceeding the deadline`,
+                navigatePage: "listOutputRequestManager",
+                type: "error"
+            })
+        }
 
         return outputRequests;
     }
