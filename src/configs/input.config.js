@@ -1,4 +1,5 @@
 const { SELECT_BASEITEM } = require("./baseitem.config");
+const { SELECT_ITEM } = require("./item.config");
 const { SELECT_USER } = require("./user.config");
 const { SELECT_WAREHOUSE } = require("./warehouse.config");
 
@@ -34,7 +35,7 @@ const POPULATE_INPUT_DETAILS = [
     },
     {
         path: 'itemId',
-        select: 'baseItemId status',
+        select: SELECT_ITEM,
         populate: { path: 'baseItemId', select: SELECT_BASEITEM.DEFAULT }
     },
     {
