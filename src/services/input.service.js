@@ -121,8 +121,8 @@ class InputService {
 
       if (manufactureDate && expiredDate && new Date(manufactureDate) >= new Date(expiredDate))
         throw new BadRequestError("Invalid date range");
-      if (manufactureDate) inputDetailHolder.manufactureDate = manufactureDate;
-      if (expiredDate) inputDetailHolder.expiredDate = expiredDate;
+      if (manufactureDate) itemHolder.manufactureDate = manufactureDate;
+      if (expiredDate) itemHolder.expiredDate = expiredDate;
       await itemHolder.save();
     }
 
