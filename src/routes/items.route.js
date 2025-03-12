@@ -1,5 +1,5 @@
 const express = require("express");
-const checkRoles = require("../middlewares/role.middleware");
+const {checkRoles} = require("../middlewares/role.middleware");
 const AuthMiddleware = require("../middlewares/auth.middleware");
 const { catchAsyncHandle } = require("../middlewares/error.middleware");
 const { USER_ROLES } = require("../configs/user.config");
