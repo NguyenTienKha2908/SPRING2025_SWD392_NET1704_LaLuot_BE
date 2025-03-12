@@ -36,7 +36,7 @@ const getAllWarehouseChecks = async ({ limit, sort, page, filter, select, expand
     const populateOptions = {
         warehouse: { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
         manager: { path: 'managerId', select: SELECT_USER.DEFAULT },
-        inventoryStaff: { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+        inventoryStaffs: { path: 'inventoryStaffIds', select: SELECT_USER.DEFAULT }
     }
 
     const populateFields = expand
@@ -139,7 +139,7 @@ const getAllStockCheckRequests = async ({ limit, sort, page, filter, select, exp
     const populateOptions = {
         warehouse: { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
         manager: { path: 'managerId', select: SELECT_USER.DEFAULT },
-        inventoryStaff: { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+        inventoryStaffs: { path: 'inventoryStaffIds', select: SELECT_USER.DEFAULT }
     }
 
     const populateFields = expand

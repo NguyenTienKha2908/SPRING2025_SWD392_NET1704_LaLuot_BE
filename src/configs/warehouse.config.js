@@ -6,7 +6,7 @@ const SELECT_WAREHOUSE = {
 }
 
 const SELECT_WAREHOUSE_CHECK = {
-    DEFAULT: 'warehouseId managerId inventoryStaffId description temperature thresholdLevel condition status',
+    DEFAULT: 'warehouseId managerId inventoryStaffIds description fromDate toDate temperature thresholdLevel condition status',
 }
 
 const SELECT_WAREHOUSE_CHECK_DETAIL = {
@@ -16,12 +16,12 @@ const SELECT_WAREHOUSE_CHECK_DETAIL = {
 const POPULATE_WAREHOUSE_CHECK = [
     { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
     { path: 'managerId', select: SELECT_USER.DEFAULT },
-    { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+    { path: 'inventoryStaffIds', select: SELECT_USER.DEFAULT }
 ]
 
 const SELECT_WAREHOUSE_STORAGE = 'warehouseId itemId batchNumber quantity'
 
-const SELECT_STOCK_REQUEST = 'description status warehouseId managerId inventoryStaffId fromDate toDate cancelReason'
+const SELECT_STOCK_REQUEST = 'description status warehouseId managerId inventoryStaffIds fromDate toDate cancelReason'
 
 const SELECT_STOCK_DETAIL = 'stockCheckId itemId systemQuantity actualQuantity difference description'
 
@@ -51,7 +51,7 @@ const POPULATE_STOCK_DETAILS = [
         populate: [
             { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
             { path: 'managerId', select: SELECT_USER.DEFAULT },
-            { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+            { path: 'inventoryStaffIds', select: SELECT_USER.DEFAULT }
         ]
     },
     {

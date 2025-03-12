@@ -16,11 +16,11 @@ var warehouseCheckSchema = new mongoose.Schema(
             ref: "User",
             required: true,
         },
-        inventoryStaffId: {
+        inventoryStaffIds: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
-        },
+        }],
         description: {
             type: String,
             required: true,
@@ -32,7 +32,7 @@ var warehouseCheckSchema = new mongoose.Schema(
             type: String,
             enum: ["Low", "Normal", "High", "Full"],
         },
-        condition:{
+        condition: {
             type: String,
             enum: ["Good", "Need Repair", "Critical"],
         },
@@ -40,6 +40,12 @@ var warehouseCheckSchema = new mongoose.Schema(
             type: String,
             enum: ["Pending", "Cancelled", "Done"],
             default: "Pending",
+        },
+        fromDate: {
+            type: Date,
+        },
+        toDate: {
+            type: Date,
         },
         ...baseModelSchema.obj,
     },
