@@ -1,7 +1,7 @@
 const express = require("express");
 const AuthMiddleware = require("../middlewares/auth.middleware");
 const { USER_ROLES } = require("../configs/user.config");
-const checkRoles = require("../middlewares/role.middleware");
+const {checkRoles} = require("../middlewares/role.middleware");
 const { catchAsyncHandle } = require("../middlewares/error.middleware");
 const baseItemsController = require("../controllers/baseItems.controller");
 

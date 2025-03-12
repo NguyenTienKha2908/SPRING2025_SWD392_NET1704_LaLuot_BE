@@ -2,7 +2,7 @@ const express = require("express");
 const userController = require("../controllers/user.controller");
 const { catchAsyncHandle } = require("../middlewares/error.middleware");
 const { USER_ROLES } = require("../configs/user.config");
-const checkRoles = require("../middlewares/role.middleware");
+const {checkRoles,checkUserOrAdmin} = require("../middlewares/role.middleware");
 const AuthMiddleware = require("../middlewares/auth.middleware");
 
 const router = express.Router();
@@ -60,35 +60,32 @@ router.post(
     checkRoles({ requiredRoles: [USER_ROLES.ADMIN] }),
     catchAsyncHandle(userController.createUser)
 );
-
-// Cập nhật user theo ID (Chỉ Admin hoặc chính chủ user mới có quyền)
 router.put(
     "/:id",
     /**
-      * #swagger.tags = ['User']
-      * #swagger.description='Update user by ID'
-      */
-    /* #swagger.parameters['id'] = {
-        in: 'path',
-        required: true,
-        description: 'User id',
-        type: 'string'
-    } */
-    /*  #swagger.requestBody = {
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: "#/components/schemas/UpdateUser"
-                }  
-            }
-        }
-    } 
-*/
+    * #swagger.tags = ['User']
+    * #swagger.description='Update own user by ID'
+    */
+  /* #swagger.parameters['id'] = {
+      in: 'path',
+      required: true,
+      description: 'User id',
+      type: 'string'
+  } */
+  /*  #swagger.requestBody = {
+      content: {
+          "application/json": {
+              schema: {
+                  $ref: "#/components/schemas/UpdateUser"
+              }  
+          }
+      }
+  } 
+  */
     catchAsyncHandle(AuthMiddleware),
-    checkRoles({ requiredRoles: [USER_ROLES.ADMIN] }),
+    catchAsyncHandle(checkUserOrAdmin),
     catchAsyncHandle(userController.updateUser)
-);
-
+)
 // Xóa user theo ID (Chỉ Admin mới có quyền)
 router.delete(
     "/:id",
