@@ -113,7 +113,7 @@ class OutputService {
             customerId: customerId,
             description: description || `Output request for ${customerHolder.name}`,
             status: "Pending",
-            batchNumber: new Date().getTime().toString() + "-OUP",
+            batchNumber: `${new Date().getDate()}${new Date().getMonth()}${new Date().getFullYear()}-${new Date().getHours}${new Date().getMinutes}${new Date().getSeconds}-OUP`,
         }], { session: session });
 
         const outputDetailsToCreate = await Promise.all(outputDetails.map(async outputDetail => {

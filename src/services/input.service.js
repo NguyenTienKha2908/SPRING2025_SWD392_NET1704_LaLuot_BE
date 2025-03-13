@@ -209,7 +209,7 @@ class InputService {
             supplierId,
             description,
             status: "Pending",
-            batchNumber: new Date().getTime().toString() + "-INP",
+            batchNumber: `${new Date().getDate()}${new Date().getMonth()}${new Date().getFullYear()}-${new Date().getHours}${new Date().getMinutes}${new Date().getSeconds}-INP`,
           },
         ],
         { session }
@@ -403,12 +403,12 @@ class InputService {
     }
 
     inputHolder.status = "Done";
-    await inputHolder.save();
+    await inputHolder.save({ session: session });
 
     await notifyUser({
       userId: inputHolder.supplierId,
       task: `Your input request has been completed`,
-      navigatePage: "inventoryrequestsuppier",
+      navigatePage: "/inventoryrequestsuppier",
       type: "success",
     })
 
