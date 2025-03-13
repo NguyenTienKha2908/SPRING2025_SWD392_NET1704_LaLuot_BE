@@ -66,11 +66,12 @@ const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
 const checkExpiredMedicines = async () => {
     const system = await systemModel.findOne({});
     const expiredThreshold = new Date(new Date().getTime() - system.expiredMedicineDate)
+    console.log(expiredThreshold)
 
     let expiredMedicines = await itemModel.aggregate([
         {
             $match: {
-                expiredDate: { $exists: true, $ne: null, $gt: expiredThreshold },
+                expiredDate: { $exists: true, $ne: null, $lt: expiredThreshold },
                 status: { $in: ["Available", "Almost Expired"] }
             }
         },
@@ -114,7 +115,7 @@ const checkAlmostExpiredMedicines = async () => {
     let almostExpiredMedicines = await itemModel.aggregate([
         {
             $match: {
-                expiredDate: { $gt: new Date(new Date().getTime() - system.almostExpiredMedicineDate) },
+                expiredDate: { $exists: true, $ne: null, $lt: new Date(new Date().getTime() - system.almostExpiredMedicineDate) },
                 status: "Available"
             }
         },
