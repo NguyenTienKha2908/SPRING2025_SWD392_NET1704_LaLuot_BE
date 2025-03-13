@@ -86,6 +86,7 @@ class OutputService {
     }
 
     static createOuputRequest = async ({ reportStaffId, customerId, description, outputDetails, session }) => {
+        console.log(reportStaffId, customerId, description, outputDetails)
         if (!reportStaffId || !customerId || !Array.isArray(outputDetails) || outputDetails.length === 0)
             throw new BadRequestError("Invalid input");
 
@@ -120,7 +121,6 @@ class OutputService {
 
             const itemHolder = await itemModel.findOne({
                 _id: itemId,
-                status: ["Available", "Almost Expired"],
                 isDeleted: false
             }).lean();
             if (!itemHolder)
