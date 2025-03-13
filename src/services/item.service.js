@@ -47,9 +47,9 @@ class ItemService {
 
         const managerHolder = await userModel.findOne({ role: USER_ROLES.MANAGER })
         if (almostExpiredMedicines.length > 0)
-            await notifyUser({ userId: managerHolder._id, task: `${almostExpiredMedicines.length} medicines are almost expired`, type: "warning" })
+            await notifyUser({ userId: managerHolder._id, task: `${almostExpiredMedicines.length} medicines are almost expired`, navigatePage: "expiredmedicine", type: "warning" })
         if (expiredMedicines.length > 0)
-            await notifyUser({ userId: managerHolder._id, task: `${expiredMedicines.length} medicines are expired`, type: "error" })
+            await notifyUser({ userId: managerHolder._id, task: `${expiredMedicines.length} medicines are expired`, navigatePage: "expiredmedicine", type: "error" })
 
         return { almostExpiredMedicines, expiredMedicines };
     }

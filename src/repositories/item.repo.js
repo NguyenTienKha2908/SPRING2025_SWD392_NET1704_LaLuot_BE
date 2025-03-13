@@ -64,13 +64,14 @@ const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
 
 
 const checkExpiredMedicines = async () => {
-    const expiredMedicineDate = await systemModel.findOne({}).select('expiredMedicineDate')
+    const system = await systemModel.findOne({});
+    const expiredThreshold = new Date(new Date().getTime() - system.expiredMedicineDate)
 
     let expiredMedicines = await itemModel.aggregate([
         {
             $match: {
-                expiredDate: { $lt: new Date(new Date().getTime() + expiredMedicineDate) },
-                status: ["Available", "Almost Expired"]
+                expiredDate: { $exists: true, $ne: null, $gt: expiredThreshold },
+                status: { $in: ["Available", "Almost Expired"] }
             }
         },
         {
@@ -83,31 +84,37 @@ const checkExpiredMedicines = async () => {
         },
         {
             $unwind: '$baseItem'
-        }, {
+        },
+        {
             $match: {
                 'baseItem.category': 'Medicine'
             }
         }
-    ])
+    ]);
 
-    await itemModel.updateMany({ _id: { $in: expiredMedicines.map(medicine => medicine._id) } },
-        { status: "Expired" })
+    if (expiredMedicines.length > 0) {
+        await itemModel.updateMany(
+            { _id: { $in: expiredMedicines.map(medicine => medicine._id) } },
+            { $set: { status: "Expired" } }
+        );
 
-
-    for (let medicine of expiredMedicines) {
-        medicine.status = "Expired"
+        expiredMedicines = expiredMedicines.map(medicine => ({
+            ...medicine,
+            status: "Expired"
+        }));
     }
 
-    return expiredMedicines
-}
+    return expiredMedicines;
+};
+
 
 const checkAlmostExpiredMedicines = async () => {
-    const almostExpiredMedicineDate = await systemModel.findOne({}).select('almostExpiredMedicineDate')
+    const system = await systemModel.findOne({})
 
     let almostExpiredMedicines = await itemModel.aggregate([
         {
             $match: {
-                expiredDate: { $lt: new Date(new Date().getTime() + almostExpiredMedicineDate) },
+                expiredDate: { $gt: new Date(new Date().getTime() - system.almostExpiredMedicineDate) },
                 status: "Available"
             }
         },
@@ -132,7 +139,7 @@ const checkAlmostExpiredMedicines = async () => {
         { status: "Almost Expired" })
 
     await inputDetailModel.updateMany({ itemId: { $in: almostExpiredMedicines.map(medicine => medicine._id) } },
-        { $set: { suggestedOutputPrice: { $add: ["$inputPrice", await systemModel.findOne({}).select("almostExipiredOutputPricePercentage")] } } })
+        [{ $set: { suggestedOutputPrice: { $multiply: ["$inputPrice", system.almostExpiredOutputPricePercentage] } } }])
 
 
     for (let medicine of almostExpiredMedicines) {
