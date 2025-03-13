@@ -202,6 +202,7 @@ class InputService {
         );
       }
     } else {
+      const now = new Date();
       newInput = await inputModel.create(
         [
           {
@@ -209,7 +210,7 @@ class InputService {
             supplierId,
             description,
             status: "Pending",
-            batchNumber: `${new Date().getDate().toString()}${new Date().getMonth().toString()}${new Date().getFullYear().toString()}-${new Date().getHours.toString()}${new Date().getMinutes.toString()}${new Date().getSeconds.toString()}-INP`,
+            batchNumber : `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`
           },
         ],
         { session }

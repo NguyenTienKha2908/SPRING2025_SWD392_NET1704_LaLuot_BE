@@ -265,11 +265,12 @@ class WarehouseService {
 
                 await inputDetailModel.updateOne({ _id: inputDetailHolder._id }, { status: "Done" }, { session: session })
 
+                const now = new Date();
                 await warehouseStorageModel.create([{
                     warehouseId,
                     itemId,
                     quantity,
-                    batchNumber: `${new Date().getDate().toString()}${new Date().getMonth().toString()}${new Date().getFullYear().toString()}-${new Date().getHours.toString()}${new Date().getMinutes.toString()}${new Date().getSeconds.toString()}-BAT`,
+                    batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-STR`
                 }], { session: session })
 
                 break

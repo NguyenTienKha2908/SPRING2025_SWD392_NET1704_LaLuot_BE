@@ -108,12 +108,13 @@ class OutputService {
             throw new NotFoundRequestError("Customer not found");
 
         // Tạo output request
+        const now = new Date();
         const newOutput = await outputModel.create([{
             reportStaffId: reportStaffId,
             customerId: customerId,
             description: description || `Output request for ${customerHolder.name}`,
             status: "Pending",
-            batchNumber: `${new Date().getDate().toString()}${new Date().getMonth().toString()}${new Date().getFullYear().toString()}-${new Date().getHours.toString()}${new Date().getMinutes.toString()}${new Date().getSeconds.toString()}-OUP`,
+            batchNumber : `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-OUP`
         }], { session: session });
 
         const outputDetailsToCreate = await Promise.all(outputDetails.map(async outputDetail => {
