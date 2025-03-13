@@ -88,7 +88,15 @@ class WarehouseService {
 
     }
 
-    static createWarehouseCheck = async ({ warehouseId, managerId, inventoryStaffId, description }) => {
+    static createWarehouseCheck = async ({ warehouseId, managerId, inventoryStaffIds, description, fromDate, toDate }) => {
+        if (!warehouseId || !managerId || !inventoryStaffIds || inventoryStaffIds.length === 0 || !Array.isArray(inventoryStaffIds)) {
+            throw new BadRequestError('Invalid input')
+        }
+
+        if (fromDate >= toDate || fromDate < new Date()) {
+            throw new BadRequestError('Invalid date range')
+        }
+
         const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean()
         if (!warehouseHolder) {
             throw new NotFoundRequestError('Warehouse not found')
@@ -99,23 +107,29 @@ class WarehouseService {
             throw new NotFoundRequestError('Manager not found')
         }
 
-        const inventoryStaffHolder = await userModel.findOne({ _id: inventoryStaffId, isDeleted: false }).lean()
-        if (!inventoryStaffHolder) {
+        const inventoryStaffHolders = await userModel.find({ _id: { $in: inventoryStaffIds }, isDeleted: false }).lean()
+        if (!inventoryStaffHolders) {
             throw new NotFoundRequestError('Inventory staff not found')
         }
 
         const newWarehouseCheck = await warehouseCheckModel.create({
             warehouseId,
             managerId,
-            inventoryStaffId,
+            inventoryStaffIds,
             description: description || `Check for ${warehouseHolder.name}`,
-            status: 'Pending'
+            status: 'Pending',
+            fromDate,
+            toDate
         })
 
         return newWarehouseCheck
     }
 
-    static updateWarehouseCheck = async ({ id, description, temperature, thresholdLevel, condition, status }) => {
+    static updateWarehouseCheck = async ({ id, description, temperature, thresholdLevel, condition, status, inventoryStaffIds }) => {
+        if (inventoryStaffIds && inventoryStaffIds.length === 0) {
+            throw new BadRequestError('Invalid input')
+        }
+
         const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: id, isDeleted: false }).lean()
         if (!warehouseCheckHolder) {
             throw new NotFoundRequestError('Warehouse check not found')
@@ -126,7 +140,8 @@ class WarehouseService {
             temperature: temperature || warehouseCheckHolder.temperature,
             thresholdLevel: thresholdLevel || warehouseCheckHolder.thresholdLevel,
             condition: condition || warehouseCheckHolder.condition,
-            status: status || warehouseCheckHolder.status
+            status: status || warehouseCheckHolder.status,
+            inventoryStaffIds: inventoryStaffIds || warehouseCheckHolder.inventoryStaffIds
         }, { new: true })
 
         return
@@ -356,7 +371,7 @@ class WarehouseService {
         description,
         warehouseId,
         managerId,
-        inventoryStaffId,
+        inventoryStaffIds,
         fromDate,
         toDate
     }) => {
@@ -370,12 +385,12 @@ class WarehouseService {
             throw new NotFoundRequestError("Manager not found");
         }
 
-        const inventoryStaffIdHolder = await userModel.findOne({
-            _id: inventoryStaffId,
+        const inventoryStaffIdHolders = await userModel.find({
+            _id: { $in: inventoryStaffIds },
             role: USER_ROLES.INVENTORY_STAFF,
             isDeleted: false
         }).lean();
-        if (!inventoryStaffIdHolder) {
+        if (!inventoryStaffIdHolders) {
             throw new NotFoundRequestError("Inventory Staff not found");
         }
 
@@ -391,7 +406,7 @@ class WarehouseService {
             description,
             warehouseId,
             managerId,
-            inventoryStaffId,
+            inventoryStaffIds,
             fromDate,
             toDate,
         })
