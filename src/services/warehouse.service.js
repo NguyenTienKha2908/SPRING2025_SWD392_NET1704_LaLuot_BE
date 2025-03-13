@@ -270,7 +270,7 @@ class WarehouseService {
                     warehouseId,
                     itemId,
                     quantity,
-                    batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-STR`
+                    batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-STR-${(Math.floor(Math.random() * 1000) + 1)}`,
                 }], { session: session })
 
                 break
