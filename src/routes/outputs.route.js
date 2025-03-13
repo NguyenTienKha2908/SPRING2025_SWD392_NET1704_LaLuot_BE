@@ -108,7 +108,7 @@ router.post("/",
         }
     } 
 */
-    checkRoles({ requiredRoles: [USER_ROLES.REPORT_STAFF] }),
+    checkRoles({ requiredRoles: [USER_ROLES.REPORT_STAFF, USER_ROLES.MANAGER] }),
     catchAsyncHandle(outputController.createOuputRequest)
 )
 

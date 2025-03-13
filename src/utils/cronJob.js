@@ -21,6 +21,7 @@ const cronJobs = {
         task: null,
         callback: async () => {
             try {
+                logger.info("🕒 Checking medicines condition");
                 const medicines = await ItemService.checkMedicinesCondition();
                 if (medicines.almostExpiredMedicines > 0)
                     logger.info(`🕒 Found ${medicines.almostExpiredMedicines} almost expired medicines`);
@@ -50,7 +51,6 @@ const cronJobs = {
         interval: CRON_INTERVAL.HOURLY,
         task: null,
         callback: async () => {
-            logger.info("🕒 Checking output request date...");
             try {
                 const outputRequests = await OutputService.checkOutputRequestDate();
                 if (outputRequests?.length > 0)

@@ -457,7 +457,7 @@ class WarehouseService {
             await notifyUser({
                 userId: managerHolder._id,
                 task: `Found ${stockRequests.length} stock check requests not done exceeding the deadline`,
-                navigatePage: "/stock-check",
+                navigatePage: "/stockcheckrequest",
                 type: "error"
             })
 
