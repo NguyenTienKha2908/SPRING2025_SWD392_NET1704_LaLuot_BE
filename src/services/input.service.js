@@ -209,7 +209,7 @@ class InputService {
             supplierId,
             description,
             status: "Pending",
-            batchNumber: `${new Date().getDate()}${new Date().getMonth()}${new Date().getFullYear()}-${new Date().getHours}${new Date().getMinutes}${new Date().getSeconds}-INP`,
+            batchNumber: `${new Date().getDate().toString()}${new Date().getMonth().toString()}${new Date().getFullYear().toString()}-${new Date().getHours.toString()}${new Date().getMinutes.toString()}${new Date().getSeconds.toString()}-INP`,
           },
         ],
         { session }

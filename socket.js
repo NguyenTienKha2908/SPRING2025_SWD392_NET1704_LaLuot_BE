@@ -75,7 +75,7 @@ const notifyUser = async ({ userId, task, navigatePage, type }) => {
     const data = { navigatePage: navigatePage, task: task, type: type };
     logger.info(`⚡Notify user ${userId} with task ${task}`);
     if (userSocketId) {
-        io.to(userSocketId).emit("taskAssigned", data);
+        io?.to(userSocketId).emit("taskAssigned", data);
     } else {
         await notifyModel.create({
             userId: userId,
