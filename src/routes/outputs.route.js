@@ -2,7 +2,7 @@ const express = require("express");
 const { catchAsyncHandle } = require("../middlewares/error.middleware");
 const AuthMiddleware = require("../middlewares/auth.middleware");
 const outputController = require("../controllers/output.controller");
-const {checkRoles} = require("../middlewares/role.middleware");
+const { checkRoles } = require("../middlewares/role.middleware");
 const { USER_ROLES } = require("../configs/user.config");
 
 const router = express.Router();
@@ -214,7 +214,7 @@ router.patch("/:id/cancel",
         description: 'Output request id',
         type: 'string'
     } */
-    checkRoles({ requiredRoles: [USER_ROLES.CUSTOMER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
     catchAsyncHandle(outputController.cancelOutputRequest)
 )
 

@@ -81,6 +81,7 @@ class OutputService {
         outputDetailHolder.status = status || outputDetailHolder.status;
         outputDetailHolder.updatedBy = requesterId || outputDetailHolder.updatedBy;
         await outputDetailHolder.save();
+        
 
         return;
     }

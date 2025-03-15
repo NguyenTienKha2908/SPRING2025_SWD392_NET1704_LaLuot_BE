@@ -23,7 +23,7 @@ var itemSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["Almost Expired","Expired", "Available"],
+        enum: ["Almost Expired", "Expired", "Available", "Out of Stock"],
         default: "Available",
     },
     manufactureDate: {

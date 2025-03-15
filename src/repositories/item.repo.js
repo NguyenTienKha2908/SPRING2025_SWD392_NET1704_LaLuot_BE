@@ -66,7 +66,6 @@ const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
 const checkExpiredMedicines = async () => {
     const system = await systemModel.findOne({});
     const expiredThreshold = new Date(new Date().getTime() - system.expiredMedicineDate)
-    console.log(expiredThreshold)
 
     let expiredMedicines = await itemModel.aggregate([
         {
