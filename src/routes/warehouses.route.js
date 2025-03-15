@@ -170,7 +170,7 @@ router.put("/stock-check-details/:id",
         }
     }
 */
-    checkRoles({ requiredRoles: [USER_ROLES.INVENTORY_STAFF] }),
+    checkRoles({ requiredRoles: [USER_ROLES.INVENTORY_STAFF, USER_ROLES.MANAGER] }),
     catchAsyncHandle(warehouseController.updateStockCheckDetail)
 )
 
