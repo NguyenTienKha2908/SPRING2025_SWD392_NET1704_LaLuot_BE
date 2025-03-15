@@ -223,7 +223,7 @@ class WarehouseService {
             throw new NotFoundRequestError("Warehouse not found");
         }
 
-        const itemHolder = await itemModel.findOne({ _id: itemId, isDeleted: false }).lean();
+        const itemHolder = await itemModel.findOne({ _id: itemId, isDeleted: false })
         if (!itemHolder) {
             throw new NotFoundRequestError("Item not found");
         }
@@ -234,6 +234,10 @@ class WarehouseService {
 
         switch (transactionType) {
             case "Input":
+                if (!itemHolder.manufactureDate || !itemHolder.expiredDate) {
+                    throw new BadRequestError("Manufacture date and expired date is required");
+                }
+
                 if (!inputId) {
                     throw new BadRequestError("Input id is required");
                 }
@@ -272,6 +276,9 @@ class WarehouseService {
                     quantity,
                     batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-STR-${(Math.floor(Math.random() * 1000) + 1)}`,
                 }], { session: session })
+
+                itemHolder.status = "Available";
+                await itemHolder.save({ session: session });
 
                 break
 
