@@ -365,6 +365,7 @@ const doc = {
         expand: "input item",
       },
       UpdateInputDetail: {
+        requestQuantity: 10,
         actualQuantity: 10,
         inputPrice: 1000,
         manufactureDate: "2021-07-01T00:00:00.000Z",

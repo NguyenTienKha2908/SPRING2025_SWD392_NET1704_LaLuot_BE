@@ -88,12 +88,14 @@ class InputService {
     return inputDetailHolder;
   };
 
-  static updateInputDetail = async ({ id, actualQuantity, inputPrice, manufactureDate, expiredDate, status, requesterId }) => {
+  static updateInputDetail = async ({ id, requestQuantity, actualQuantity, inputPrice, manufactureDate, expiredDate, status, requesterId }) => {
     const inputDetailHolder = await inputDetailModel.findOne({
       _id: id,
     })
     if (!inputDetailHolder) throw new NotFoundRequestError("Input detail not found");
 
+    if (requestQuantity && requestQuantity < 0)
+      throw new BadRequestError("Invalid request quantity");
     if (actualQuantity && actualQuantity < 0)
       throw new BadRequestError("Invalid actual quantity");
     if (inputPrice && inputPrice < 0)
@@ -127,6 +129,7 @@ class InputService {
     }
 
 
+    inputDetailHolder.requestQuantity = requestQuantity || inputDetailHolder.requestQuantity;
     inputDetailHolder.actualQuantity = actualQuantity || inputDetailHolder.actualQuantity;
     inputDetailHolder.inputPrice = inputPrice || inputDetailHolder.inputPrice;
     inputDetailHolder.status = status || inputDetailHolder.status;
@@ -210,7 +213,7 @@ class InputService {
             supplierId,
             description,
             status: "Pending",
-            batchNumber : `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`
+            batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`
           },
         ],
         { session }
@@ -236,7 +239,7 @@ class InputService {
           {
             baseItemId,
             code: generateMedicineCode(baseItemId),
-            status: "Available",
+            status: "Not Available",
           },
         ],
         { session }
