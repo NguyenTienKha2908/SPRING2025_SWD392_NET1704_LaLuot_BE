@@ -130,7 +130,7 @@ class WarehouseService {
             throw new BadRequestError('Invalid input')
         }
 
-        const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: id, isDeleted: false }).lean()
+        const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: id, isDeleted: false, status: { $ne: "Cancelled" } }).lean()
         if (!warehouseCheckHolder) {
             throw new NotFoundRequestError('Warehouse check not found')
         }
@@ -318,6 +318,10 @@ class WarehouseService {
                 if (warehouseStorageHolder.quantity < 0) {
                     throw new BadRequestError("Not enough quantity in warehouse storage");
                 }
+                if (warehouseStorageHolder.quantity === 0) {
+                    warehouseStorageHolder.isDeleted = true;
+                    itemHolder.isDeleted = true;
+                }
                 await warehouseStorageHolder.save();
                 break;
             default:
@@ -421,13 +425,49 @@ class WarehouseService {
                 stockCheckId: newStockCheck._id,
                 itemId: warehouseStorage.itemId,
                 systemQuantity: warehouseStorage.quantity,
-                description: `Check for ${warehouseStorage.itemId}`,
+                description: `Check for ${warehouseHolder.name}`,
                 status: "Pending"
             }
         })
         await stockCheckDetailModel.insertMany(stockCheckDetailsToCreate)
 
         return newStockCheck
+    }
+
+    static checkWarehouseCheckDate = async () => {
+        const warehouseCheckHolders = await warehouseCheckModel.find({ status: "Pending", isDeleted: false })
+        const currentDate = new Date();
+
+        const warehouseChecks = warehouseCheckHolders.filter(warehouseCheck => warehouseCheck.toDate < currentDate);
+
+        for (const warehouseCheck of warehouseChecks) {
+            await warehouseCheckModel.updateOne({ _id: warehouseCheck._id }, {
+                status: "Cancelled",
+                condition: "Exceeding deadline"
+            })
+
+            for (const inventoryStaff of warehouseCheck.inventoryStaffIds) {
+                await notifyUser({
+                    userId: inventoryStaff,
+                    task: "Your warehouse check has been cancelled due to exceeding deadline",
+                    navigatePage: "/",
+                    type: "error"
+                })
+            }
+        }
+
+        const managerHolder = await userModel.findOne({
+            role: USER_ROLES.MANAGER,
+            isDeleted: false
+        })
+
+        if (warehouseChecks.length > 0)
+            await notifyUser({
+                userId: managerHolder._id,
+                task: `Found ${warehouseChecks.length} warehouse checks not done exceeding the deadline`,
+                navigatePage: "/warehousecheck",
+                type: "error"
+            })
     }
 
     static checkStockRequestDate = async () => {
@@ -441,12 +481,15 @@ class WarehouseService {
                 status: "Cancelled",
                 cancelReason: "Exceeding deadline"
             })
-            await notifyUser({
-                userId: stockRequest.inventoryStaffId,
-                task: "Your stock check request has been cancelled due to exceeding deadline",
-                navigatePage: "/",
-                type: "error"
-            })
+
+            for (const inventoryStaff of stockRequest.inventoryStaffIds) {
+                await notifyUser({
+                    userId: inventoryStaff,
+                    task: "Your stock check request has been cancelled due to exceeding deadline",
+                    navigatePage: "/",
+                    type: "error"
+                })
+            }
         }
 
         const managerHolder = await userModel.findOne({

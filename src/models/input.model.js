@@ -77,17 +77,4 @@ inputSchema.pre("findOneAndDelete", async function (next) {
   }
   next();
 });
-// Middleware trước khi lưu hoặc cập nhật Input
-inputSchema.pre("save", async function (next) {
-  const inputId = this._id; // Lấy ID của input hiện tại
-  const inputDetails = await inputDetailModel.find({ inputId });
-
-  // Tính tổng giá trị từ inputDetail
-  this.totalPrice = inputDetails.reduce(
-    (sum, detail) => sum + detail.unitPrice * detail.quantity,
-    0
-  );
-
-  next();
-});
 module.exports = mongoose.model(DOCUMENT_NAME, inputSchema);
