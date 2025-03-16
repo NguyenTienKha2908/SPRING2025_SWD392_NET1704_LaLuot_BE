@@ -330,6 +330,7 @@ class WarehouseService {
                     itemHolder.isDeleted = true;
                 }
                 await warehouseStorageHolder.save();
+                await itemHolder.save();
                 break;
             default:
                 throw new BadRequestError("Invalid transaction type");
@@ -385,7 +386,8 @@ class WarehouseService {
         managerId,
         inventoryStaffIds,
         fromDate,
-        toDate
+        toDate,
+        session
     }) => {
         const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean();
         if (!warehouseHolder) {
@@ -414,14 +416,14 @@ class WarehouseService {
             throw new BadRequestError("Invalid date range");
         }
 
-        const newStockCheck = await stockCheckModel.create({
+        const newStockCheck = await stockCheckModel.create([{
             description,
             warehouseId,
             managerId,
             inventoryStaffIds,
             fromDate,
             toDate,
-        })
+        }], { session: session })
 
         const warehouseStorageHolders = await warehouseStorageModel
             .find({ warehouseId: warehouseId, isDeleted: false })
@@ -429,16 +431,19 @@ class WarehouseService {
 
         const stockCheckDetailsToCreate = warehouseStorageHolders.map(warehouseStorage => {
             return {
-                stockCheckId: newStockCheck._id,
+                stockCheckId: newStockCheck[0]._id,
                 itemId: warehouseStorage.itemId,
                 systemQuantity: warehouseStorage.quantity,
                 description: `Check for ${warehouseHolder.name}`,
                 status: "Pending"
             }
         })
+        if (stockCheckDetailsToCreate.length === 0) {
+            throw new BadRequestError("Warehouse storage is empty");
+        }
         await stockCheckDetailModel.insertMany(stockCheckDetailsToCreate)
 
-        return newStockCheck
+        return newStockCheck[0]
     }
 
     static checkWarehouseCheckDate = async () => {

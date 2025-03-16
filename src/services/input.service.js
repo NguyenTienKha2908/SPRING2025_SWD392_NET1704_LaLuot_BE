@@ -112,15 +112,18 @@ class InputService {
 
     if (inputPrice) {
       const systemHolder = await systemModel.findOne({});
-      inputDetailHolder.suggestedOutputPrice = inputPrice * (1 + systemHolder.normalOutputPricePercentage)
+      inputDetailHolder.suggestedOutputPrice = (inputPrice * (1 + systemHolder.normalOutputPricePercentage)).toFixed(2);
+      await inputDetailHolder.save();
       const inputHolder = await inputModel.findOne({ _id: inputDetailHolder.inputId })
       if (!inputHolder) throw new NotFoundRequestError("Input request not found");
       const inputDetailHolders = await inputDetailModel.find({ inputId: inputHolder._id })
       if (!inputDetailHolders || inputDetailHolders.length === 0) throw new NotFoundRequestError("Input details not found");
       let totalInputPrice = 0;
       for (let inputDetail of inputDetailHolders) {
-        totalInputPrice += inputDetail.inputPrice;
+        if (inputDetail.inputPrice)
+          totalInputPrice += inputDetail.inputPrice;
       }
+      console.log(totalInputPrice);
       inputHolder.totalPrice = totalInputPrice;
       await inputHolder.save();
     }
