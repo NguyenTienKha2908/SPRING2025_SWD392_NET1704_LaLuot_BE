@@ -1,9 +1,9 @@
 const express = require("express");
-const checkRoles = require("../../middlewares/role.middleware");
-const AuthMiddleware = require("../../middlewares/auth.middleware");
-const { catchAsyncHandle } = require("../../middlewares/error.middleware");
-const { USER_ROLES } = require("../../configs/user.config");
-const itemController = require("../../controllers/item.controller");
+const {checkRoles} = require("../middlewares/role.middleware");
+const AuthMiddleware = require("../middlewares/auth.middleware");
+const { catchAsyncHandle } = require("../middlewares/error.middleware");
+const { USER_ROLES } = require("../configs/user.config");
+const itemController = require("../controllers/item.controller");
 
 const router = express.Router();
 
@@ -33,7 +33,7 @@ router.get("/:id",
         description: 'Item id',
         type: 'string'
     } */
-    checkRoles({requiredRoles:[USER_ROLES.MANAGER,USER_ROLES.INVENTORY_STAFF]}),
+    checkRoles({requiredRoles:[USER_ROLES.MANAGER,USER_ROLES.INVENTORY_STAFF,USER_ROLES.REPORT_STAFF]}),
     catchAsyncHandle(itemController.getDetailItem)
 )
 router.post("/",

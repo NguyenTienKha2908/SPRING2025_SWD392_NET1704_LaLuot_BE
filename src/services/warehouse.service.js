@@ -88,7 +88,15 @@ class WarehouseService {
 
     }
 
-    static createWarehouseCheck = async ({ warehouseId, managerId, inventoryStaffId, description }) => {
+    static createWarehouseCheck = async ({ warehouseId, managerId, inventoryStaffIds, description, fromDate, toDate }) => {
+        if (!warehouseId || !managerId || !inventoryStaffIds || inventoryStaffIds.length === 0 || !Array.isArray(inventoryStaffIds)) {
+            throw new BadRequestError('Invalid input')
+        }
+
+        if (fromDate >= toDate || fromDate < new Date()) {
+            throw new BadRequestError('Invalid date range')
+        }
+
         const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean()
         if (!warehouseHolder) {
             throw new NotFoundRequestError('Warehouse not found')
@@ -99,24 +107,30 @@ class WarehouseService {
             throw new NotFoundRequestError('Manager not found')
         }
 
-        const inventoryStaffHolder = await userModel.findOne({ _id: inventoryStaffId, isDeleted: false }).lean()
-        if (!inventoryStaffHolder) {
+        const inventoryStaffHolders = await userModel.find({ _id: { $in: inventoryStaffIds }, isDeleted: false }).lean()
+        if (!inventoryStaffHolders) {
             throw new NotFoundRequestError('Inventory staff not found')
         }
 
         const newWarehouseCheck = await warehouseCheckModel.create({
             warehouseId,
             managerId,
-            inventoryStaffId,
+            inventoryStaffIds,
             description: description || `Check for ${warehouseHolder.name}`,
-            status: 'Pending'
+            status: 'Pending',
+            fromDate,
+            toDate
         })
 
         return newWarehouseCheck
     }
 
-    static updateWarehouseCheck = async ({ id, description, temperature, thresholdLevel, condition, status }) => {
-        const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: id, isDeleted: false }).lean()
+    static updateWarehouseCheck = async ({ id, description, temperature, thresholdLevel, condition, status, inventoryStaffIds }) => {
+        if (inventoryStaffIds && inventoryStaffIds.length === 0) {
+            throw new BadRequestError('Invalid input')
+        }
+
+        const warehouseCheckHolder = await warehouseCheckModel.findOne({ _id: id, isDeleted: false, status: { $ne: "Cancelled" } }).lean()
         if (!warehouseCheckHolder) {
             throw new NotFoundRequestError('Warehouse check not found')
         }
@@ -126,7 +140,8 @@ class WarehouseService {
             temperature: temperature || warehouseCheckHolder.temperature,
             thresholdLevel: thresholdLevel || warehouseCheckHolder.thresholdLevel,
             condition: condition || warehouseCheckHolder.condition,
-            status: status || warehouseCheckHolder.status
+            status: status || warehouseCheckHolder.status,
+            inventoryStaffIds: inventoryStaffIds || warehouseCheckHolder.inventoryStaffIds
         }, { new: true })
 
         return
@@ -208,7 +223,7 @@ class WarehouseService {
             throw new NotFoundRequestError("Warehouse not found");
         }
 
-        const itemHolder = await itemModel.findOne({ _id: itemId, isDeleted: false }).lean();
+        const itemHolder = await itemModel.findOne({ _id: itemId, isDeleted: false })
         if (!itemHolder) {
             throw new NotFoundRequestError("Item not found");
         }
@@ -219,6 +234,10 @@ class WarehouseService {
 
         switch (transactionType) {
             case "Input":
+                if (!itemHolder.manufactureDate || !itemHolder.expiredDate) {
+                    throw new BadRequestError("Manufacture date and expired date is required");
+                }
+
                 if (!inputId) {
                     throw new BadRequestError("Input id is required");
                 }
@@ -250,12 +269,16 @@ class WarehouseService {
 
                 await inputDetailModel.updateOne({ _id: inputDetailHolder._id }, { status: "Done" }, { session: session })
 
+                const now = new Date();
                 await warehouseStorageModel.create([{
                     warehouseId,
                     itemId,
                     quantity,
-                    batchNumber: "INP-" + new Date().getTime().toString(),
+                    batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-STR-${(Math.floor(Math.random() * 1000) + 1)}`,
                 }], { session: session })
+
+                itemHolder.status = "Available";
+                await itemHolder.save({ session: session });
 
                 break
 
@@ -302,7 +325,12 @@ class WarehouseService {
                 if (warehouseStorageHolder.quantity < 0) {
                     throw new BadRequestError("Not enough quantity in warehouse storage");
                 }
+                if (warehouseStorageHolder.quantity === 0) {
+                    warehouseStorageHolder.isDeleted = true;
+                    itemHolder.isDeleted = true;
+                }
                 await warehouseStorageHolder.save();
+                await itemHolder.save();
                 break;
             default:
                 throw new BadRequestError("Invalid transaction type");
@@ -356,9 +384,10 @@ class WarehouseService {
         description,
         warehouseId,
         managerId,
-        inventoryStaffId,
+        inventoryStaffIds,
         fromDate,
-        toDate
+        toDate,
+        session
     }) => {
         const warehouseHolder = await warehouseModel.findOne({ _id: warehouseId, isDeleted: false }).lean();
         if (!warehouseHolder) {
@@ -370,12 +399,12 @@ class WarehouseService {
             throw new NotFoundRequestError("Manager not found");
         }
 
-        const inventoryStaffIdHolder = await userModel.findOne({
-            _id: inventoryStaffId,
+        const inventoryStaffIdHolders = await userModel.find({
+            _id: { $in: inventoryStaffIds },
             role: USER_ROLES.INVENTORY_STAFF,
             isDeleted: false
         }).lean();
-        if (!inventoryStaffIdHolder) {
+        if (!inventoryStaffIdHolders) {
             throw new NotFoundRequestError("Inventory Staff not found");
         }
 
@@ -387,14 +416,14 @@ class WarehouseService {
             throw new BadRequestError("Invalid date range");
         }
 
-        const newStockCheck = await stockCheckModel.create({
+        const newStockCheck = await stockCheckModel.create([{
             description,
             warehouseId,
             managerId,
-            inventoryStaffId,
+            inventoryStaffIds,
             fromDate,
             toDate,
-        })
+        }], { session: session })
 
         const warehouseStorageHolders = await warehouseStorageModel
             .find({ warehouseId: warehouseId, isDeleted: false })
@@ -402,16 +431,55 @@ class WarehouseService {
 
         const stockCheckDetailsToCreate = warehouseStorageHolders.map(warehouseStorage => {
             return {
-                stockCheckId: newStockCheck._id,
+                stockCheckId: newStockCheck[0]._id,
                 itemId: warehouseStorage.itemId,
                 systemQuantity: warehouseStorage.quantity,
-                description: `Check for ${warehouseStorage.itemId}`,
+                description: `Check for ${warehouseHolder.name}`,
                 status: "Pending"
             }
         })
+        if (stockCheckDetailsToCreate.length === 0) {
+            throw new BadRequestError("Warehouse storage is empty");
+        }
         await stockCheckDetailModel.insertMany(stockCheckDetailsToCreate)
 
-        return newStockCheck
+        return newStockCheck[0]
+    }
+
+    static checkWarehouseCheckDate = async () => {
+        const warehouseCheckHolders = await warehouseCheckModel.find({ status: "Pending", isDeleted: false })
+        const currentDate = new Date();
+
+        const warehouseChecks = warehouseCheckHolders.filter(warehouseCheck => warehouseCheck.toDate < currentDate);
+
+        for (const warehouseCheck of warehouseChecks) {
+            await warehouseCheckModel.updateOne({ _id: warehouseCheck._id }, {
+                status: "Cancelled",
+                condition: "Exceeding deadline"
+            })
+
+            for (const inventoryStaff of warehouseCheck.inventoryStaffIds) {
+                await notifyUser({
+                    userId: inventoryStaff,
+                    task: "Your warehouse check has been cancelled due to exceeding deadline",
+                    navigatePage: "/",
+                    type: "error"
+                })
+            }
+        }
+
+        const managerHolder = await userModel.findOne({
+            role: USER_ROLES.MANAGER,
+            isDeleted: false
+        })
+
+        if (warehouseChecks.length > 0)
+            await notifyUser({
+                userId: managerHolder._id,
+                task: `Found ${warehouseChecks.length} warehouse checks not done exceeding the deadline`,
+                navigatePage: "/warehousecheck",
+                type: "error"
+            })
     }
 
     static checkStockRequestDate = async () => {
@@ -425,12 +493,15 @@ class WarehouseService {
                 status: "Cancelled",
                 cancelReason: "Exceeding deadline"
             })
-            await notifyUser({
-                userId: stockRequest.inventoryStaffId,
-                task: "Your stock check request has been cancelled due to exceeding deadline",
-                navigatePage: "/",
-                type: "error"
-            })
+
+            for (const inventoryStaff of stockRequest.inventoryStaffIds) {
+                await notifyUser({
+                    userId: inventoryStaff,
+                    task: "Your stock check request has been cancelled due to exceeding deadline",
+                    navigatePage: "/",
+                    type: "error"
+                })
+            }
         }
 
         const managerHolder = await userModel.findOne({
@@ -442,7 +513,7 @@ class WarehouseService {
             await notifyUser({
                 userId: managerHolder._id,
                 task: `Found ${stockRequests.length} stock check requests not done exceeding the deadline`,
-                navigatePage: "/stock-check",
+                navigatePage: "/stockcheckrequest",
                 type: "error"
             })
 

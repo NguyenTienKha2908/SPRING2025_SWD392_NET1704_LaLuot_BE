@@ -38,10 +38,24 @@ const cronJobs = {
         callback: async () => {
             try {
                 const stockRequests = await WarehouseService.checkStockRequestDate();
-                if (stockRequests.length > 0)
+                if (stockRequests?.length > 0)
                     logger.info(`🕒 Found ${stockRequests.length} stock requests not done exceeding the deadline`);
             } catch (error) {
                 logger.error("❌ Error checking stock request date", error);
+            }
+        }
+    },
+    checkWarehouseCheckDateInterval: {
+        name: "Check warehouse check date",
+        interval: CRON_INTERVAL.HOURLY,
+        task: null,
+        callback: async () => {
+            try {
+                const warehouseChecks = await WarehouseService.checkWarehouseCheckDate();
+                if (warehouseChecks?.length > 0)
+                    logger.info(`🕒 Found ${warehouseChecks.length} warehouse checks not done exceeding the deadline`);
+            } catch (error) {
+                logger.error("❌ Error checking warehouse check date", error);
             }
         }
     },
@@ -50,7 +64,6 @@ const cronJobs = {
         interval: CRON_INTERVAL.HOURLY,
         task: null,
         callback: async () => {
-            logger.info("🕒 Checking output request date...");
             try {
                 const outputRequests = await OutputService.checkOutputRequestDate();
                 if (outputRequests?.length > 0)
@@ -77,6 +90,9 @@ const startCronJobs = () => {
                 break;
             case "checkStockRequestDateInterval":
                 cronJobs[job].interval = system.checkStockRequestDateInterval;
+                break;
+            case "checkWarehouseCheckDateInterval":
+                cronJobs[job].interval = system.checkWarehouseCheckDateInterval;
                 break;
             case "checkOutputRequestDateInterval":
                 cronJobs[job].interval = system.checkOutputRequestDateInterval;

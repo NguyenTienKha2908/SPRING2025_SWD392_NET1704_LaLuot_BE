@@ -48,10 +48,9 @@ class InputService {
       .lean();
 
     if (!inputHolder) throw new NotFoundRequestError("Input request not found");
-
     const inputDetailHolders = await inputDetailModel
       .find({ inputId: id })
-      .populate([POPULATE_INPUT_DETAILS[1]])
+      .populate([POPULATE_INPUT_DETAILS[1], POPULATE_INPUT_DETAILS[2], POPULATE_INPUT_DETAILS[3]])
       .lean();
     if (!inputDetailHolders || inputDetailHolders.length === 0)
       throw new NotFoundRequestError("Input details not found");
@@ -89,21 +88,14 @@ class InputService {
     return inputDetailHolder;
   };
 
-  static updateInputDetail = async ({
-    id,
-    actualQuantity,
-    inputPrice,
-    manufactureDate,
-    expiredDate,
-    status,
-    requesterId,
-  }) => {
+  static updateInputDetail = async ({ id, requestQuantity, actualQuantity, inputPrice, manufactureDate, expiredDate, status, requesterId }) => {
     const inputDetailHolder = await inputDetailModel.findOne({
       _id: id,
-    });
-    if (!inputDetailHolder)
-      throw new NotFoundRequestError("Input detail not found");
+    })
+    if (!inputDetailHolder) throw new NotFoundRequestError("Input detail not found");
 
+    if (requestQuantity && requestQuantity < 0)
+      throw new BadRequestError("Invalid request quantity");
     if (actualQuantity && actualQuantity < 0)
       throw new BadRequestError("Invalid actual quantity");
     if (inputPrice && inputPrice < 0)
@@ -113,44 +105,52 @@ class InputService {
     if (requesterId) {
       const requesterHolder = await userModel.findOne({
         _id: requesterId,
-        isDeleted: false,
-      });
-      if (!requesterHolder)
-        throw new NotFoundRequestError("Requester not found");
+        isDeleted: false
+      })
+      if (!requesterHolder) throw new NotFoundRequestError("Requester not found");
     }
 
     if (inputPrice) {
       const systemHolder = await systemModel.findOne({});
-      inputDetailHolder.suggestedOutputPrice =
-        inputPrice * (1 + systemHolder.normalOutputPricePercentage);
+      inputDetailHolder.suggestedOutputPrice = (inputPrice * (1 + systemHolder.normalOutputPricePercentage)).toFixed(2);
+      await inputDetailHolder.save();
+      const inputHolder = await inputModel.findOne({ _id: inputDetailHolder.inputId })
+      if (!inputHolder) throw new NotFoundRequestError("Input request not found");
+      const inputDetailHolders = await inputDetailModel.find({ inputId: inputHolder._id })
+      if (!inputDetailHolders || inputDetailHolders.length === 0) throw new NotFoundRequestError("Input details not found");
+      let totalInputPrice = 0;
+      for (let inputDetail of inputDetailHolders) {
+        if (inputDetail.inputPrice)
+          totalInputPrice += inputDetail.inputPrice;
+      }
+      console.log(totalInputPrice);
+      inputHolder.totalPrice = totalInputPrice;
+      await inputHolder.save();
     }
 
     if (manufactureDate || expiredDate) {
       const itemHolder = await itemModel.findOne({
-        _id: inputDetailHolder.itemId,
-      });
+        _id: inputDetailHolder.itemId
+      })
       if (!itemHolder) throw new NotFoundRequestError("Item not found");
 
-      if (
-        manufactureDate &&
-        expiredDate &&
-        new Date(manufactureDate) >= new Date(expiredDate)
-      )
+      if (manufactureDate && expiredDate && new Date(manufactureDate) >= new Date(expiredDate))
         throw new BadRequestError("Invalid date range");
-      if (manufactureDate) inputDetailHolder.manufactureDate = manufactureDate;
-      if (expiredDate) inputDetailHolder.expiredDate = expiredDate;
+      if (manufactureDate) itemHolder.manufactureDate = manufactureDate;
+      if (expiredDate) itemHolder.expiredDate = expiredDate;
       await itemHolder.save();
     }
 
-    inputDetailHolder.actualQuantity =
-      actualQuantity || inputDetailHolder.actualQuantity;
+
+    inputDetailHolder.requestQuantity = requestQuantity || inputDetailHolder.requestQuantity;
+    inputDetailHolder.actualQuantity = actualQuantity || inputDetailHolder.actualQuantity;
     inputDetailHolder.inputPrice = inputPrice || inputDetailHolder.inputPrice;
     inputDetailHolder.status = status || inputDetailHolder.status;
     inputDetailHolder.updatedBy = requesterId || inputDetailHolder.updatedBy;
     await inputDetailHolder.save();
 
     return;
-  };
+  }
 
   static createInputRequest = async ({
     reportStaffId,
@@ -159,12 +159,7 @@ class InputService {
     inputDetails,
     session,
   }) => {
-    if (
-      !reportStaffId ||
-      !supplierId ||
-      !Array.isArray(inputDetails) ||
-      inputDetails.length === 0
-    ) {
+    if (!reportStaffId || !supplierId || !Array.isArray(inputDetails) || inputDetails.length === 0) {
       throw new BadRequestError("Invalid input");
     }
 
@@ -197,13 +192,11 @@ class InputService {
           supplierId,
           description,
           status: "Pending",
-          batchNumber: `${now.getDate()}${
-            now.getMonth() + 1
-          }${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`,
-        },
+          batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`
+        }
       ],
       { session }
-    );
+    )
 
     for (let inputDetail of inputDetails) {
       const { baseItemId, quantity } = inputDetail;
@@ -215,7 +208,7 @@ class InputService {
 
       const warehouseHolder = await warehouseModel.findOne({
         category: baseItem.storageType,
-      });
+      })
 
       const newItem = await itemModel.create(
         [
@@ -240,9 +233,8 @@ class InputService {
         { session }
       );
     }
-
     return newInput[0];
-  };
+  }
 
   static cloneInputRequest = async ({
     reportStaffId,
@@ -369,7 +361,7 @@ class InputService {
           {
             baseItemId: baseItem._id,
             code: generateMedicineCode(baseItem.name),
-            status: "Available",
+            status: "Not Available",
           },
         ],
         { session }
@@ -555,12 +547,12 @@ class InputService {
     }
 
     inputHolder.status = "Done";
-    await inputHolder.save();
+    await inputHolder.save({ session: session });
 
     await notifyUser({
       userId: inputHolder.supplierId,
       task: `Your input request has been completed`,
-      navigatePage: "inventoryrequestsuppier",
+      navigatePage: "/inventoryrequestsuppier",
       type: "success",
     });
 

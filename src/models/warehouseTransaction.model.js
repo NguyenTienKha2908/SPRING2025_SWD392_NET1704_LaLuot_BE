@@ -20,8 +20,7 @@ var warehouseTransactionSchema = new mongoose.Schema(
         decription: {
             type: String,
             trim: true,
-        }
-        ,
+        },
         status: {
             type: String,
             enum: ["Pending", "Received", "Delivering", "Cancelled", "Done"],

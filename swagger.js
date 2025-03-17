@@ -130,8 +130,10 @@ const doc = {
       CreateWarehouseCheck: {
         $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
         $managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
-        $inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
+        $inventoryStaffIds: ["60e0b3f0b3f0b3f0b3f0b3f0", "60e0b3f0b3f0b3f0b3f0b3f0"],
         description: "Check warehouse 1",
+        $fromDate: "2025-02-19T08:37:54.729+00:00",
+        $toDate: "2025-02-19T08:37:54.729+00:00",
       },
       UpdateWarehouseCheck: {
         description: "Check warehouse 1",
@@ -189,7 +191,10 @@ const doc = {
         description: "Stock check for warehouse 1",
         $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
         $managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
-        $inventoryStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
+        $inventoryStaffIds: [
+          "60e0b3f0b3f0b3f0b3f0b3f0",
+          "60e0b3f0b3f0b3f0b3f0b3f0"
+        ],
         $fromDate: "2025-02-19T08:37:54.729+00:00",
         $toDate: "2025-02-19T08:37:54.729+00:00",
       },
@@ -360,6 +365,7 @@ const doc = {
         expand: "input item",
       },
       UpdateInputDetail: {
+        requestQuantity: 10,
         actualQuantity: 10,
         inputPrice: 1000,
         manufactureDate: "2021-07-01T00:00:00.000Z",

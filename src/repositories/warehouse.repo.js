@@ -1,6 +1,6 @@
 const { SELECT_BASEITEM } = require("../configs/baseitem.config");
 const { SELECT_USER } = require("../configs/user.config");
-const { SELECT_WAREHOUSE } = require("../configs/warehouse.config");
+const { SELECT_WAREHOUSE, SELECT_STOCK_REQUEST } = require("../configs/warehouse.config");
 const stockCheckModel = require("../models/stockCheck.model");
 const stockCheckDetailModel = require("../models/stockCheckDetail.model");
 const stockTransactionModel = require("../models/stockTransaction.model");
@@ -36,7 +36,7 @@ const getAllWarehouseChecks = async ({ limit, sort, page, filter, select, expand
     const populateOptions = {
         warehouse: { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
         manager: { path: 'managerId', select: SELECT_USER.DEFAULT },
-        inventoryStaff: { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+        inventoryStaffs: { path: 'inventoryStaffIds', select: SELECT_USER.DEFAULT }
     }
 
     const populateFields = expand
@@ -139,7 +139,7 @@ const getAllStockCheckRequests = async ({ limit, sort, page, filter, select, exp
     const populateOptions = {
         warehouse: { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
         manager: { path: 'managerId', select: SELECT_USER.DEFAULT },
-        inventoryStaff: { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+        inventoryStaffs: { path: 'inventoryStaffIds', select: SELECT_USER.DEFAULT }
     }
 
     const populateFields = expand
@@ -170,11 +170,11 @@ const getAllStockCheckDetails = async ({ limit, sort, page, filter, select, expa
 
     const populateOptions = {
         stockCheck: {
-            path: 'stockCheckId', select: 'description status warehouseId managerId inventoryStaffId',
+            path: 'stockCheckId', select: SELECT_STOCK_REQUEST,
             populate: [
                 { path: 'warehouseId', select: SELECT_WAREHOUSE.DEFAULT },
                 { path: 'managerId', select: SELECT_USER.DEFAULT },
-                { path: 'inventoryStaffId', select: SELECT_USER.DEFAULT }
+                { path: 'inventoryStaffIds', select: SELECT_USER.DEFAULT }
             ]
         },
         item: {

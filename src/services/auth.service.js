@@ -36,32 +36,6 @@ class AuthService {
       // verifyToken: verifyToken,
     });
 
-    await sendMail(email,
-      "Signup Verification",
-      "Please verify your email", `
-      <div style="width: 40vw;">
-    <table>
-    <tr>
-      <td>
-      <img src="${process.env.APP_BASE_URL}/images/logo.png" width="120" alt="Logo" />
-      </td>
-    </tr>
-    <tr>
-      <td>
-      <p>
-        Thank you for signing up Medical Warehouse System. Click the link below to fully access our app & activate your account and please note that your verification link will expire in <strong>48 hours</strong>.
-      </p>
-      </td>
-    </tr>
-    <tr>
-      <td>
-      <a href="${process.env.APP_BASE_URL}/api/v1/auth/verify/email?token=${verifyToken}">Click here to verify your email</a>
-      </td>
-    </tr>
-    </table>
-  </div>
-    `);
-
     return
   };
 
@@ -150,32 +124,7 @@ class AuthService {
     await userModel.updateOne({ email: email, }, {
       resetPasswordToken: resetToken,
     })
-
-    await sendMail(email,
-      "Reset Password",
-      "Please reset your password", `
-      <div style="width: 40vw;">
-    <table>
-    <tr>
-      <td>
-      <img src="${process.env.APP_BASE_URL}/images/logo.png" width="120" alt="Logo" />
-      </td>
-    </tr>
-    <tr>
-      <td>
-      <p>
-        You have requested to reset your password, click the link below to reset your password. And please note that your link <strong>will be expired in 48 hour</strong> for security reasons.
-      </p>
-      </td>
-    </tr>
-    <tr>
-      <td>
-      <a href="${process.env.CLIENT_BASE_URL}/reset-password/${resetToken}">Click here to navigate to reset password page</a>
-      </td>
-    </tr>
-    </table>
-  </div>
-    `);
+    
     return;
   }
 

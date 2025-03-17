@@ -193,10 +193,13 @@ class WarehouseController {
         }).send(res)
     }
 
-    createStockCheckRequest = async (req, res) => {
+    createStockCheckRequest = async (req, res, next, session) => {
         new CREATED({
             message: "Create stock check request successfully",
-            metadata: await WarehouseService.createStockCheckRequest(req.body)
+            metadata: await WarehouseService.createStockCheckRequest({
+                ...req.body,
+                session: session
+            })
         }).send(res)
     }
 

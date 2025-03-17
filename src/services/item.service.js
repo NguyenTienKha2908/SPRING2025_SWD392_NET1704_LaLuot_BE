@@ -12,7 +12,7 @@ class ItemService {
         return await getAllItems({ limit, sort, page, filter, select, expand });
     }
     static getDetailItem = async ({ id }, expand) => {
-        const detailBaseItem = await itemModel.findOne({ _id: id }).populate(expand);
+        const detailBaseItem = await itemModel.find({ baseItemId: id }).populate(expand);
         return detailBaseItem;
     }
     static createItem = async ({ baseItemId, name, status, manufactureDate, expiredDate, unit }) => {
@@ -47,9 +47,9 @@ class ItemService {
 
         const managerHolder = await userModel.findOne({ role: USER_ROLES.MANAGER })
         if (almostExpiredMedicines.length > 0)
-            await notifyUser({ userId: managerHolder._id, task: `${almostExpiredMedicines.length} medicines are almost expired`, type: "warning" })
+            await notifyUser({ userId: managerHolder._id, task: `${almostExpiredMedicines.length} medicines are almost expired`, navigatePage: "expiredmedicine", type: "warning" })
         if (expiredMedicines.length > 0)
-            await notifyUser({ userId: managerHolder._id, task: `${expiredMedicines.length} medicines are expired`, type: "error" })
+            await notifyUser({ userId: managerHolder._id, task: `${expiredMedicines.length} medicines are expired`, navigatePage: "expiredmedicine", type: "error" })
 
         return { almostExpiredMedicines, expiredMedicines };
     }

@@ -81,11 +81,13 @@ class OutputService {
         outputDetailHolder.status = status || outputDetailHolder.status;
         outputDetailHolder.updatedBy = requesterId || outputDetailHolder.updatedBy;
         await outputDetailHolder.save();
+        
 
         return;
     }
 
     static createOuputRequest = async ({ reportStaffId, customerId, description, outputDetails, session }) => {
+        console.log(reportStaffId, customerId, description, outputDetails)
         if (!reportStaffId || !customerId || !Array.isArray(outputDetails) || outputDetails.length === 0)
             throw new BadRequestError("Invalid input");
 
@@ -107,12 +109,13 @@ class OutputService {
             throw new NotFoundRequestError("Customer not found");
 
         // Tạo output request
+        const now = new Date();
         const newOutput = await outputModel.create([{
             reportStaffId: reportStaffId,
             customerId: customerId,
             description: description || `Output request for ${customerHolder.name}`,
             status: "Pending",
-            batchNumber: new Date().getTime().toString() + "-OUP",
+            batchNumber : `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-OUP`
         }], { session: session });
 
         const outputDetailsToCreate = await Promise.all(outputDetails.map(async outputDetail => {
@@ -120,7 +123,6 @@ class OutputService {
 
             const itemHolder = await itemModel.findOne({
                 _id: itemId,
-                status: ["Available", "Almost Expired"],
                 isDeleted: false
             }).lean();
             if (!itemHolder)
