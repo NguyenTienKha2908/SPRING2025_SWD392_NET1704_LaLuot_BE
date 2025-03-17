@@ -233,6 +233,8 @@ class InputService {
         { session }
       );
     }
+
+
     return newInput[0];
   }
 
@@ -321,9 +323,7 @@ class InputService {
           supplierId,
           description,
           status: "Pending",
-          batchNumber: `${now.getDate()}${
-            now.getMonth() + 1
-          }${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`,
+          batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`
         },
       ],
       { session }
@@ -411,30 +411,20 @@ class InputService {
       task: `Your input request has been approved`,
       navigatePage: "inventoryrequestsuppier",
       type: "success",
-    });
+    })
 
     return;
   };
 
-  static updateInputRequest = async ({
-    id,
-    description,
-    fromDate,
-    toDate,
-    inventoryStaffIds,
-  }) => {
-    if (
-      !id ||
-      (inventoryStaffIds &&
-        (!Array.isArray(inventoryStaffIds) || inventoryStaffIds.length === 0))
-    )
+  static updateInputRequest = async ({ id, description, fromDate, toDate, inventoryStaffIds }) => {
+    if (!id || (inventoryStaffIds && (!Array.isArray(inventoryStaffIds) || inventoryStaffIds.length === 0)))
       throw new BadRequestError("Invalid input");
 
     const inputHolder = await inputModel.findOne({
       _id: id,
       status: ["Pending", "Approved", "Assigned"],
-      isDeleted: false,
-    });
+      isDeleted: false
+    })
     if (!inputHolder) throw new NotFoundRequestError("Input request not found");
 
     if (fromDate && toDate && fromDate > toDate)
@@ -447,8 +437,8 @@ class InputService {
       const inventoryStaffHolders = await userModel.find({
         _id: { $in: inventoryStaffIds },
         role: USER_ROLES.INVENTORY_STAFF,
-        isDeleted: false,
-      });
+        isDeleted: false
+      })
       if (!inventoryStaffHolders || inventoryStaffHolders.length === 0)
         throw new NotFoundRequestError("Inventory staffs not found");
 
@@ -463,25 +453,16 @@ class InputService {
     for (let inventoryStaffId of inputHolder.inventoryStaffIds) {
       await notifyUser({
         userId: inventoryStaffId,
-        task: "You have assigned to an input request",
+        task: 'You have assigned to an input request',
         navigatePage: "inputitemcheck",
-        type: "info",
-      });
+        type: "info"
+      })
     }
     return;
-  };
+  }
 
-  static assignInputRequest = async ({
-    id,
-    fromDate,
-    toDate,
-    inventoryStaffIds,
-  }) => {
-    if (
-      !id ||
-      !Array.isArray(inventoryStaffIds) ||
-      inventoryStaffIds.length === 0
-    )
+  static assignInputRequest = async ({ id, fromDate, toDate, inventoryStaffIds }) => {
+    if (!id || !Array.isArray(inventoryStaffIds) || inventoryStaffIds.length === 0)
       throw new BadRequestError("Invalid input");
     if (fromDate && toDate && fromDate > toDate)
       throw new BadRequestError("Invalid date range");
@@ -498,8 +479,8 @@ class InputService {
     const inventoryStaffHolders = await userModel.find({
       _id: { $in: inventoryStaffIds },
       role: USER_ROLES.INVENTORY_STAFF,
-      isDeleted: false,
-    });
+      isDeleted: false
+    })
     if (!inventoryStaffHolders || inventoryStaffHolders.length === 0)
       throw new NotFoundRequestError("Inventory staffs not found");
 
@@ -512,10 +493,10 @@ class InputService {
     for (let inventoryStaffId of inventoryStaffIds) {
       await notifyUser({
         userId: inventoryStaffId,
-        task: "You have assigned to an input request",
+        task: 'You have assigned to an input request',
         navigatePage: "inputitemcheck",
-        type: "info",
-      });
+        type: "info"
+      })
     }
     return;
   };
@@ -543,7 +524,7 @@ class InputService {
         transactionType: "Input",
         description: `Input request ${inputDetail._id} has been completed`,
         session: session,
-      });
+      })
     }
 
     inputHolder.status = "Done";
@@ -554,7 +535,7 @@ class InputService {
       task: `Your input request has been completed`,
       navigatePage: "/inventoryrequestsuppier",
       type: "success",
-    });
+    })
 
     return;
   };
@@ -578,7 +559,7 @@ class InputService {
       task: `Your input request has been cancelled`,
       navigatePage: "inventoryrequestsuppier",
       type: "error",
-    });
+    })
 
     return;
   };
