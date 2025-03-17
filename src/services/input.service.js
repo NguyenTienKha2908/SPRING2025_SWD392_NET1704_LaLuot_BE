@@ -157,6 +157,98 @@ class InputService {
     supplierId,
     description,
     inputDetails,
+    session,
+  }) => {
+    if (
+      !reportStaffId ||
+      !supplierId ||
+      !Array.isArray(inputDetails) ||
+      inputDetails.length === 0
+    ) {
+      throw new BadRequestError("Invalid input");
+    }
+
+    const reportStaffHolder = await userModel
+      .findOne({
+        _id: reportStaffId,
+        role: USER_ROLES.REPORT_STAFF,
+        isDeleted: false,
+      })
+      .lean();
+    if (!reportStaffHolder)
+      throw new NotFoundRequestError("Report staff not found");
+
+    const supplierHolder = await userModel
+      .findOne({
+        _id: supplierId,
+        role: USER_ROLES.SUPPLIER,
+        isDeleted: false,
+      })
+      .lean();
+    if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
+
+    let newInput;
+
+    const now = new Date();
+    newInput = await inputModel.create(
+      [
+        {
+          reportStaffId,
+          supplierId,
+          description,
+          status: "Pending",
+          batchNumber: `${now.getDate()}${
+            now.getMonth() + 1
+          }${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`,
+        },
+      ],
+      { session }
+    );
+
+    for (let inputDetail of inputDetails) {
+      const { baseItemId, quantity } = inputDetail;
+
+      const baseItem = await baseItemModel
+        .findOne({ _id: baseItemId, isDeleted: false })
+        .lean();
+      if (!baseItem) throw new NotFoundRequestError("Base item not found");
+
+      const warehouseHolder = await warehouseModel.findOne({
+        category: baseItem.storageType,
+      });
+
+      const newItem = await itemModel.create(
+        [
+          {
+            baseItemId,
+            code: generateMedicineCode(baseItemId),
+            status: "Not Available",
+          },
+        ],
+        { session }
+      );
+
+      await inputDetailModel.create(
+        [
+          {
+            warehouseId: warehouseHolder._id,
+            inputId: newInput[0]._id,
+            itemId: newItem[0]._id,
+            requestQuantity: quantity,
+          },
+        ],
+        { session }
+      );
+    }
+
+    return newInput[0];
+  };
+
+  static cloneInputRequest = async ({
+    reportStaffId,
+    supplierId,
+    description,
+    inputDetails,
     oldInputId, // field clone old input
     session,
   }) => {
@@ -197,14 +289,12 @@ class InputService {
         );
       }
 
-      // Nếu `inputDetails` rỗng, lấy toàn bộ từ `oldInput`
       if (finalInputDetails.length === 0) {
         finalInputDetails = clonedInputDetails.map((detail) => ({
           itemId: detail.itemId,
           quantity: detail.requestQuantity,
         }));
       } else {
-        // Nếu có `inputDetails`, chỉ bổ sung những item từ đơn cũ nếu chưa có
         const existingItemIds = new Set(finalInputDetails.map((d) => d.itemId));
         clonedInputDetails.forEach((detail) => {
           if (!existingItemIds.has(detail.itemId)) {
@@ -231,30 +321,28 @@ class InputService {
       .lean();
     if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
 
-    // Tạo đơn nhập mới
+    const now = new Date();
     const newInput = await inputModel.create(
       [
         {
           reportStaffId,
-          supplierId: finalSupplierId,
-          description: finalDescription,
+          supplierId,
+          description,
           status: "Pending",
-          batchNumber: new Date().getTime().toString() + "-INP",
+          batchNumber: `${now.getDate()}${
+            now.getMonth() + 1
+          }${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`,
         },
       ],
       { session }
     );
 
-    console.log("finalInputDetails:", finalInputDetails);
-
-    // Thêm chi tiết sản phẩm vào đơn nhập mới
     for (let inputDetail of finalInputDetails) {
       if (!inputDetail.itemId) {
         console.error("Error: Missing itemId in inputDetails:", inputDetail);
         throw new BadRequestError("ItemId is missing in input details");
       }
 
-      console.log("inputDetail.itemId:", inputDetail.itemId, "Type:", typeof inputDetail.itemId);
       const item = await itemModel
         .findOne({
           _id: inputDetail.itemId,
