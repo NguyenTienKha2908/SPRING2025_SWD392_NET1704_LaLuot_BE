@@ -2,10 +2,8 @@ const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
 const warehouseCheckModel = require("./warehouseCheck.model");
 const stockCheckModel = require("./stockCheck.model");
-const warehouseTransactionModel = require("./warehouseTransaction.model");
 const outputModel = require("./output.model");
 const inputModel = require("./input.model");
-const reportModel = require("./report.model");
 
 const DOCUMENT_NAME = "User";
 const COLLECTION_NAME = "Users";
@@ -64,16 +62,6 @@ userSchema.pre("findOneAndDelete", async function (next) {
     return next(new Error("Cannot delete user because it is used in stockChecks"));
   }
 
-  const managerWarehouseTransactions = await warehouseTransactionModel.findOne({ managerId: userId });
-  if (managerWarehouseTransactions) {
-    return next(new Error("Cannot delete user because it is used in warehouseTransactions"));
-  }
-
-  const inventoryWarehouseTransactions = await warehouseTransactionModel.findOne({ inventoryStaffId: userId });
-  if (inventoryWarehouseTransactions) {
-    return next(new Error("Cannot delete user because it is used in warehouseTransactions"));
-  }
-
   const customerOutputs = await outputModel.findOne({ customerId: userId });
   if (customerOutputs) {
     return next(new Error("Cannot delete user because it is used in outputs"));
@@ -102,16 +90,6 @@ userSchema.pre("findOneAndDelete", async function (next) {
   const inventoryStaffInputs = await inputModel.findOne({ inventoryStaffId: userId });
   if (inventoryStaffInputs) {
     return next(new Error("Cannot delete user because it is used in inputs"));
-  }
-
-  const managerReports = await reportModel.findOne({ managerId: userId });
-  if (managerReports) {
-    return next(new Error("Cannot delete user because it is used in reports"));
-  }
-
-  const reportStaffReports = await reportModel.findOne({ reportStaffId: userId });
-  if (reportStaffReports) {
-    return next(new Error("Cannot delete user because it is used in reports"));
   }
 
   next();

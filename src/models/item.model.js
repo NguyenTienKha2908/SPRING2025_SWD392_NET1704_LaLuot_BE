@@ -5,7 +5,6 @@ const stockCheckDetailModel = require("./stockCheckDetail.model");
 const outputDetailModel = require("./outputDetail.model");
 const warehouseStorageModel = require("./warehouseStorage.model");
 const stockTransactionModel = require("./stockTransaction.model");
-const warehouseTransactionDetailModel = require("./warehouseTransactionDetail.model");
 
 const DOCUMENT_NAME = "Item";
 const COLLECTION_NAME = "Items";
@@ -67,10 +66,6 @@ itemSchema.pre("findOneAndDelete", async function (next) {
     const stockTransactions = await stockTransactionModel.findOne({ itemId: itemId });
     if (stockTransactions) {
         return next(new Error("Cannot delete itemId because it is used in stockTransactions"));
-    }
-    const warehouseTransactionDetails = await warehouseTransactionDetailModel.findOne({ itemId: itemId });
-    if (warehouseTransactionDetails) {
-        return next(new Error("Cannot delete itemId because it is used in warehouseTransactionDetails"));
     }
     if (this.expiredDate <= this.manufactureDate) {
         return next(new Error("Expired date must be larger than manufracture date"))

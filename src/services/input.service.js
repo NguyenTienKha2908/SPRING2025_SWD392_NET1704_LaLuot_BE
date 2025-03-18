@@ -16,6 +16,7 @@ const warehouseModel = require("../models/warehouse.model");
 const {
   getAllInputRequests,
   getAllInputDetails,
+  getAllInputStatistics,
 } = require("../repositories/input.repo");
 const WarehouseService = require("./warehouse.service");
 const { generateMedicineCode } = require("../utils/medicine.util");
