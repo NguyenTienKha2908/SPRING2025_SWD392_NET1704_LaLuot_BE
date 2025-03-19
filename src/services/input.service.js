@@ -285,7 +285,6 @@ class InputService {
     if (!reportStaffId) throw new BadRequestError("Missing reportStaffId");
     if (!oldInputId) throw new BadRequestError("Missing oldInputId");
 
-    // Kiểm tra reportStaffId
     if (!mongoose.Types.ObjectId.isValid(reportStaffId)) {
         throw new BadRequestError("Invalid reportStaffId format");
     }
@@ -304,7 +303,6 @@ class InputService {
     let finalDescription = description;
     let finalInputDetails = [];
 
-    // Clone từ đơn cũ
     if (!mongoose.Types.ObjectId.isValid(oldInputId)) {
         throw new BadRequestError("Invalid oldInputId format");
     }
@@ -315,11 +313,9 @@ class InputService {
     if (!oldInput)
         throw new NotFoundRequestError("Old input request not found");
 
-    // Gán giá trị mặc định từ đơn cũ
     finalSupplierId = supplierId || oldInput.supplierId;
     finalDescription = description || oldInput.description + " (Cloned)";
 
-    // Kiểm tra finalSupplierId
     if (!finalSupplierId) throw new BadRequestError("Missing supplierId");
     if (!mongoose.Types.ObjectId.isValid(finalSupplierId)) {
         throw new BadRequestError("Invalid supplierId format");
@@ -334,7 +330,6 @@ class InputService {
         .lean();
     if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
 
-    // Lấy inputDetails từ đơn cũ
     const clonedInputDetails = await inputDetailModel
         .find({ inputId: oldInputId })
         .lean();
@@ -343,17 +338,14 @@ class InputService {
         throw new NotFoundRequestError("No input details found in the old request");
     }
 
-    // Nếu không cung cấp inputDetails, sử dụng toàn bộ từ đơn cũ
     if (!inputDetails || inputDetails.length === 0) {
         finalInputDetails = clonedInputDetails.map((detail) => ({
             itemId: detail.itemId,
             quantity: detail.requestQuantity,
         }));
     } else {
-        // Nếu cung cấp inputDetails, ưu tiên giá trị từ request
         const inputDetailsMap = new Map();
         
-        // Tạo map từ inputDetails của request (itemId -> quantity)
         for (const detail of inputDetails) {
             if (!detail.itemId || !mongoose.Types.ObjectId.isValid(detail.itemId)) {
                 throw new BadRequestError("Invalid itemId in inputDetails");
@@ -363,19 +355,15 @@ class InputService {
             }
             inputDetailsMap.set(detail.itemId.toString(), detail.quantity);
         }
-
-        // Xử lý clonedInputDetails: cập nhật quantity nếu itemId tồn tại trong request
         for (const detail of clonedInputDetails) {
             const itemIdString = detail.itemId.toString();
             if (inputDetailsMap.has(itemIdString)) {
-                // Nếu itemId tồn tại trong request, sử dụng quantity từ request
                 finalInputDetails.push({
                     itemId: detail.itemId,
                     quantity: inputDetailsMap.get(itemIdString),
                 });
-                inputDetailsMap.delete(itemIdString); // Xóa để tránh xử lý lại
+                inputDetailsMap.delete(itemIdString); 
             } else {
-                // Nếu không có trong request, giữ nguyên quantity từ đơn cũ
                 finalInputDetails.push({
                     itemId: detail.itemId,
                     quantity: detail.requestQuantity,
@@ -383,7 +371,6 @@ class InputService {
             }
         }
 
-        // Thêm các itemId mới từ request (nếu có)
         for (const [itemId, quantity] of inputDetailsMap) {
             finalInputDetails.push({
                 itemId,
@@ -410,7 +397,6 @@ class InputService {
         { session }
     );
 
-    // Tạo một Set để theo dõi các itemId đã xử lý
     const processedItemIds = new Set();
 
     for (let inputDetail of finalInputDetails) {
