@@ -59,7 +59,7 @@ router.put("/details/:id",
             }
         }
     } */
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF,USER_ROLES.REPORT_STAFF] }),
     catchAsyncHandle(inputController.updateInputDetail)
 )
 
@@ -88,7 +88,7 @@ router.get("/:id",
         description: 'Input request id',
         type: 'string'
     } */
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF, USER_ROLES.SUPPLIER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF, USER_ROLES.SUPPLIER, USER_ROLES.REPORT_STAFF] }),
     catchAsyncHandle(inputController.getInputRequest)
 );
 
@@ -130,7 +130,7 @@ router.put("/:id",
             }
         }
     } */
-    checkRoles({ requiredRoles: [USER_ROLES.REPORT_STAFF] }),
+    checkRoles({ requiredRoles: [USER_ROLES.REPORT_STAFF, USER_ROLES.MANAGER] }),
     catchAsyncHandle(inputController.updateInputRequest)
 );
 
