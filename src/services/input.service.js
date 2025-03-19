@@ -277,7 +277,6 @@ class InputService {
     reportStaffId,
     supplierId,
     description,
-    inputDetails,
     oldInputId,
     session,
   }) => {
@@ -298,10 +297,6 @@ class InputService {
     if (!reportStaffHolder)
       throw new NotFoundRequestError("Report staff not found");
 
-    let finalSupplierId = supplierId;
-    let finalDescription = description;
-    let finalInputDetails = [];
-
     if (!mongoose.Types.ObjectId.isValid(oldInputId)) {
       throw new BadRequestError("Invalid oldInputId format");
     }
@@ -312,8 +307,8 @@ class InputService {
     if (!oldInput)
       throw new NotFoundRequestError("Old input request not found");
 
-    finalSupplierId = supplierId || oldInput.supplierId;
-    finalDescription = description || oldInput.description + " (Cloned)";
+    const finalSupplierId = supplierId || oldInput.supplierId;
+    const finalDescription = description || oldInput.description + " (Cloned)";
 
     if (!finalSupplierId) throw new BadRequestError("Missing supplierId");
     if (!mongoose.Types.ObjectId.isValid(finalSupplierId)) {
@@ -328,62 +323,6 @@ class InputService {
       })
       .lean();
     if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
-
-    const clonedInputDetails = await inputDetailModel
-      .find({ inputId: oldInputId })
-      .lean();
-
-    if (clonedInputDetails.length === 0) {
-      throw new NotFoundRequestError(
-        "No input details found in the old request"
-      );
-    }
-
-    if (!inputDetails || inputDetails.length === 0) {
-      finalInputDetails = clonedInputDetails.map((detail) => ({
-        itemId: detail.itemId,
-        quantity: detail.requestQuantity,
-      }));
-    } else {
-      const inputDetailsMap = new Map();
-
-      for (const detail of inputDetails) {
-        if (!detail.itemId || !mongoose.Types.ObjectId.isValid(detail.itemId)) {
-          throw new BadRequestError("Invalid itemId in inputDetails");
-        }
-        if (!detail.quantity || detail.quantity <= 0) {
-          throw new BadRequestError("Invalid quantity in inputDetails");
-        }
-        inputDetailsMap.set(detail.itemId.toString(), detail.quantity);
-      }
-
-      for (const detail of clonedInputDetails) {
-        const itemIdString = detail.itemId.toString();
-        if (inputDetailsMap.has(itemIdString)) {
-          finalInputDetails.push({
-            itemId: detail.itemId,
-            quantity: inputDetailsMap.get(itemIdString),
-          });
-          inputDetailsMap.delete(itemIdString);
-        } else {
-          finalInputDetails.push({
-            itemId: detail.itemId,
-            quantity: detail.requestQuantity,
-          });
-        }
-      }
-
-      for (const [itemId, quantity] of inputDetailsMap) {
-        finalInputDetails.push({
-          itemId,
-          quantity,
-        });
-      }
-    }
-
-    if (finalInputDetails.length === 0) {
-      throw new BadRequestError("Input details cannot be empty");
-    }
 
     const now = new Date();
     const newInput = await inputModel.create(
@@ -400,61 +339,6 @@ class InputService {
       ],
       { session }
     );
-
-    const processedItemIds = new Set();
-
-    for (let inputDetail of finalInputDetails) {
-      const itemIdString = inputDetail.itemId.toString();
-      if (processedItemIds.has(itemIdString)) {
-        console.warn(`Duplicate itemId ${itemIdString} skipped`);
-        continue;
-      }
-      processedItemIds.add(itemIdString);
-
-      const item = await itemModel
-        .findOne({
-          _id: inputDetail.itemId,
-          isDeleted: false,
-        })
-        .lean();
-      if (!item) throw new NotFoundRequestError("Item not found");
-
-      const baseItem = await baseItemModel
-        .findOne({ _id: item.baseItemId, isDeleted: false })
-        .lean();
-      if (!baseItem) throw new NotFoundRequestError("BaseItem not found");
-
-      const warehouseHolder = await warehouseModel
-        .findOne({
-          category: baseItem.storageType,
-        })
-        .lean();
-      if (!warehouseHolder)
-        throw new NotFoundRequestError("Warehouse not found for the item");
-
-      const newItem = await itemModel.create(
-        [
-          {
-            baseItemId: baseItem._id,
-            code: generateMedicineCode(baseItem.name),
-            status: "Not Available",
-          },
-        ],
-        { session }
-      );
-
-      await inputDetailModel.create(
-        [
-          {
-            warehouseId: warehouseHolder._id,
-            inputId: newInput[0]._id,
-            itemId: newItem[0]._id,
-            requestQuantity: inputDetail.quantity,
-          },
-        ],
-        { session }
-      );
-    }
 
     return newInput[0];
   };
