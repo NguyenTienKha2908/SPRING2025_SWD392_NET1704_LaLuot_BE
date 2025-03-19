@@ -110,6 +110,24 @@ router.post("/",
     catchAsyncHandle(inputController.createInputRequest)
 );
 
+router.post("/clone",
+    /**
+      * #swagger.tags = ['Input']
+      * #swagger.description='Clone an existing input request'
+      */
+    /*  #swagger.requestBody = {
+        content: {
+            "application/json": {
+                schema: {
+                    $ref: "#/components/schemas/CloneInputRequest"
+                }  
+            }
+        }
+    } */
+    checkRoles({ requiredRoles: [USER_ROLES.REPORT_STAFF] }),
+    catchAsyncHandle(inputController.cloneInputRequest)
+);
+
 router.put("/:id",
     /**
       * #swagger.tags = ['Input']

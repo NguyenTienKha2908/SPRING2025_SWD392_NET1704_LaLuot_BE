@@ -1,11 +1,21 @@
 const swaggerAutogen = require("swagger-autogen")({ openapi: "3.0.0" });
 require("dotenv").config();
 
-const { SELECT_OUTPUT, SELECT_OUTPUT_DETAILS } = require('./src/configs/output.config.js');
-const { SELECT_ITEM } = require('./src/configs/item.config.js');
-const { SELECT_USER } = require('./src/configs/user.config.js');
-const { SELECT_WAREHOUSE, SELECT_WAREHOUSE_CHECK, SELECT_STOCK_DETAIL, SELECT_STOCK_REQUEST, SELECT_STOCK_TRANSACTION, SELECT_WAREHOUSE_STORAGE } = require('./src/configs/warehouse.config.js');
-const { SELECT_BASEITEM } = require('./src/configs/baseitem.config.js');
+const {
+  SELECT_OUTPUT,
+  SELECT_OUTPUT_DETAILS,
+} = require("./src/configs/output.config.js");
+const { SELECT_ITEM } = require("./src/configs/item.config.js");
+const { SELECT_USER } = require("./src/configs/user.config.js");
+const {
+  SELECT_WAREHOUSE,
+  SELECT_WAREHOUSE_CHECK,
+  SELECT_STOCK_DETAIL,
+  SELECT_STOCK_REQUEST,
+  SELECT_STOCK_TRANSACTION,
+  SELECT_WAREHOUSE_STORAGE,
+} = require("./src/configs/warehouse.config.js");
+const { SELECT_BASEITEM } = require("./src/configs/baseitem.config.js");
 const {
   SELECT_INPUT,
   SELECT_INPUT_DETAILS,
@@ -130,7 +140,10 @@ const doc = {
       CreateWarehouseCheck: {
         $warehouseId: "60e0b3f0b3f0b3f0b3f0b3f0",
         $managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
-        $inventoryStaffIds: ["60e0b3f0b3f0b3f0b3f0b3f0", "60e0b3f0b3f0b3f0b3f0b3f0"],
+        $inventoryStaffIds: [
+          "60e0b3f0b3f0b3f0b3f0b3f0",
+          "60e0b3f0b3f0b3f0b3f0b3f0",
+        ],
         description: "Check warehouse 1",
         $fromDate: "2025-02-19T08:37:54.729+00:00",
         $toDate: "2025-02-19T08:37:54.729+00:00",
@@ -193,7 +206,7 @@ const doc = {
         $managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
         $inventoryStaffIds: [
           "60e0b3f0b3f0b3f0b3f0b3f0",
-          "60e0b3f0b3f0b3f0b3f0b3f0"
+          "60e0b3f0b3f0b3f0b3f0b3f0",
         ],
         $fromDate: "2025-02-19T08:37:54.729+00:00",
         $toDate: "2025-02-19T08:37:54.729+00:00",
@@ -324,8 +337,8 @@ const doc = {
         toDate: "2025-02-19T08:37:54.729+00:00",
         inventoryStaffIds: [
           "60e0b3f0b3f0b3f0b3f0b3f0",
-          "60e0b3f0b3f0b3f0b3f0b3f0"
-        ]
+          "60e0b3f0b3f0b3f0b3f0b3f0",
+        ],
       },
       ApproveOutputRequest: {
         $managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
@@ -390,8 +403,8 @@ const doc = {
         toDate: "2025-02-19T08:37:54.729+00:00",
         inventoryStaffIds: [
           "60e0b3f0b3f0b3f0b3f0b3f0",
-          "60e0b3f0b3f0b3f0b3f0b3f0"
-        ]
+          "60e0b3f0b3f0b3f0b3f0b3f0",
+        ],
       },
       ApproveInputRequest: {
         managerId: "60e0b3f0b3f0b3f0b3f0b3f0",
@@ -406,6 +419,18 @@ const doc = {
       },
       CancelInputRequest: {
         $cancelReason: "Supplier delay",
+      },
+      CloneInputRequest: {
+        $reportStaffId: "60e0b3f0b3f0b3f0b3f0b3f0",
+        supplierId: "60e0b3f0b3f0b3f0b3f0b3f0", // Optional
+        description: "Cloned input request", // Optional
+        $oldInputId: "60e0b3f0b3f0b3f0b3f0b3f0", // Required
+        inputDetails: [     // Optional
+          {
+            $baseItemId: "60e0b3f0b3f0b3f0b3f0b3f0",
+            $quantity: 10,
+          },
+        ],
       },
     },
   },
@@ -424,7 +449,9 @@ root file where the route starts, such as index.js, app.js, routes.js, etc ... *
 
 const chalk = require("chalk");
 const getLogger = require("./src/utils/logger");
-const { getAvgInputPriceOfBaseItem } = require("./src/repositories/baseItem.repo.js");
+const {
+  getAvgInputPriceOfBaseItem,
+} = require("./src/repositories/baseItem.repo.js");
 
 const logger = getLogger("SWAGGER");
 swaggerAutogen(outputFile, routes, doc).then(() => {
