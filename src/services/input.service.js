@@ -16,6 +16,7 @@ const warehouseModel = require("../models/warehouse.model");
 const {
   getAllInputRequests,
   getAllInputDetails,
+  getAllInputStatistics,
 } = require("../repositories/input.repo");
 const WarehouseService = require("./warehouse.service");
 const { generateMedicineCode } = require("../utils/medicine.util");
@@ -157,7 +158,6 @@ class InputService {
     supplierId,
     description,
     inputDetails,
-    oldInputId, // field clone old input
     session,
   }) => {
     if (!reportStaffId || !supplierId || !Array.isArray(inputDetails) || inputDetails.length === 0) {
@@ -184,58 +184,22 @@ class InputService {
     if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
 
     let newInput;
-    let clonedInputDetails = [];
 
-    if (oldInputId) {
-      const oldInput = await inputModel
-        .findOne({ _id: oldInputId, isDeleted: false })
-        .lean();
-      if (!oldInput)
-        throw new NotFoundRequestError("Old input request not found");
+    const now = new Date();
+    newInput = await inputModel.create(
+      [
+        {
+          reportStaffId,
+          supplierId,
+          description,
+          status: "Pending",
+          batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`
+        }
+      ],
+      { session }
+    )
 
-      supplierId = oldInput.supplierId;
-      description = oldInput.description + " (Cloned)";
-
-      newInput = await inputModel.create(
-        [
-          {
-            reportStaffId,
-            supplierId,
-            description,
-            status: "Pending",
-            batchNumber: new Date().getTime().toString() + "-INP",
-          },
-        ],
-        { session }
-      );
-
-      clonedInputDetails = await inputDetailModel
-        .find({ inputId: oldInputId })
-        .lean();
-      if (!clonedInputDetails || clonedInputDetails.length === 0) {
-        throw new NotFoundRequestError(
-          "No input details found in the old request"
-        );
-      }
-    } else {
-      const now = new Date();
-      newInput = await inputModel.create(
-        [
-          {
-            reportStaffId,
-            supplierId,
-            description,
-            status: "Pending",
-            batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`
-          },
-        ],
-        { session }
-      );
-    }
-
-    const finalInputDetails = oldInputId ? clonedInputDetails : inputDetails;
-
-    for (let inputDetail of finalInputDetails) {
+    for (let inputDetail of inputDetails) {
       const { baseItemId, quantity } = inputDetail;
 
       const baseItem = await baseItemModel
@@ -271,6 +235,151 @@ class InputService {
       );
     }
 
+
+    return newInput[0];
+  }
+
+  static cloneInputRequest = async ({
+    reportStaffId,
+    supplierId,
+    description,
+    inputDetails,
+    oldInputId, // field clone old input
+    session,
+  }) => {
+    if (!reportStaffId) throw new BadRequestError("Missing reportStaffId");
+
+    const reportStaffHolder = await userModel
+      .findOne({
+        _id: reportStaffId,
+        role: USER_ROLES.REPORT_STAFF,
+        isDeleted: false,
+      })
+      .lean();
+    if (!reportStaffHolder)
+      throw new NotFoundRequestError("Report staff not found");
+
+    let finalSupplierId = supplierId;
+    let finalDescription = description;
+    let finalInputDetails = inputDetails || []; // Luôn có giá trị mảng
+
+    // Nếu có oldInputId → clone từ đơn cũ
+    if (oldInputId) {
+      const oldInput = await inputModel
+        .findOne({ _id: oldInputId, isDeleted: false })
+        .lean();
+      if (!oldInput)
+        throw new NotFoundRequestError("Old input request not found");
+
+      finalSupplierId = supplierId || oldInput.supplierId;
+      finalDescription = description || oldInput.description + " (Cloned)";
+
+      const clonedInputDetails = await inputDetailModel
+        .find({ inputId: oldInputId })
+        .lean();
+
+      if (clonedInputDetails.length === 0) {
+        throw new NotFoundRequestError(
+          "No input details found in the old request"
+        );
+      }
+
+      if (finalInputDetails.length === 0) {
+        finalInputDetails = clonedInputDetails.map((detail) => ({
+          itemId: detail.itemId,
+          quantity: detail.requestQuantity,
+        }));
+      } else {
+        const existingItemIds = new Set(finalInputDetails.map((d) => d.itemId));
+        clonedInputDetails.forEach((detail) => {
+          if (!existingItemIds.has(detail.itemId)) {
+            finalInputDetails.push({
+              itemId: detail.itemId,
+              quantity: detail.requestQuantity,
+            });
+          }
+        });
+      }
+    }
+
+    if (!finalSupplierId) throw new BadRequestError("Missing supplierId");
+    if (finalInputDetails.length === 0) {
+      throw new BadRequestError("Input details cannot be empty");
+    }
+
+    const supplierHolder = await userModel
+      .findOne({
+        _id: finalSupplierId,
+        role: USER_ROLES.SUPPLIER,
+        isDeleted: false,
+      })
+      .lean();
+    if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
+
+    const now = new Date();
+    const newInput = await inputModel.create(
+      [
+        {
+          reportStaffId,
+          supplierId,
+          description,
+          status: "Pending",
+          batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`
+        },
+      ],
+      { session }
+    );
+
+    for (let inputDetail of finalInputDetails) {
+      if (!inputDetail.itemId) {
+        console.error("Error: Missing itemId in inputDetails:", inputDetail);
+        throw new BadRequestError("ItemId is missing in input details");
+      }
+
+      const item = await itemModel
+        .findOne({
+          _id: inputDetail.itemId,
+          isDeleted: false,
+        })
+        .lean();
+      if (!item) throw new NotFoundRequestError("Item not found");
+
+      const baseItem = await baseItemModel
+        .findOne({ _id: item.baseItemId, isDeleted: false })
+        .lean();
+      if (!baseItem) throw new NotFoundRequestError("BaseItem not found");
+
+      const warehouseHolder = await warehouseModel
+        .findOne({
+          category: baseItem.storageType,
+        })
+        .lean();
+      if (!warehouseHolder)
+        throw new NotFoundRequestError("Warehouse not found for the item");
+
+      const newItem = await itemModel.create(
+        [
+          {
+            baseItemId: baseItem._id,
+            code: generateMedicineCode(baseItem.name),
+            status: "Not Available",
+          },
+        ],
+        { session }
+      );
+
+      await inputDetailModel.create(
+        [
+          {
+            warehouseId: warehouseHolder._id,
+            inputId: newInput[0]._id,
+            itemId: newItem[0]._id,
+            requestQuantity: inputDetail.quantity,
+          },
+        ],
+        { session }
+      );
+    }
 
     return newInput[0];
   };

@@ -1,6 +1,5 @@
 const { default: mongoose } = require("mongoose");
 const baseModelSchema = require("./base.model");
-const warehouseTransactionModel = require("./warehouseTransaction.model");
 const stockCheckModel = require("./stockCheck.model");
 const outputModel = require("./output.model");
 const warehouseCheckModel = require("./warehouseCheck.model");
@@ -54,14 +53,6 @@ var warehouseSchema = new mongoose.Schema(
 warehouseSchema.pre("findOneAndDelete", async function (next) {
     const warehouseId = this.getQuery()._id;
 
-    const fromWarehouseTransactions = await warehouseTransactionModel.findOne({ fromWarehouseId: warehouseId });
-    if (fromWarehouseTransactions) {
-        return next(new Error("Cannot delete warehouse because it is used in warehouseTransactions"));
-    }
-    const toWarehouseTransactions = await warehouseTransactionModel.findOne({ toWarehouseId: warehouseId });
-    if (toWarehouseTransactions) {
-        return next(new Error("Cannot delete warehouse because it is used in warehouseTransactions"));
-    }
     const stockChecks = await stockCheckModel.findOne({ warehouseId: warehouseId });
     if (stockChecks) {
         return next(new Error("Cannot delete warehouse because it is used in stockChecks"));
