@@ -115,6 +115,39 @@ class InputController {
             })
         }).send(res);
     }
+
+    cloneInputRequest = async (req, res, next) => {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        
+        try {
+            const inputData = {
+                reportStaffId: req.userId,
+                supplierId: req.body.supplierId,
+                description: req.body.description,
+                inputDetails: req.body.inputDetails,
+                oldInputId: req.body.oldInputId,
+                session
+            };
+
+            if (!inputData.oldInputId) {
+                throw new BadRequestError("Missing oldInputId for cloning");
+            }
+
+            const clonedInput = await InputService.cloneInputRequest(inputData);
+            
+            await session.commitTransaction();
+            new CREATED({
+                message: "Clone input request successfully",
+                metadata: clonedInput
+            }).send(res);
+        } catch (error) {
+            await session.abortTransaction();
+            next(error);
+        } finally {
+            session.endSession();
+        }
+    }
 }
 
 module.exports = new InputController();
