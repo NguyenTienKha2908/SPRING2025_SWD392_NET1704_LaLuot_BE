@@ -325,6 +325,7 @@ class InputService {
       .lean();
     if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
 
+
     // Get old input details
     const oldInputDetails = await inputDetailModel
       .find({ inputId: oldInputId })
@@ -335,21 +336,8 @@ class InputService {
       throw new NotFoundRequestError("No input details found in the old request");
     }
 
-    const now = new Date();
-    const newInput = await inputModel.create(
-      [
-        {
-          reportStaffId,
-          supplierId: finalSupplierId,
-          description: finalDescription,
-          status: "Pending",
-          batchNumber: `${now.getDate()}${
-            now.getMonth() + 1
-          }${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`,
-        },
-      ],
-      { session }
-    );
+
+
 
     // Copy input details from old request
     for (const oldDetail of oldInputDetails) {
@@ -402,6 +390,7 @@ class InputService {
         { session }
       );
     }
+
 
     return newInput[0];
   };
