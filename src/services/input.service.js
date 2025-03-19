@@ -325,6 +325,16 @@ class InputService {
       .lean();
     if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
 
+    // Get old input details
+    const oldInputDetails = await inputDetailModel
+      .find({ inputId: oldInputId })
+      .populate('itemId')
+      .lean();
+
+    if (!oldInputDetails || oldInputDetails.length === 0) {
+      throw new NotFoundRequestError("No input details found in the old request");
+    }
+
     const now = new Date();
     const newInput = await inputModel.create(
       [
@@ -340,6 +350,58 @@ class InputService {
       ],
       { session }
     );
+
+    // Copy input details from old request
+    for (const oldDetail of oldInputDetails) {
+      const item = await itemModel
+        .findOne({
+          _id: oldDetail.itemId._id,
+          isDeleted: false,
+        })
+        .lean();
+      
+      if (!item) throw new NotFoundRequestError("Item not found");
+
+      const baseItem = await baseItemModel
+        .findOne({ _id: item.baseItemId, isDeleted: false })
+        .lean();
+      
+      if (!baseItem) throw new NotFoundRequestError("BaseItem not found");
+
+      const warehouseHolder = await warehouseModel
+        .findOne({
+          category: baseItem.storageType,
+        })
+        .lean();
+      
+      if (!warehouseHolder)
+        throw new NotFoundRequestError("Warehouse not found for the item");
+
+      // Create new item
+      const newItem = await itemModel.create(
+        [
+          {
+            baseItemId: baseItem._id,
+            code: generateMedicineCode(baseItem.name),
+            status: "Not Available",
+          },
+        ],
+        { session }
+      );
+
+      // Create new input detail
+      await inputDetailModel.create(
+        [
+          {
+            warehouseId: warehouseHolder._id,
+            inputId: newInput[0]._id,
+            itemId: newItem[0]._id,
+            requestQuantity: oldDetail.requestQuantity,
+          },
+        ],
+        { session }
+      );
+    }
 
     return newInput[0];
   };
