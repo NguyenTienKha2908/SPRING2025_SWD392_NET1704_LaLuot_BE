@@ -1,5 +1,6 @@
 const { CREATED, OK } = require("../core/responses/success.response");
 const InputService = require("../services/input.service");
+const mongoose = require("mongoose");
 
 class InputController {
     getAllInputRequests = async (req, res) => {
