@@ -425,10 +425,15 @@ const doc = {
         supplierId: "60e0b3f0b3f0b3f0b3f0b3f0", // Optional
         description: "Cloned input request", // Optional
         $oldInputId: "60e0b3f0b3f0b3f0b3f0b3f0", // Required
-        inputDetails: [     // Optional
+        inputDetails: [
+          // Optional
           {
-            $baseItemId: "60e0b3f0b3f0b3f0b3f0b3f0",
-            $quantity: 10,
+            itemId: "item1",
+            quantity: 15,
+          },
+          {
+            itemId: "item3",
+            quantity: 30,
           },
         ],
       },
