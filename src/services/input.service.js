@@ -22,6 +22,7 @@ const WarehouseService = require("./warehouse.service");
 const { generateMedicineCode } = require("../utils/medicine.util");
 const { notifyUser } = require("../../socket");
 const systemModel = require("../models/system.model");
+const mongoose = require("mongoose");
 
 class InputService {
   static getAllInputRequests = async ({
