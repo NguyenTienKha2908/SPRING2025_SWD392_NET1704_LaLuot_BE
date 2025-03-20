@@ -35,7 +35,7 @@ router.get("/details/:id",
         description: 'Input detail id',
         type: 'string'
     } */
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF, USER_ROLES.REPORT_STAFF] }),
     catchAsyncHandle(inputController.getInputDetail)
 );
 
