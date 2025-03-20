@@ -27,7 +27,7 @@ class OutputService {
             throw new NotFoundRequestError("Output request not found");
 
         const outputDetailHolders = await outputDetailModel.find({ outputId: id })
-            .populate([POPULATE_OUTPUT_DETAILS[1]])
+            .populate([POPULATE_OUTPUT_DETAILS[1], POPULATE_OUTPUT_DETAILS[2], POPULATE_OUTPUT_DETAILS[3]])
             .lean();
         if (!outputDetailHolders || outputDetailHolders.length === 0)
             throw new NotFoundRequestError("Output details not found");
@@ -61,6 +61,8 @@ class OutputService {
         })
         if (!outputDetailHolder)
             throw new NotFoundRequestError("Output detail not found");
+        if (outputDetailHolder.status === "Done")
+            throw new BadRequestError("Output detail has been done");
         if (quantity && quantity < 0)
             throw new BadRequestError("Invalid quantity");
         if (outputPrice && outputPrice < 0)
@@ -81,7 +83,7 @@ class OutputService {
         outputDetailHolder.status = status || outputDetailHolder.status;
         outputDetailHolder.updatedBy = requesterId || outputDetailHolder.updatedBy;
         await outputDetailHolder.save();
-        
+
 
         return;
     }
@@ -115,7 +117,7 @@ class OutputService {
             customerId: customerId,
             description: description || `Output request for ${customerHolder.name}`,
             status: "Pending",
-            batchNumber : `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-OUP`
+            batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-OUP`
         }], { session: session });
 
         const outputDetailsToCreate = await Promise.all(outputDetails.map(async outputDetail => {
