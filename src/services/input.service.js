@@ -109,6 +109,7 @@ class InputService {
     });
     if (!inputDetailHolder)
       throw new NotFoundRequestError("Input detail not found");
+    if (inputDetailHolder.status === "Done") throw new BadRequestError("Cannot update DONE input detail");
 
     if (requestQuantity && requestQuantity < 0)
       throw new BadRequestError("Invalid request quantity");
@@ -227,9 +228,8 @@ class InputService {
           supplierId,
           description,
           status: "Pending",
-          batchNumber: `${now.getDate()}${
-            now.getMonth() + 1
-          }${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`,
+          batchNumber: `${now.getDate()}${now.getMonth() + 1
+            }${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`,
         },
       ],
       { session }
@@ -281,179 +281,179 @@ class InputService {
     inputDetails,
     oldInputId,
     session,
-}) => {
+  }) => {
     if (!reportStaffId) throw new BadRequestError("Missing reportStaffId");
     if (!oldInputId) throw new BadRequestError("Missing oldInputId");
 
     if (!mongoose.Types.ObjectId.isValid(reportStaffId)) {
-        throw new BadRequestError("Invalid reportStaffId format");
+      throw new BadRequestError("Invalid reportStaffId format");
     }
 
     const reportStaffHolder = await userModel
-        .findOne({
-            _id: reportStaffId,
-            role: USER_ROLES.REPORT_STAFF,
-            isDeleted: false,
-        })
-        .lean();
+      .findOne({
+        _id: reportStaffId,
+        role: USER_ROLES.REPORT_STAFF,
+        isDeleted: false,
+      })
+      .lean();
     if (!reportStaffHolder)
-        throw new NotFoundRequestError("Report staff not found");
+      throw new NotFoundRequestError("Report staff not found");
 
     let finalSupplierId = supplierId;
     let finalDescription = description;
     let finalInputDetails = [];
 
     if (!mongoose.Types.ObjectId.isValid(oldInputId)) {
-        throw new BadRequestError("Invalid oldInputId format");
+      throw new BadRequestError("Invalid oldInputId format");
     }
 
     const oldInput = await inputModel
-        .findOne({ _id: oldInputId, isDeleted: false })
-        .lean();
+      .findOne({ _id: oldInputId, isDeleted: false })
+      .lean();
     if (!oldInput)
-        throw new NotFoundRequestError("Old input request not found");
+      throw new NotFoundRequestError("Old input request not found");
 
     finalSupplierId = supplierId || oldInput.supplierId;
     finalDescription = description || oldInput.description + " (Cloned)";
 
     if (!finalSupplierId) throw new BadRequestError("Missing supplierId");
     if (!mongoose.Types.ObjectId.isValid(finalSupplierId)) {
-        throw new BadRequestError("Invalid supplierId format");
+      throw new BadRequestError("Invalid supplierId format");
     }
 
     const supplierHolder = await userModel
-        .findOne({
-            _id: finalSupplierId,
-            role: USER_ROLES.SUPPLIER,
-            isDeleted: false,
-        })
-        .lean();
+      .findOne({
+        _id: finalSupplierId,
+        role: USER_ROLES.SUPPLIER,
+        isDeleted: false,
+      })
+      .lean();
     if (!supplierHolder) throw new NotFoundRequestError("Supplier not found");
 
     const clonedInputDetails = await inputDetailModel
-        .find({ inputId: oldInputId })
-        .lean();
+      .find({ inputId: oldInputId })
+      .lean();
 
     if (clonedInputDetails.length === 0) {
-        throw new NotFoundRequestError("No input details found in the old request");
+      throw new NotFoundRequestError("No input details found in the old request");
     }
 
     if (!inputDetails || inputDetails.length === 0) {
-        finalInputDetails = clonedInputDetails.map((detail) => ({
+      finalInputDetails = clonedInputDetails.map((detail) => ({
+        itemId: detail.itemId,
+        quantity: detail.requestQuantity,
+      }));
+    } else {
+      const inputDetailsMap = new Map();
+
+      for (const detail of inputDetails) {
+        if (!detail.itemId || !mongoose.Types.ObjectId.isValid(detail.itemId)) {
+          throw new BadRequestError("Invalid itemId in inputDetails");
+        }
+        if (!detail.quantity || detail.quantity <= 0) {
+          throw new BadRequestError("Invalid quantity in inputDetails");
+        }
+        inputDetailsMap.set(detail.itemId.toString(), detail.quantity);
+      }
+      for (const detail of clonedInputDetails) {
+        const itemIdString = detail.itemId.toString();
+        if (inputDetailsMap.has(itemIdString)) {
+          finalInputDetails.push({
+            itemId: detail.itemId,
+            quantity: inputDetailsMap.get(itemIdString),
+          });
+          inputDetailsMap.delete(itemIdString);
+        } else {
+          finalInputDetails.push({
             itemId: detail.itemId,
             quantity: detail.requestQuantity,
-        }));
-    } else {
-        const inputDetailsMap = new Map();
-        
-        for (const detail of inputDetails) {
-            if (!detail.itemId || !mongoose.Types.ObjectId.isValid(detail.itemId)) {
-                throw new BadRequestError("Invalid itemId in inputDetails");
-            }
-            if (!detail.quantity || detail.quantity <= 0) {
-                throw new BadRequestError("Invalid quantity in inputDetails");
-            }
-            inputDetailsMap.set(detail.itemId.toString(), detail.quantity);
+          });
         }
-        for (const detail of clonedInputDetails) {
-            const itemIdString = detail.itemId.toString();
-            if (inputDetailsMap.has(itemIdString)) {
-                finalInputDetails.push({
-                    itemId: detail.itemId,
-                    quantity: inputDetailsMap.get(itemIdString),
-                });
-                inputDetailsMap.delete(itemIdString); 
-            } else {
-                finalInputDetails.push({
-                    itemId: detail.itemId,
-                    quantity: detail.requestQuantity,
-                });
-            }
-        }
+      }
 
-        for (const [itemId, quantity] of inputDetailsMap) {
-            finalInputDetails.push({
-                itemId,
-                quantity,
-            });
-        }
+      for (const [itemId, quantity] of inputDetailsMap) {
+        finalInputDetails.push({
+          itemId,
+          quantity,
+        });
+      }
     }
 
     if (finalInputDetails.length === 0) {
-        throw new BadRequestError("Input details cannot be empty");
+      throw new BadRequestError("Input details cannot be empty");
     }
 
     const now = new Date();
     const newInput = await inputModel.create(
-        [
-            {
-                reportStaffId,
-                supplierId: finalSupplierId,
-                description: finalDescription,
-                status: "Pending",
-                batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`,
-            },
-        ],
-        { session }
+      [
+        {
+          reportStaffId,
+          supplierId: finalSupplierId,
+          description: finalDescription,
+          status: "Pending",
+          batchNumber: `${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}-INP`,
+        },
+      ],
+      { session }
     );
 
     const processedItemIds = new Set();
 
     for (let inputDetail of finalInputDetails) {
-        const itemIdString = inputDetail.itemId.toString();
-        if (processedItemIds.has(itemIdString)) {
-            console.warn(`Duplicate itemId ${itemIdString} skipped`);
-            continue;
-        }
-        processedItemIds.add(itemIdString);
+      const itemIdString = inputDetail.itemId.toString();
+      if (processedItemIds.has(itemIdString)) {
+        console.warn(`Duplicate itemId ${itemIdString} skipped`);
+        continue;
+      }
+      processedItemIds.add(itemIdString);
 
-        const item = await itemModel
-            .findOne({
-                _id: inputDetail.itemId,
-                isDeleted: false,
-            })
-            .lean();
-        if (!item) throw new NotFoundRequestError("Item not found");
+      const item = await itemModel
+        .findOne({
+          _id: inputDetail.itemId,
+          isDeleted: false,
+        })
+        .lean();
+      if (!item) throw new NotFoundRequestError("Item not found");
 
-        const baseItem = await baseItemModel
-            .findOne({ _id: item.baseItemId, isDeleted: false })
-            .lean();
-        if (!baseItem) throw new NotFoundRequestError("BaseItem not found");
+      const baseItem = await baseItemModel
+        .findOne({ _id: item.baseItemId, isDeleted: false })
+        .lean();
+      if (!baseItem) throw new NotFoundRequestError("BaseItem not found");
 
-        const warehouseHolder = await warehouseModel
-            .findOne({
-                category: baseItem.storageType,
-            })
-            .lean();
-        if (!warehouseHolder)
-            throw new NotFoundRequestError("Warehouse not found for the item");
+      const warehouseHolder = await warehouseModel
+        .findOne({
+          category: baseItem.storageType,
+        })
+        .lean();
+      if (!warehouseHolder)
+        throw new NotFoundRequestError("Warehouse not found for the item");
 
-        const newItem = await itemModel.create(
-            [
-                {
-                    baseItemId: baseItem._id,
-                    code: generateMedicineCode(baseItem.name),
-                    status: "Not Available",
-                },
-            ],
-            { session }
-        );
+      const newItem = await itemModel.create(
+        [
+          {
+            baseItemId: baseItem._id,
+            code: generateMedicineCode(baseItem.name),
+            status: "Not Available",
+          },
+        ],
+        { session }
+      );
 
-        await inputDetailModel.create(
-            [
-                {
-                    warehouseId: warehouseHolder._id,
-                    inputId: newInput[0]._id,
-                    itemId: newItem[0]._id,
-                    requestQuantity: inputDetail.quantity,
-                },
-            ],
-            { session }
-        );
+      await inputDetailModel.create(
+        [
+          {
+            warehouseId: warehouseHolder._id,
+            inputId: newInput[0]._id,
+            itemId: newItem[0]._id,
+            requestQuantity: inputDetail.quantity,
+          },
+        ],
+        { session }
+      );
     }
 
     return newInput[0];
-};
+  };
 
   static approveInputRequest = async ({ id, managerId }) => {
     if (!id || !managerId) throw new BadRequestError("Invalid input");
