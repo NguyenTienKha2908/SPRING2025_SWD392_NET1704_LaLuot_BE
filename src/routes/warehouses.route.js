@@ -79,7 +79,7 @@ router.put("/stock-check-requests/:id",
         }
     }
 */
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(warehouseController.updateStockCheckRequest)
 )
 
@@ -95,7 +95,7 @@ router.delete("/stock-check-requests/:id",
         type: 'string'
     }
 */
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF] }),
     catchAsyncHandle(warehouseController.deleteStockCheckRequest)
 )
 
