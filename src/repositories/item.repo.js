@@ -52,14 +52,6 @@ const getAllItems = async ({ limit, sort, page, filter, select, expand }) => {
         item.suggestedOutputPrice = inputDetailMap[item._id.toString()] || 0;
     }
 
-    const sortByBaseItemName = (a, b) => {
-        const nameA = a.baseItemId.name.toUpperCase();
-        const nameB = b.baseItemId.name.toUpperCase();
-        return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
-    };
-
-    items.sort(sortByBaseItemName);
-
     const totalItems = await itemModel.countDocuments(filter);
     const totalPages = Math.ceil(totalItems / limit);
 

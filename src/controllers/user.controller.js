@@ -16,6 +16,13 @@ class UserController {
         }).send(res)
     }
 
+    getInventoryStaffsByWorkload = async (req, res) => {
+        new OK({
+            message: "Get inventory staffs by workload successfully",
+            metadata: await UserService.getInventoryStaffsByWorkload()
+        }).send(res)
+    }
+
     getUserById = async (req, res) => {
         new OK({
             message: "Get user successfully",

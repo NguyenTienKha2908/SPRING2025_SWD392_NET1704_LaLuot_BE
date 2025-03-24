@@ -1,3 +1,6 @@
+const { USER_ROLES } = require("../configs/user.config");
+const inputModel = require("../models/input.model");
+const outputModel = require("../models/output.model");
 const userModel = require("../models/user.model");
 
 const getAllUsers = async ({ limit, sort, page, filter, select }) => {
@@ -19,6 +22,99 @@ const getAllUsers = async ({ limit, sort, page, filter, select }) => {
     };
 }
 
+const getInventoryStaffsByWorkload = async () => {
+    const inputWorkload = await inputModel.aggregate([
+        {
+            $match: {
+                status: "Assigned"
+            }
+        },
+        {
+            $unwind: "$inventoryStaffIds"
+        },
+        {
+            $group: {
+                _id: "$inventoryStaffIds",
+                workload: { $sum: 1 }
+            }
+        },
+        {
+            $lookup: {
+                from: "Users",
+                localField: "_id",
+                foreignField: "_id",
+                as: "inventoryStaff"
+            }
+        },
+        {
+            $unwind: "$inventoryStaff"
+        },
+        {
+            $project: {
+                _id: "$inventoryStaff._id",
+                fullName: "$inventoryStaff.fullName",
+                workload: 1
+            }
+        },
+        {
+            $sort: { workload: 1 }
+        }
+    ])
+
+    const outputWorkload = await outputModel.aggregate([
+        {
+            $match: {
+                status: "Assigned"
+            }
+        },
+        {
+            $unwind: "$inventoryStaffIds"
+        },
+        {
+            $group: {
+                _id: "$inventoryStaffIds",
+                workload: { $sum: 1 }
+            }
+        },
+        {
+            $lookup: {
+                from: "Users",
+                localField: "_id",
+                foreignField: "_id",
+                as: "inventoryStaff"
+            }
+        },
+        {
+            $unwind: "$inventoryStaff"
+        },
+        {
+            $project: {
+                _id: "$inventoryStaff._id",
+                fullName: "$inventoryStaff.fullName",
+                workload: 1
+            }
+        },
+        {
+            $sort: { workload: 1 }
+        }
+    ])
+
+    const mergedWorkload = [...inputWorkload, ...outputWorkload].reduce((acc, curr) => {
+        const existing = acc.find(item => item._id.toString() === curr._id.toString());
+        if (existing) {
+            existing.workload += curr.workload;
+        } else {
+            acc.push(curr);
+        }
+        return acc;
+    }, []);
+
+    mergedWorkload.sort((a, b) => a.workload - b.workload);
+
+    return mergedWorkload;
+}
+
 module.exports = {
     getAllUsers,
+    getInventoryStaffsByWorkload
 }
