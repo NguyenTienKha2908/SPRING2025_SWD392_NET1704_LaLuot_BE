@@ -6,7 +6,7 @@ const {
     BadRequestError,
 } = require("../core/responses/error.response");
 const userModel = require("../models/user.model");
-const { getAllUsers } = require("../repositories/user.repo");
+const { getAllUsers, getInventoryStaffsByWorkload } = require("../repositories/user.repo");
 const { validMongoObjectId } = require("../utils/validator");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
@@ -15,6 +15,10 @@ class UserService {
     static getAllUsers = async ({ limit, sort, page, filter, select }) => {
         return await getAllUsers({ limit, sort, page, filter, select });
     };
+
+    static getInventoryStaffsByWorkload = async () => {
+        return await getInventoryStaffsByWorkload();
+    }
 
     static getUserById = async ({ id }) => {
         await validMongoObjectId(id);
@@ -61,7 +65,7 @@ class UserService {
         const userHolder = await userModel.findById(id).lean();
         if (!userHolder) {
             throw new NotFoundRequestError("User not found");
-        }        
+        }
 
         await userModel.updateOne({ _id: id }, {
             fullName: fullName || userHolder.fullName,

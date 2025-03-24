@@ -1,11 +1,13 @@
 const { SELECT_BASEITEM } = require("../configs/baseitem.config");
+const { SELECT_ITEM } = require("../configs/item.config");
 const { NotFoundRequestError } = require("../core/responses/error.response");
 const baseItemModel = require("../models/baseItem.model");
 const inputDetailModel = require("../models/inputDetail.model");
 const itemModel = require("../models/item.model");
 const warehouseStorageModel = require("../models/warehouseStorage.model");
+const { getAllItems } = require("./item.repo");
 
-getStorageQuantityOfBaseItem = async ({ id }) => {
+const getStorageQuantityOfBaseItem = async ({ id }) => {
   const baseItemHolder = await baseItemModel
     .findOne({ _id: id, isDeleted: false })
     .lean();
