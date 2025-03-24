@@ -1,7 +1,9 @@
 const { USER_ROLES } = require("../configs/user.config");
 const inputModel = require("../models/input.model");
 const outputModel = require("../models/output.model");
+const stockCheckModel = require("../models/stockCheck.model");
 const userModel = require("../models/user.model");
+const warehouseCheckModel = require("../models/warehouseCheck.model");
 
 const getAllUsers = async ({ limit, sort, page, filter, select }) => {
     const skip = (page - 1) * limit;
@@ -56,9 +58,6 @@ const getInventoryStaffsByWorkload = async () => {
                 workload: 1
             }
         },
-        {
-            $sort: { workload: 1 }
-        }
     ])
 
     const outputWorkload = await outputModel.aggregate([
@@ -93,13 +92,80 @@ const getInventoryStaffsByWorkload = async () => {
                 fullName: "$inventoryStaff.fullName",
                 workload: 1
             }
-        },
-        {
-            $sort: { workload: 1 }
         }
     ])
 
-    const mergedWorkload = [...inputWorkload, ...outputWorkload].reduce((acc, curr) => {
+    const stockCheckWorkload = await stockCheckModel.aggregate([
+        {
+            $match: {
+                status: "Pending"
+            }
+        },
+        {
+            $unwind: "$inventoryStaffIds"
+        },
+        {
+            $group: {
+                _id: "$inventoryStaffIds",
+                workload: { $sum: 1 }
+            }
+        },
+        {
+            $lookup: {
+                from: "Users",
+                localField: "_id",
+                foreignField: "_id",
+                as: "inventoryStaff"
+            }
+        },
+        {
+            $unwind: "$inventoryStaff"
+        },
+        {
+            $project: {
+                _id: "$inventoryStaff._id",
+                fullName: "$inventoryStaff.fullName",
+                workload: 1
+            }
+        }
+    ])
+
+    const warehouseCheckWorkload = await warehouseCheckModel.aggregate([
+        {
+            $match: {
+                status: "Pending"
+            }
+        },
+        {
+            $unwind: "$inventoryStaffIds"
+        },
+        {
+            $group: {
+                _id: "$inventoryStaffIds",
+                workload: { $sum: 1 }
+            }
+        },
+        {
+            $lookup: {
+                from: "Users",
+                localField: "_id",
+                foreignField: "_id",
+                as: "inventoryStaff"
+            }
+        },
+        {
+            $unwind: "$inventoryStaff"
+        },
+        {
+            $project: {
+                _id: "$inventoryStaff._id",
+                fullName: "$inventoryStaff.fullName",
+                workload: 1
+            }
+        }
+    ])
+
+    const mergedWorkload = [...inputWorkload, ...outputWorkload, ...stockCheckWorkload, ...warehouseCheckWorkload].reduce((acc, curr) => {
         const existing = acc.find(item => item._id.toString() === curr._id.toString());
         if (existing) {
             existing.workload += curr.workload;
