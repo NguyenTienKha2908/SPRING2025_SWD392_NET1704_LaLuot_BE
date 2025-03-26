@@ -650,15 +650,8 @@ class InputService {
     }
 
     for (let inputDetail of inputDetailHolders) {
-      await itemModel.updateOne(
-        { _id: inputDetail.itemId },
-        { 
-          $set: { 
-            status: "Cancelled",
-            updatedAt: new Date()
-          } 
-        }
-      );
+      inputDetail.status = "Cancelled";
+      await inputDetail.save();
     }
 
     inputHolder.status = "Cancelled";
