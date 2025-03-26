@@ -35,7 +35,7 @@ router.get("/details/:id",
         description: 'Output detail id',
         type: 'string'
     } */
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF, USER_ROLES.CUSTOMER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF, USER_ROLES.CUSTOMER, USER_ROLES.REPORT_STAFF] }),
     catchAsyncHandle(outputController.getOutputDetail)
 )
 
@@ -89,7 +89,7 @@ router.get("/:id",
         description: 'Output request id',
         type: 'string'
     } */
-    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF, USER_ROLES.CUSTOMER] }),
+    checkRoles({ requiredRoles: [USER_ROLES.MANAGER, USER_ROLES.INVENTORY_STAFF, USER_ROLES.CUSTOMER, USER_ROLES.REPORT_STAFF] }),
     catchAsyncHandle(outputController.getOutputRequest)
 )
 
