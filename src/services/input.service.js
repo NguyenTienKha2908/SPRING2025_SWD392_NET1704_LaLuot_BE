@@ -641,6 +641,26 @@ class InputService {
     });
     if (!inputHolder) throw new NotFoundRequestError("Input request not found");
 
+    const inputDetailHolders = await inputDetailModel.find({
+      inputId: id,
+      isDeleted: false
+    });
+    if (!inputDetailHolders || inputDetailHolders.length === 0) {
+      throw new NotFoundRequestError("Input details not found");
+    }
+
+    for (let inputDetail of inputDetailHolders) {
+      await itemModel.updateOne(
+        { _id: inputDetail.itemId },
+        { 
+          $set: { 
+            status: "Cancelled",
+            updatedAt: new Date()
+          } 
+        }
+      );
+    }
+
     inputHolder.status = "Cancelled";
     inputHolder.cancelReason = cancelReason;
     await inputHolder.save();
