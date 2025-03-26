@@ -38,7 +38,7 @@ var inputDetailSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Done"],
+      enum: ["Pending", "Done","Cancelled"],
       default: "Pending",
     },
     updatedBy: {
