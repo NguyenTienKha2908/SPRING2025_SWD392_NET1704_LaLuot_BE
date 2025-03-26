@@ -20,7 +20,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build the Docker image
-        run: docker build . -t mwbe
+        run: docker build -t mwbe .
 
       - name: Tag the image
         run: docker tag mwbe lthung0412/mwbe:latest
