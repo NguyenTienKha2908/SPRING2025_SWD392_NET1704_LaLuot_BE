@@ -579,8 +579,6 @@ class WarehouseService {
     }
 
     static updateStockCheckDetail = async ({ id, actualQuantity, description, status }) => {
-        console.log(id, actualQuantity, description, status);
-
         if (actualQuantity && actualQuantity < 0) {
             throw new BadRequestError("Quantity must be greater than 0");
         }
@@ -592,6 +590,9 @@ class WarehouseService {
             })
         if (!stockCheckDetailHolder) {
             throw new NotFoundRequestError("Stock check detail not found");
+        }
+        if (stockCheckDetailHolder.status === "Done") {
+            throw new BadRequestError("Stock check detail already done");
         }
 
         if (actualQuantity) {
