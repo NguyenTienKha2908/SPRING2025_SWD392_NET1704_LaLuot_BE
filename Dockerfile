@@ -21,3 +21,4 @@ CMD ["node", "server.js"]
 
 # docker build -t mwbe .
 # docker tag mwbe lthung0412/mwbe
+#test deploy
