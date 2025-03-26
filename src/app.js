@@ -49,20 +49,22 @@ app.use(
 // init database
 require("./database/init.database");
 
-// init swagger
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('../swagger-output.json');
-const basicAuth = require("express-basic-auth");
-const { AUTHENTICATION } = require("./configs/auth.config");
-const users = AUTHENTICATION.swagger.users
-const swaggerOptions = {
-  swaggerOptions: {
-    persistAuthorization: true,
-    docExpansion: 'none',
-    filter: true,
+if (process.env.NODE_ENV === "dev") {
+  // init swagger
+  const swaggerUi = require('swagger-ui-express');
+  const swaggerDocument = require('../swagger-output.json');
+  const basicAuth = require("express-basic-auth");
+  const { AUTHENTICATION } = require("./configs/auth.config");
+  const users = AUTHENTICATION.swagger.users
+  const swaggerOptions = {
+    swaggerOptions: {
+      persistAuthorization: true,
+      docExpansion: 'none',
+      filter: true,
+    }
   }
+  app.use('/api-docs', basicAuth({ users, challenge: true }), swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 }
-app.use('/api-docs', basicAuth({ users, challenge: true }), swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 // init socket
 const { socket } = require("../socket");
