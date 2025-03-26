@@ -27,3 +27,7 @@ jobs:
 
       - name: Push the image
         run: docker push lthung0412/mwbe:latest
+        
+      - name: Trigger redeploy on Render
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
